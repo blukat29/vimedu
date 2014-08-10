@@ -9,5 +9,6 @@ var editor = CodeMirror.fromTextArea(document.getElementById("vim"), {
   vimMode: true,
   matchBrackets: true,
   showCursorWhenSelecting: true,
+  lineWrapping: true,
 });
 

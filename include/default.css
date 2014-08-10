@@ -14,3 +14,11 @@ body {
   padding: 10px;
 }
 
+.CodeMirror-vscrollbar[style] {
+  display: none !important;
+}
+
+.CodeMirror-wrap pre {
+  word-break: break-all;
+}
+

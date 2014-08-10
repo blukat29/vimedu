@@ -30,6 +30,7 @@
   }
   </textarea></form>
   <div style="font-size: 13px; width: 300px; height: 30px;">Key buffer: <span id="command-display"></span></div>
+  <div>Mode: <span id="mode-display"></span></div>
 
   <script>
     CodeMirror.commands.save = function(){ alert("Saving"); };
@@ -41,6 +42,7 @@
       showCursorWhenSelecting: true
     });
     var commandDisplay = document.getElementById('command-display');
+    var modeDisplay = document.getElementById('mode-display');
     var keys = '';
     CodeMirror.on(editor, 'vim-keypress', function(key) {
       keys = keys + key;
@@ -50,6 +52,10 @@
       keys = '';
       commandDisplay.innerHTML = keys;
     });
+    CodeMirror.on(editor, 'vim-mode-change', function(e) {
+      modeDisplay.innerHTML = e['mode'];
+    });
   </script>
 </body>
 </html>
+

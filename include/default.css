@@ -1,0 +1,16 @@
+body {
+  background-color: #EEEEEE;
+}
+
+.container {
+  background-color: #FFFFFF;
+  overflow: hidden;
+  min-height: 600px;
+}
+
+.col-lg-4 {
+  border-style: solid;
+  border-width: 1px;
+  padding: 10px;
+}
+

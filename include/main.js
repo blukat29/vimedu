@@ -12,3 +12,17 @@ var editor = CodeMirror.fromTextArea(document.getElementById("vim"), {
   lineWrapping: true,
 });
 
+var keybuf = ''
+CodeMirror.on(editor, 'vim-keypress', function(e) {
+  keybuf = keybuf + e;
+  $("#command-display").html(keybuf);
+});
+CodeMirror.on(editor, 'vim-command-done', function(e) {
+  keybuf = '';
+  $("#command-display").html(keybuf);
+});
+
+CodeMirror.on(editor, 'vim-mode-change', function(e) {
+  $("#mode-display").html(e['mode']);
+});
+

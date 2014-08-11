@@ -37,9 +37,8 @@ body {
   border-width: 1px;
   border-color: blue;
   background-color: #DDDDFF;
-  top: 110px;
-  left: 0px;
   z-index: 0;
+  top: 117px;
   position: absolute;
 }
 

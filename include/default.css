@@ -22,3 +22,25 @@ body {
   word-break: break-all;
 }
 
+.mode-container {
+  padding-left: 10px;
+  padding-right: 10px;
+  position: relative;
+  z-index: 2;
+  left: 5%;
+  right: 10%;
+  width: 85%;
+}
+
+#mode-selector {
+  border-style: solid;
+  border-width: 1px;
+  border-color: blue;
+  background-color: #DDDDFF;
+  z-index: 0;
+  position: absolute;
+}
+
+h4 {
+  display: inline-block;
+}

@@ -14,8 +14,25 @@
   <link href="include/default.css" rel="stylesheet"/>
 </head>
 <body>
-  <div class="container">
-    <div class="col-lg-4">left</div>
+<div class="container">
+  <div class="row">
+    <div class="col-lg-4">
+      <h3>Modes</h3>
+      <p>vim has three modes: Normal, Insert, and Visual. Each mode has different commands and purpose.</p>
+      <div class="mode-container" id="mode-normal">
+        <div class="mode-title"><kbd>Esc</kbd> <h4>Normal</h4></div>
+        <div class="mode-description"><p>Move around, copy, paste, save, exit.</p></div>
+      </div>
+      <div class="mode-container" id="mode-insert">
+        <div class="mode-title"><kbd>i</kbd> <h4>Insert</h4></div>
+        <div class="mode-description"><p>Write texts.</p></div>
+      </div>
+      <div class="mode-container" id="mode-visual">
+        <div class="mode-title"><kbd>v</kbd> <h4>Visual</h4></div>
+        <div class="mode-description"><p>Select part of the text.</p></div>
+      </div>
+      <div id="mode-selector"></div>
+    </div>
     <div class="col-lg-4">
       <form><textarea id="vim">
       </textarea></form>
@@ -24,6 +41,7 @@
     </div>
     <div class="col-lg-4">right</div>
   </div>
-  <script src="include/main.js"></script>
+</div>
+<script src="include/main.js"></script>
 </body>
 </html>

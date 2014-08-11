@@ -42,3 +42,6 @@ body {
   position: absolute;
 }
 
+h4 {
+  display: inline-block;
+}

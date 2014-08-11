@@ -22,3 +22,24 @@ body {
   word-break: break-all;
 }
 
+.mode-container {
+  position: relative;
+  z-index: 2;
+  left: 5%;
+}
+
+#mode-selector {
+  margin-left: 5%;
+  margin-right: 15%;
+  width: 80%;
+  height: 60px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: blue;
+  background-color: #DDDDFF;
+  top: 110px;
+  left: 0px;
+  z-index: 0;
+  position: absolute;
+}
+

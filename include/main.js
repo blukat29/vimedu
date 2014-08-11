@@ -29,15 +29,14 @@ CodeMirror.on(editor, 'vim-command-done', function(e) {
 function mode_change(mode) {
   $("#mode-display").html(mode);
 
-  var target={};
-  target['normal'] = $("#mode-normal").offset();
-  target['insert'] = $("#mode-insert").offset();
-  target['visual'] = $("#mode-visual").offset();
+  var target = $("#mode-"+mode);
+  var t = target.offset().top;
+  var l = target.offset().left - target.parent().offset().left;
+  var h = target.outerHeight();
+  var w = target.outerWidth();
 
-  var offset_now = $("#mode-selector").offset();
-  var dt = target[mode].top - offset_now.top;
-
-  $("#mode-selector").animate({top:"+="+dt}, 100);
+  $("#mode-selector").stop(); // Abort any previous animations.
+  $("#mode-selector").animate({top:t, left:l, height:h, width:w}, 100);
 }
 CodeMirror.on(editor, 'vim-mode-change', function(e) {
   mode_change(e['mode']);

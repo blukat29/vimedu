@@ -23,22 +23,21 @@ body {
 }
 
 .mode-container {
+  padding-left: 10px;
+  padding-right: 10px;
   position: relative;
   z-index: 2;
   left: 5%;
+  right: 10%;
+  width: 85%;
 }
 
 #mode-selector {
-  margin-left: 5%;
-  margin-right: 15%;
-  width: 80%;
-  height: 60px;
   border-style: solid;
   border-width: 1px;
   border-color: blue;
   background-color: #DDDDFF;
   z-index: 0;
-  top: 117px;
   position: absolute;
 }
 

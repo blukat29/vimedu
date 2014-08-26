@@ -20,7 +20,6 @@ CodeMirror.on(editor, 'vim-keypress', function(e) {
   keybuf = keybuf + e;
   $("#command-display").html(keybuf);
   var match = commandHelper.matchCommand(e);
-  console.log(match);
 });
 CodeMirror.on(editor, 'vim-command-done', function(e) {
   keybuf = '';

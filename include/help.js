@@ -16,6 +16,7 @@ function VimFSM() {
       { name:'motion',   from:'_none',     to:'_motion'   },
       { name:'motion',   from:'_operator', to:'_motion'   },
       { name:'operator', from:'_none',     to:'_operator' },
+      { name:'action',   from:'_none',     to:'_action'   },
       { name:'done',     from:'*',         to:'_none'     },
   ]});
 
@@ -37,6 +38,17 @@ function VimFSM() {
   fsm.on_operator = function(e, from, to, command) {
     helps_display.append("<br>"+command.help);
   };
+
+  fsm.on_action = function(e, from, to, command) {
+    helps_display.append("<br>"+command.help);
+  };
+  fsm.onleave_action = function(e, from, to) {
+    setTimeout(function() {
+      helps_display.html("");
+      fsm.transition();
+    }, 1000);
+    return StateMachine.ASYNC;
+  };
   return fsm;
 }
 
@@ -55,7 +67,6 @@ CommandHelper.prototype = {
       command = commandList[i];
       if (command.keys[0] == key && fsm.can(command.type)) {
         matchList.push(command);
-        console.log(command.type);
       }
     }
 

@@ -19,10 +19,12 @@ var keybuf = ''
 CodeMirror.on(editor, 'vim-keypress', function(e) {
   keybuf = keybuf + e;
   $("#command-display").html(keybuf);
+  var match = commandHelper.matchCommand(e);
 });
 CodeMirror.on(editor, 'vim-command-done', function(e) {
   keybuf = '';
   $("#command-display").html(keybuf);
+  commandHelper.done();
 });
 
 // Mode display.

@@ -25,6 +25,7 @@ CodeMirror.on(editor, 'vim-keypress', function(e) {
 CodeMirror.on(editor, 'vim-command-done', function(e) {
   keybuf = '';
   $("#command-display").html(keybuf);
+  commandHelper.done();
 });
 
 // Mode display.

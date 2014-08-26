@@ -9,28 +9,40 @@ var commandListEN = [
   { keys:['x'],     type:'action',   help:'Delete a character' },
 ];
 
-function CommandHelper (commandList) {
-  this.fsm = StateMachine.create({
+function VimFSM() {
+  var fsm = StateMachine.create({
     initial:'_none',
     events: [
       { name:'motion',   from:'_none',     to:'_motion'   },
       { name:'motion',   from:'_operator', to:'_motion'   },
       { name:'operator', from:'_none',     to:'_operator' },
       { name:'done',     from:'*',         to:'_none'     },
-    ],
-    callbacks: {
-      onenterstate: function(e, from, to) {
-        state_display.html(from + " -> " + to);
-      },
-      on_motion: function(e, from, to, command) {
-        helps_display.append("<br>"+command.help);
-      },
-      on_operator: function(e, from, to, command) {
-        helps_display.append("<br>"+command.help);
-      }
-    },
-  });
+  ]});
+
+  fsm.onenterstate = function(e, from, to) {
+    state_display.html(from + " -> " + to);
+  };
+
+  fsm.on_motion = function(e, from, to, command) {
+    helps_display.append("<br>"+command.help);
+  };
+  fsm.onleave_motion = function(e, from, to) {
+    setTimeout(function() {
+      helps_display.html("");
+      fsm.transition();
+    }, 1000);
+    return StateMachine.ASYNC;
+  };
+
+  fsm.on_operator = function(e, from, to, command) {
+    helps_display.append("<br>"+command.help);
+  };
+  return fsm;
+}
+
+function CommandHelper (commandList) {
   this.commandList = commandList;
+  this.fsm = VimFSM();
 }
 CommandHelper.prototype = {
   matchCommand: function(key) {
@@ -58,6 +70,9 @@ CommandHelper.prototype = {
     else
       throw ("More than one commands match:"+key)
     return match;
+  },
+  done: function() {
+    this.fsm.done();
   }
 }
 

@@ -23,16 +23,12 @@ function VimFSM() {
   fsm.onenterstate = function(e, from, to) {
     state_display.html(from + " -> " + to);
   };
+  fsm.onleave_none = function(e, from, to) {
+    helps_display.html("");
+  }
 
   fsm.on_motion = function(e, from, to, command) {
     helps_display.append("<br>"+command.help);
-  };
-  fsm.onleave_motion = function(e, from, to) {
-    setTimeout(function() {
-      helps_display.html("");
-      fsm.transition();
-    }, 1000);
-    return StateMachine.ASYNC;
   };
 
   fsm.on_operator = function(e, from, to, command) {
@@ -41,13 +37,6 @@ function VimFSM() {
 
   fsm.on_action = function(e, from, to, command) {
     helps_display.append("<br>"+command.help);
-  };
-  fsm.onleave_action = function(e, from, to) {
-    setTimeout(function() {
-      helps_display.html("");
-      fsm.transition();
-    }, 1000);
-    return StateMachine.ASYNC;
   };
   return fsm;
 }

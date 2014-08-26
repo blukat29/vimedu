@@ -3,10 +3,28 @@ var state_display = $("#state-display");
 var helps_display = $("#helps-display");
 
 var commandListEN = [
+  // Motion commands. Can be used alone, or used with operator.
+  { keys:['h'],     type:'motion',   help:'to left' },
+  { keys:['j'],     type:'motion',   help:'to down' },
+  { keys:['k'],     type:'motion',   help:'to up' },
+  { keys:['l'],     type:'motion',   help:'to right' },
+
   { keys:['w'],     type:'motion',   help:'a word' },
+  { keys:['b'],     type:'motion',   help:'a word backward' },
+
+  { keys:['0'],     type:'motion',   help:'to start of line' },
+  { keys:['$'],     type:'motion',   help:'to end of line' },
+
+  // Operator commands. Always used with either (i) motion,
+  // (ii) a modifier + text-object (iii) itself, meaning linewise operation.
   { keys:['d'],     type:'operator', help:'Delete' },
+  { keys:['y'],     type:'operator', help:'Yank (copy)' },
+
+  // Action commands. Always used alone. Each one is complete as itself.
   { keys:['<Esc>'], type:'action',   help:'Exit to normal mode' },
+  { keys:['i'],     type:'action',   help:'Switch to insert mode' },
   { keys:['x'],     type:'action',   help:'Delete a character' },
+  { keys:['u'],     type:'action',   help:'Undo' },
 ];
 
 function VimFSM() {

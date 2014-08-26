@@ -8,6 +8,10 @@ var commandListEN = [
   { keys:['j'],     type:'motion',   help:'to down' },
   { keys:['k'],     type:'motion',   help:'to up' },
   { keys:['l'],     type:'motion',   help:'to right' },
+  { keys:['<Left>'],  type:'motion',   help:'to left' },
+  { keys:['<Down>'],  type:'motion',   help:'to down' },
+  { keys:['<Up>'],    type:'motion',   help:'to up' },
+  { keys:['<Right>'], type:'motion',   help:'to right' },
 
   { keys:['w'],     type:'motion',   help:'a word' },
   { keys:['b'],     type:'motion',   help:'a word backward' },
@@ -19,10 +23,15 @@ var commandListEN = [
   // (ii) a modifier + text-object (iii) itself, meaning linewise operation.
   { keys:['d'],     type:'operator', help:'Delete' },
   { keys:['y'],     type:'operator', help:'Yank (copy)' },
+  { keys:['c'],     type:'operator', help:'Change' },
+  { keys:['p'],     type:'operator', help:'Paste' },
+  { keys:['>'],     type:'operator', help:'Indent' },
+  { keys:['<'],     type:'operator', help:'Unindent' },
 
   // Action commands. Always used alone. Each one is complete as itself.
   { keys:['<Esc>'], type:'action',   help:'Exit to normal mode' },
   { keys:['i'],     type:'action',   help:'Switch to insert mode' },
+  { keys:['v'],     type:'action',   help:'Switch to visual mode' },
   { keys:['x'],     type:'action',   help:'Delete a character' },
   { keys:['u'],     type:'action',   help:'Undo' },
 ];
@@ -31,11 +40,11 @@ function VimFSM() {
   var fsm = StateMachine.create({
     initial:'_none',
     events: [
-      { name:'motion',   from:'_none',     to:'_motion'   },
-      { name:'motion',   from:'_operator', to:'_motion'   },
-      { name:'operator', from:'_none',     to:'_operator' },
-      { name:'action',   from:'_none',     to:'_action'   },
-      { name:'done',     from:'*',         to:'_none'     },
+      { name:'motion',   from:'_none',     to:'_simpleMotion'    },
+      { name:'motion',   from:'_operator', to:'_operatorsMotion' },
+      { name:'operator', from:'_none',     to:'_operator'        },
+      { name:'action',   from:'_none',     to:'_action'          },
+      { name:'done',     from:'*',         to:'_none'            },
   ]});
 
   fsm.onenterstate = function(e, from, to) {
@@ -45,11 +54,14 @@ function VimFSM() {
     helps_display.html("");
   }
 
-  fsm.on_motion = function(e, from, to, command) {
-    helps_display.append("<br>"+command.help);
+  fsm.on_simpleMotion = function(e, from, to, command) {
+    helps_display.append("<br>Move "+command.help);
   };
 
   fsm.on_operator = function(e, from, to, command) {
+    helps_display.append("<br>"+command.help);
+  };
+  fsm.on_operatorsMotion = function(e, from, to, command) {
     helps_display.append("<br>"+command.help);
   };
 

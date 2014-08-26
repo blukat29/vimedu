@@ -61,6 +61,7 @@ function VimFSM() {
       { name:'motion',   from:'_none',     to:'_simpleMotion'    },
       { name:'motion',   from:'_operator', to:'_operatorsMotion' },
       { name:'operator', from:'_none',     to:'_operator'        },
+      { name:'operator', from:'_operator', to:'_operatorLinewise'},
       { name:'action',   from:'_none',     to:'_action'          },
       { name:'modifier', from:'_operator', to:'_modifier'        },
       { name:'textobj',  from:'_modifier', to:'_textobj'         },
@@ -80,6 +81,9 @@ function VimFSM() {
 
   fsm.on_operator = function(e, from, to, command) {
     helps_display.append("<br>"+command.help);
+  };
+  fsm.on_operatorLinewise = function(e, from, to, command) {
+    helps_display.append("<br>this line");
   };
   fsm.on_operatorsMotion = function(e, from, to, command) {
     helps_display.append("<br>"+command.help);

@@ -34,6 +34,24 @@ var commandListEN = [
   { keys:['v'],     type:'action',   help:'Switch to visual mode' },
   { keys:['x'],     type:'action',   help:'Delete a character' },
   { keys:['u'],     type:'action',   help:'Undo' },
+
+  // Modifiers. Used before text object.
+  { keys:['a'],     type:'modifier', help:'Around' },
+  { keys:['i'],     type:'modifier', help:'Inside' },
+
+  // Text objects. Used after a modifier.
+  { keys:['w'],     type:'textobj',  help:'Word' },
+  { keys:['s'],     type:'textobj',  help:'Sentence' },
+  { keys:['p'],     type:'textobj',  help:'Paragraph' },
+  { keys:['"'],     type:'textobj',  help:'Dobule quote' },
+  { keys:['\''],    type:'textobj',  help:'Single quote' },
+  { keys:['`'],     type:'textobj',  help:'Back quote' },
+  { keys:['('],     type:'textobj',  help:'Parenthesis' },
+  { keys:[')'],     type:'textobj',  help:'Parenthesis' },
+  { keys:['{'],     type:'textobj',  help:'Braces' },
+  { keys:['}'],     type:'textobj',  help:'Braces' },
+  { keys:['['],     type:'textobj',  help:'Brackets' },
+  { keys:[']'],     type:'textobj',  help:'Brackets' },
 ];
 
 function VimFSM() {
@@ -44,6 +62,8 @@ function VimFSM() {
       { name:'motion',   from:'_operator', to:'_operatorsMotion' },
       { name:'operator', from:'_none',     to:'_operator'        },
       { name:'action',   from:'_none',     to:'_action'          },
+      { name:'modifier', from:'_operator', to:'_modifier'        },
+      { name:'textobj',  from:'_modifier', to:'_textobj'         },
       { name:'done',     from:'*',         to:'_none'            },
   ]});
 
@@ -67,6 +87,13 @@ function VimFSM() {
 
   fsm.on_action = function(e, from, to, command) {
     helps_display.append("<br>"+command.help);
+  };
+
+  fsm.on_modifier = function(e, from, to, command) {
+    helps_display.append("<br>"+command.help);
+  };
+  fsm.on_textobj = function(e, from, to, command) {
+    helps_display.append(" "+command.help);
   };
   return fsm;
 }

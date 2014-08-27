@@ -95,7 +95,7 @@ function KeysViewer(context) {
   var display = $("#keys-display");
 
   var appendType = function(bundle) {
-    var div = $("<div></div>");
+    var div = $("<div></div>").addClass(bundle.type);
     var title = $("<h4>"+bundle.type+"</h4>");
     div.append(title);
     display.append(div);
@@ -126,8 +126,18 @@ function KeysViewer(context) {
     }
   };
 
+  var update = function(filter) {
+    for (var type in filter) {
+      if (filter[type])
+        $("."+type, display).show();
+      else
+        $("."+type, display).hide();
+    }
+  };
+
   return {
     init: init,
+    update: update,
   };
 }
 
@@ -147,6 +157,7 @@ function VimFSM(context) {
       { name:'ex',       from:'_none',     to:'_ex'              },
       { name:'done',     from:'*',         to:'_none'            },
   ]});
+  fsm.events = ['motion','operator','action','modifier','textobj','search','ex'];
   return fsm;
 }
 
@@ -219,6 +230,18 @@ function CommandHelper (commandList_, context) {
     }
   };
 
+  var showKeys = function() {
+    filter = [];
+    for (var i=0; i<fsm.events.length; i++) {
+      var e = fsm.events[i];
+      if (fsm.can(e))
+        filter[e] = true;
+      else
+        filter[e] = false;
+    }
+    keysViewer.update(filter);
+  };
+
   var onKey = function(key) {
     keyBuf.push(key);
     var match = matchCommand();
@@ -226,6 +249,7 @@ function CommandHelper (commandList_, context) {
       keyBuf = [];
       fsm[match.type]();
       showHelp(match);
+      showKeys();
     }
   };
 
@@ -235,6 +259,7 @@ function CommandHelper (commandList_, context) {
 
   var done = function() {
     fsm.done();
+    showKeys();
   };
 
   return {

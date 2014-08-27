@@ -52,6 +52,12 @@ var commandListEN = [
   { keys:['}'],     type:'textobj',  help:'Braces' },
   { keys:['['],     type:'textobj',  help:'Brackets' },
   { keys:[']'],     type:'textobj',  help:'Brackets' },
+
+  // Search commands.
+  { keys:['/'],     type:'search',   help:'Search forward' },
+
+  // Ex commands.
+  { keys:[':'],     type:'ex',       help:'Use ex command' },
 ];
 
 function appendCommand(keys, help) {
@@ -75,6 +81,8 @@ function VimFSM() {
       { name:'action',   from:'_none',     to:'_action'          },
       { name:'modifier', from:'_operator', to:'_modifier'        },
       { name:'textobj',  from:'_modifier', to:'_textobj'         },
+      { name:'search',   from:'_none',     to:'_search'          },
+      { name:'ex',       from:'_none',     to:'_ex'              },
       { name:'done',     from:'*',         to:'_none'            },
   ]});
 
@@ -107,6 +115,13 @@ function VimFSM() {
     appendCommand(command.keys, command.help);
   };
   fsm.on_textobj = function(e, from, to, command) {
+    appendCommand(command.keys, command.help);
+  };
+
+  fsm.on_search = function(e, from, to, command) {
+    appendCommand(command.keys, command.help);
+  };
+  fsm.on_ex = function(e, from, to, command) {
     appendCommand(command.keys, command.help);
   };
   return fsm;

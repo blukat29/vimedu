@@ -41,11 +41,8 @@ var commandListEN = [
 
   // Text objects. Used after a modifier.
   { keys:['w'],     type:'textobj',  help:'Word' },
-  { keys:['s'],     type:'textobj',  help:'Sentence' },
-  { keys:['p'],     type:'textobj',  help:'Paragraph' },
   { keys:['"'],     type:'textobj',  help:'Dobule quote' },
   { keys:['\''],    type:'textobj',  help:'Single quote' },
-  { keys:['`'],     type:'textobj',  help:'Back quote' },
   { keys:['('],     type:'textobj',  help:'Parenthesis' },
   { keys:[')'],     type:'textobj',  help:'Parenthesis' },
   { keys:['{'],     type:'textobj',  help:'Braces' },
@@ -53,6 +50,15 @@ var commandListEN = [
   { keys:['['],     type:'textobj',  help:'Brackets' },
   { keys:[']'],     type:'textobj',  help:'Brackets' },
 ];
+
+function appendCommand(key, help) {
+  key = key.replace("<","&lt;");
+  key = key.replace(">","&gt;");
+  var div = $("#helps-display");
+  var kbd = $("<div><kbd>"+key+"</kbd></div>");
+  var txt = $("<div>"+help+"</div>");
+  div.append(kbd).append(txt);
+}
 
 function VimFSM() {
   var fsm = StateMachine.create({
@@ -76,28 +82,28 @@ function VimFSM() {
   }
 
   fsm.on_simpleMotion = function(e, from, to, command) {
-    helps_display.append("<br>Move "+command.help);
+    appendCommand(command.keys[0], "Move "+command.help);
   };
 
   fsm.on_operator = function(e, from, to, command) {
-    helps_display.append("<br>"+command.help);
+    appendCommand(command.keys[0], command.help);
   };
   fsm.on_operatorLinewise = function(e, from, to, command) {
-    helps_display.append("<br>this line");
+    appendCommand(command.keys[0], "this line");
   };
   fsm.on_operatorsMotion = function(e, from, to, command) {
-    helps_display.append("<br>"+command.help);
+    appendCommand(command.keys[0], command.help);
   };
 
   fsm.on_action = function(e, from, to, command) {
-    helps_display.append("<br>"+command.help);
+    appendCommand(command.keys[0], command.help);
   };
 
   fsm.on_modifier = function(e, from, to, command) {
-    helps_display.append("<br>"+command.help);
+    appendCommand(command.keys[0], command.help);
   };
   fsm.on_textobj = function(e, from, to, command) {
-    helps_display.append(" "+command.help);
+    appendCommand(command.keys[0], command.help);
   };
   return fsm;
 }

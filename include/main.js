@@ -17,20 +17,14 @@ var editor = CodeMirror.fromTextArea(document.getElementById("vim"), {
 // Key buffer display.
 var keybuf = ''
 CodeMirror.on(editor, 'vim-keypress', function(e) {
-  keybuf = keybuf + e;
-  $("#command-display").html(keybuf);
   var match = commandHelper.onKey(e);
 });
 CodeMirror.on(editor, 'vim-command-done', function(e) {
-  keybuf = '';
-  $("#command-display").html(keybuf);
   commandHelper.done();
 });
 
 // Mode display.
 function mode_change(mode) {
-  $("#mode-display").html(mode);
-
   var target = $("#mode-"+mode);
   var t = target.offset().top;
   var l = target.offset().left - target.parent().offset().left;

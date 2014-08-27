@@ -1,6 +1,4 @@
 
-var state_display = $("#state-display");
-
 var commandListEN = [
   // Motion commands. Can be used alone, or used with operator.
   { type:'motion', commands:[
@@ -113,9 +111,6 @@ function VimFSM(context) {
     }
   }
 
-  fsm.onenterstate = function(e, from, to) {
-    state_display.html(from + " -> " + to);
-  };
   fsm.onleave_none = function(e, from, to) {
     helpViewer.clearCommands();
   }

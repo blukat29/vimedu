@@ -68,16 +68,6 @@ var commandListEN = [
   ]},
 ];
 
-function appendCommand(keys, help) {
-  keys = keys.join('');
-  keys = keys.replace("<","&lt;");
-  keys = keys.replace(">","&gt;");
-  var div = $("#helps-display");
-  var kbd = $("<div><kbd>"+keys+"</kbd></div>");
-  var txt = $("<div>"+help+"</div>");
-  div.append(kbd).append(txt);
-}
-
 function VimFSM() {
   var fsm = StateMachine.create({
     initial:'_none',
@@ -94,6 +84,26 @@ function VimFSM() {
       { name:'done',     from:'*',         to:'_none'            },
   ]});
 
+  // Displays the description of current keystroke.
+  function appendCommand(keys, help) {
+    keys = keys.join('');
+    keys = keys.replace("<","&lt;");
+    keys = keys.replace(">","&gt;");
+    var div = $("#helps-display");
+    var kbd = $("<div><kbd>"+keys+"</kbd></div>");
+    var txt = $("<div>"+help+"</div>");
+    div.append(kbd).append(txt);
+  }
+
+  // Common event handler.
+  function ident(x) { return x; }
+  function keyHandler(helpFunc) {
+    helpFunc = (typeof helpFunc !== 'undefined') ? helpFunc : ident;
+    return function(e, from, to, command) {
+      appendCommand(command.keys, helpFunc(command.help));
+    }
+  }
+
   fsm.onenterstate = function(e, from, to) {
     state_display.html(from + " -> " + to);
   };
@@ -101,37 +111,16 @@ function VimFSM() {
     helps_display.html("");
   }
 
-  fsm.on_simpleMotion = function(e, from, to, command) {
-    appendCommand(command.keys, "Move "+command.help);
-  };
+  fsm.on_simpleMotion = keyHandler(function (help) { return "Move "+help; });
+  fsm.on_operator = keyHandler();
+  fsm.on_operatorLinewise = keyHandler(function (help) { return "This line"; });
+  fsm.on_operatorsMotion = keyHandler();
+  fsm.on_action = keyHandler();
+  fsm.on_modifier = keyHandler();
+  fsm.on_textobj = keyHandler();
+  fsm.on_search = keyHandler();
+  fsm.on_ex = keyHandler();
 
-  fsm.on_operator = function(e, from, to, command) {
-    appendCommand(command.keys, command.help);
-  };
-  fsm.on_operatorLinewise = function(e, from, to, command) {
-    appendCommand(command.keys, "this line");
-  };
-  fsm.on_operatorsMotion = function(e, from, to, command) {
-    appendCommand(command.keys, command.help);
-  };
-
-  fsm.on_action = function(e, from, to, command) {
-    appendCommand(command.keys, command.help);
-  };
-
-  fsm.on_modifier = function(e, from, to, command) {
-    appendCommand(command.keys, command.help);
-  };
-  fsm.on_textobj = function(e, from, to, command) {
-    appendCommand(command.keys, command.help);
-  };
-
-  fsm.on_search = function(e, from, to, command) {
-    appendCommand(command.keys, command.help);
-  };
-  fsm.on_ex = function(e, from, to, command) {
-    appendCommand(command.keys, command.help);
-  };
   return fsm;
 }
 

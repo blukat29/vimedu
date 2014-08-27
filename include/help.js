@@ -65,26 +65,83 @@ var commandListEN = [
   ]},
 ];
 
+// Interface to manipulate current command help at the bottom.
 function HelpViewer(context) {
-  this.context = context;
-  this.helps_display = $("#helps-display", context);
-}
-HelpViewer.prototype = {
-  appendCommand: function(keys, help) {
+
+  var display = $("#helps-display", context);
+
+  var append = function(keys, help) {
     keys = keys.join('');
     keys = keys.replace("<","&lt;");
     keys = keys.replace(">","&gt;");
-    var div = this.helps_display;
+
     var kbd = $("<div><kbd>"+keys+"</kbd></div>");
     var txt = $("<div>"+help+"</div>");
+    display.append(kbd).append(txt);
+  };
+
+  var clear = function() {
+    display.html("");
+  };
+
+  return {
+    append: append,
+    clear: clear,
+  };
+}
+
+// Interface to suggested keys help at the right.
+function KeysViewer(context) {
+  var display = $("#keys-display");
+
+  var appendType = function(bundle) {
+    var div = $("<div></div>").addClass(bundle.type);
+    var title = $("<h4>"+bundle.type+"</h4>");
+    div.append(title);
+    display.append(div);
+    return div;
+  };
+
+  var appendCommand = function(container, cmd) {
+    var keys = cmd.keys;
+    keys = keys.join('').replace('<','&lt;').replace('>','&gt;');
+
+    var div = $("<div></div>");
+    var kbd = $("<kbd>"+keys+"</kbd>");
+    var txt = $("<span>  "+cmd.help+"</span>");
     div.append(kbd).append(txt);
-  },
-  clearCommands: function() {
-    this.helps_display.html("");
-  }
-};
+    container.append(div);
+  };
 
+  var init = function(commandList) {
 
+    for (var i=0; i<commandList.length; i++) {
+      var bundle = commandList[i];
+      var container = appendType(bundle);
+
+      for (var j=0; j<bundle.commands.length; j++) {
+        var cmd = bundle.commands[j];
+        appendCommand(container, cmd);
+      }
+    }
+  };
+
+  var update = function(filter) {
+    for (var type in filter) {
+      if (filter[type])
+        $("."+type, display).show();
+      else
+        $("."+type, display).hide();
+    }
+  };
+
+  return {
+    init: init,
+    update: update,
+  };
+}
+
+// Simple model for vim command grammar.
 function VimFSM(context) {
   var fsm = StateMachine.create({
     initial:'_none',
@@ -100,46 +157,22 @@ function VimFSM(context) {
       { name:'ex',       from:'_none',     to:'_ex'              },
       { name:'done',     from:'*',         to:'_none'            },
   ]});
-  var helpViewer = new HelpViewer(context);
-
-  // Common event handler.
-  function ident(x) { return x; }
-  function keyHandler(helpFunc) {
-    helpFunc = (typeof helpFunc !== 'undefined') ? helpFunc : ident;
-    return function(e, from, to, cmd) {
-      helpViewer.appendCommand(cmd.keys, helpFunc(cmd.help));
-    }
-  }
-
-  fsm.onleave_none = function(e, from, to) {
-    helpViewer.clearCommands();
-  }
-
-  fsm.on_simpleMotion = keyHandler(function (help) { return "Move "+help; });
-  fsm.on_operator = keyHandler();
-  fsm.on_operatorLinewise = keyHandler(function (help) { return "This line"; });
-  fsm.on_operatorsMotion = keyHandler();
-  fsm.on_action = keyHandler();
-  fsm.on_modifier = keyHandler();
-  fsm.on_textobj = keyHandler();
-  fsm.on_search = keyHandler();
-  fsm.on_ex = keyHandler();
-
+  fsm.events = ['motion','operator','action','modifier','textobj','search','ex'];
   return fsm;
 }
 
-function CommandHelper (commandList, context) {
-  this.commandList = commandList;
-  this.fsm = VimFSM(context);
-  this.keyBuf = [];
+// Outermost interface to overall help functionality.
+function CommandHelper (commandList_, context) {
 
-  this.matchCommand = function () {
+  var commandList = commandList_;
+  var fsm = VimFSM(context);
 
-    matchList = [];
-    var commandList = this.commandList;
-    var fsm = this.fsm;
-    var keys = this.keyBuf;
+  var helpViewer = HelpViewer(context);
+  var keysViewer = KeysViewer(context);
 
+  var keyBuf = [];
+  var matchCommand = function () {
+    var match;
     for (var i=0; i<commandList.length; i++) {
       var bundle = commandList[i];
 
@@ -147,16 +180,18 @@ function CommandHelper (commandList, context) {
         for (var j=0; j<bundle.commands.length; j++) {
           var cmd = bundle.commands[j];
 
-          if (compareKeys(cmd.keys, keys)) {
-            cmd.type = bundle.type;
-            matchList.push(cmd);
+          if (compareKeys(cmd.keys, keyBuf)) {
+            if (match)
+              throw ("Duplicate command: " + keys.join());
+            match = { type:bundle.type, keys:cmd.keys, help:cmd.help };
           }
         }
       }
     }
-    return matchList;
+    return match;
   };
-  function compareKeys(a, b) {
+
+  var compareKeys = function (a, b) {
     if (a.length != b.length)
       return false;
     for (var i=0; i<a.length; i++) {
@@ -164,36 +199,75 @@ function CommandHelper (commandList, context) {
         return false;
     }
     return true;
-  }
+  };
+
+  var showHelp = function(cmd) {
+    switch (fsm.current) {
+      case '_simpleMotion':
+        helpViewer.clear();
+        helpViewer.append(cmd.keys, "Move "+cmd.help);
+        break;
+      case '_operatorLinewise':
+        helpViewer.append(cmd.keys, "This line");
+        break;
+      case '_operator':
+      case '_action':
+      case '_search':
+      case '_ex':
+        helpViewer.clear();
+        helpViewer.append(cmd.keys, cmd.help);
+        break;
+      case '_operatorsMotion':
+      case '_modifier':
+      case '_textobj':
+        helpViewer.append(cmd.keys, cmd.help);
+        break;
+      case '_none':
+        helpViewer.clear();
+        break;
+      default:
+        throw "no such state.";
+    }
+  };
+
+  var showKeys = function() {
+    filter = [];
+    for (var i=0; i<fsm.events.length; i++) {
+      var e = fsm.events[i];
+      if (fsm.can(e))
+        filter[e] = true;
+      else
+        filter[e] = false;
+    }
+    keysViewer.update(filter);
+  };
+
+  var onKey = function(key) {
+    keyBuf.push(key);
+    var match = matchCommand();
+    if (match) {
+      keyBuf = [];
+      fsm[match.type]();
+      showHelp(match);
+      showKeys();
+    }
+  };
+
+  var init = function() {
+    keysViewer.init(commandList);
+  };
+
+  var done = function() {
+    fsm.done();
+    showKeys();
+  };
+
+  return {
+    onKey: onKey,
+    init: init,
+    done: done,
+  };
 }
-CommandHelper.prototype = {
 
-  onKey: function(key) {
-
-    var fsm = this.fsm;
-    var commandList = this.commandList;
-
-    this.keyBuf.push(key);
-    var matchList = this.matchCommand();
-
-    if (matchList.length > 1) {
-      throw ("More than one commands match:" + key);
-    }
-    else if (matchList.length == 1) {
-      this.keyBuf = [];
-      var match = matchList[0];
-      fsm[match.type](match);
-      return match;
-    }
-    else {
-      return undefined;
-    }
-  },
-
-  done: function() {
-    this.fsm.done();
-  },
-}
-
-var commandHelper = new CommandHelper(commandListEN, window.body);
+var commandHelper = CommandHelper(commandListEN, window.body);
 

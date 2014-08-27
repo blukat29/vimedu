@@ -14,8 +14,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById("vim"), {
   lineWrapping: true,
 });
 
-// Key buffer display.
-var keybuf = ''
+// Key input events.
 CodeMirror.on(editor, 'vim-keypress', function(e) {
   var match = commandHelper.onKey(e);
 });
@@ -41,5 +40,6 @@ CodeMirror.on(editor, 'vim-mode-change', function(e) {
 // Initialize the site.
 $(document).ready(function(){
   mode_change('normal');
+  commandHelper.init();
 });
 

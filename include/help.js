@@ -4,60 +4,68 @@ var helps_display = $("#helps-display");
 
 var commandListEN = [
   // Motion commands. Can be used alone, or used with operator.
-  { keys:['h'],     type:'motion',   help:'to left' },
-  { keys:['j'],     type:'motion',   help:'to down' },
-  { keys:['k'],     type:'motion',   help:'to up' },
-  { keys:['l'],     type:'motion',   help:'to right' },
-  { keys:['<Left>'],  type:'motion',   help:'to left' },
-  { keys:['<Down>'],  type:'motion',   help:'to down' },
-  { keys:['<Up>'],    type:'motion',   help:'to up' },
-  { keys:['<Right>'], type:'motion',   help:'to right' },
+  { type:'motion', commands:[
+    { keys:['h'],       help:'to left' },
+    { keys:['j'],       help:'to down' },
+    { keys:['k'],       help:'to up' },
+    { keys:['l'],       help:'to right' },
+    { keys:['<Left>'],  help:'to left' },
+    { keys:['<Down>'],  help:'to down' },
+    { keys:['<Up>'],    help:'to up' },
+    { keys:['<Right>'], help:'to right' },
 
-  { keys:['w'],     type:'motion',   help:'a word' },
-  { keys:['b'],     type:'motion',   help:'a word backward' },
+    { keys:['w'],       help:'a word' },
+    { keys:['b'],       help:'a word backward' },
 
-  { keys:['0'],     type:'motion',   help:'to start of line' },
-  { keys:['$'],     type:'motion',   help:'to end of line' },
+    { keys:['0'],       help:'to start of line' },
+    { keys:['$'],       help:'to end of line' },
 
-  { keys:['g','g'], type:'motion',   help:'to start of file' },
-
+    { keys:['g','g'],   help:'to start of file' },
+  ]},
   // Operator commands. Always used with either (i) motion,
   // (ii) a modifier + text-object (iii) itself, meaning linewise operation.
-  { keys:['d'],     type:'operator', help:'Delete' },
-  { keys:['y'],     type:'operator', help:'Yank (copy)' },
-  { keys:['c'],     type:'operator', help:'Change' },
-  { keys:['p'],     type:'operator', help:'Paste' },
-  { keys:['>'],     type:'operator', help:'Indent' },
-  { keys:['<'],     type:'operator', help:'Unindent' },
-
+  { type:'operator', commands:[
+    { keys:['d'],     help:'Delete' },
+    { keys:['y'],     help:'Yank (copy)' },
+    { keys:['c'],     help:'Change' },
+    { keys:['p'],     help:'Paste' },
+    { keys:['>'],     help:'Indent' },
+    { keys:['<'],     help:'Unindent' },
+  ]},
   // Action commands. Always used alone. Each one is complete as itself.
-  { keys:['<Esc>'], type:'action',   help:'Exit to normal mode' },
-  { keys:['i'],     type:'action',   help:'Switch to insert mode' },
-  { keys:['v'],     type:'action',   help:'Switch to visual mode' },
-  { keys:['x'],     type:'action',   help:'Delete a character' },
-  { keys:['u'],     type:'action',   help:'Undo' },
-  { keys:['<C-r>'], type:'action',   help:'Redo' },
-
+  { type:'action', commands:[
+    { keys:['<Esc>'], help:'Exit to normal mode' },
+    { keys:['i'],     help:'Switch to insert mode' },
+    { keys:['v'],     help:'Switch to visual mode' },
+    { keys:['x'],     help:'Delete a character' },
+    { keys:['u'],     help:'Undo' },
+    { keys:['<C-r>'], help:'Redo' },
+  ]},
   // Modifiers. Used before text object.
-  { keys:['a'],     type:'modifier', help:'Around' },
-  { keys:['i'],     type:'modifier', help:'Inside' },
-
+  { type:'modifier', commands:[
+    { keys:['a'],     help:'Around' },
+    { keys:['i'],     help:'Inside' },
+  ]},
   // Text objects. Used after a modifier.
-  { keys:['w'],     type:'textobj',  help:'Word' },
-  { keys:['"'],     type:'textobj',  help:'Dobule quote' },
-  { keys:['\''],    type:'textobj',  help:'Single quote' },
-  { keys:['('],     type:'textobj',  help:'Parenthesis' },
-  { keys:[')'],     type:'textobj',  help:'Parenthesis' },
-  { keys:['{'],     type:'textobj',  help:'Braces' },
-  { keys:['}'],     type:'textobj',  help:'Braces' },
-  { keys:['['],     type:'textobj',  help:'Brackets' },
-  { keys:[']'],     type:'textobj',  help:'Brackets' },
-
+  { type:'textobj', commands:[
+    { keys:['w'],     help:'Word' },
+    { keys:['"'],     help:'Dobule quote' },
+    { keys:['\''],    help:'Single quote' },
+    { keys:['('],     help:'Parenthesis' },
+    { keys:[')'],     help:'Parenthesis' },
+    { keys:['{'],     help:'Braces' },
+    { keys:['}'],     help:'Braces' },
+    { keys:['['],     help:'Brackets' },
+    { keys:[']'],     help:'Brackets' },
+  ]},
   // Search commands.
-  { keys:['/'],     type:'search',   help:'Search forward' },
-
+  { type:'search', commands:[
+    { keys:['/'],     help:'Search forward' },
+  ]},
   // Ex commands.
-  { keys:[':'],     type:'ex',       help:'Use ex command' },
+  { type:'ex', commands:[
+    { keys:[':'],     help:'Use ex command' },
+  ]},
 ];
 
 function appendCommand(keys, help) {
@@ -137,9 +145,17 @@ function CommandHelper (commandList) {
     var fsm = this.fsm;
 
     for (var i=0; i<commandList.length; i++) {
-      command = commandList[i];
-      if (command.keys[0] == key && command.keys.length == 1 && fsm.can(command.type)) {
-        matchList.push(command);
+      var bundle = commandList[i];
+
+      if (fsm.can(bundle.type)) {
+        for (var j=0; j<bundle.commands.length; j++) {
+          var cmd = bundle.commands[j];
+
+          if (cmd.keys[0] == key && cmd.keys.length == 1) {
+            cmd.type = bundle.type;
+            matchList.push(cmd);
+          }
+        }
       }
     }
     return matchList;
@@ -150,11 +166,18 @@ function CommandHelper (commandList) {
     matchList = [];
     var commandList = this.commandList;
     var fsm = this.fsm;
-
     for (var i=0; i<commandList.length; i++) {
-      var command = commandList[i];
-      if (compareLongKeys(command.keys, keys) && fsm.can(command.type)) {
-         matchList.push(command);
+      var bundle = commandList[i];
+
+      if (fsm.can(bundle.type)) {
+        for (var j=0; j<bundle.commands.length; j++) {
+          var cmd = bundle.commands[j];
+
+          if (compareLongKeys(cmd.keys, keys)) {
+            cmd.type = bundle.type;
+            matchList.push(cmd);
+          }
+        }
       }
     }
     return matchList;

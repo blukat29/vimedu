@@ -41,11 +41,8 @@ var commandListEN = [
 
   // Text objects. Used after a modifier.
   { keys:['w'],     type:'textobj',  help:'Word' },
-  { keys:['s'],     type:'textobj',  help:'Sentence' },
-  { keys:['p'],     type:'textobj',  help:'Paragraph' },
   { keys:['"'],     type:'textobj',  help:'Dobule quote' },
   { keys:['\''],    type:'textobj',  help:'Single quote' },
-  { keys:['`'],     type:'textobj',  help:'Back quote' },
   { keys:['('],     type:'textobj',  help:'Parenthesis' },
   { keys:[')'],     type:'textobj',  help:'Parenthesis' },
   { keys:['{'],     type:'textobj',  help:'Braces' },
@@ -55,6 +52,8 @@ var commandListEN = [
 ];
 
 function appendCommand(key, help) {
+  key = key.replace("<","&lt;");
+  key = key.replace(">","&gt;");
   var div = $("#helps-display");
   var kbd = $("<div><kbd>"+key+"</kbd></div>");
   var txt = $("<div>"+help+"</div>");

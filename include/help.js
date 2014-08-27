@@ -1,6 +1,5 @@
 
 var state_display = $("#state-display");
-var helps_display = $("#helps-display");
 
 var commandListEN = [
   // Motion commands. Can be used alone, or used with operator.
@@ -68,7 +67,27 @@ var commandListEN = [
   ]},
 ];
 
-function VimFSM() {
+function HelpViewer(context) {
+  this.context = context;
+  this.helps_display = $("#helps-display", context);
+}
+HelpViewer.prototype = {
+  appendCommand: function(keys, help) {
+    keys = keys.join('');
+    keys = keys.replace("<","&lt;");
+    keys = keys.replace(">","&gt;");
+    var div = this.helps_display;
+    var kbd = $("<div><kbd>"+keys+"</kbd></div>");
+    var txt = $("<div>"+help+"</div>");
+    div.append(kbd).append(txt);
+  },
+  clearCommands: function() {
+    this.helps_display.html("");
+  }
+};
+
+
+function VimFSM(context) {
   var fsm = StateMachine.create({
     initial:'_none',
     events: [
@@ -83,24 +102,14 @@ function VimFSM() {
       { name:'ex',       from:'_none',     to:'_ex'              },
       { name:'done',     from:'*',         to:'_none'            },
   ]});
-
-  // Displays the description of current keystroke.
-  function appendCommand(keys, help) {
-    keys = keys.join('');
-    keys = keys.replace("<","&lt;");
-    keys = keys.replace(">","&gt;");
-    var div = $("#helps-display");
-    var kbd = $("<div><kbd>"+keys+"</kbd></div>");
-    var txt = $("<div>"+help+"</div>");
-    div.append(kbd).append(txt);
-  }
+  var helpViewer = new HelpViewer(context);
 
   // Common event handler.
   function ident(x) { return x; }
   function keyHandler(helpFunc) {
     helpFunc = (typeof helpFunc !== 'undefined') ? helpFunc : ident;
-    return function(e, from, to, command) {
-      appendCommand(command.keys, helpFunc(command.help));
+    return function(e, from, to, cmd) {
+      helpViewer.appendCommand(cmd.keys, helpFunc(cmd.help));
     }
   }
 
@@ -108,7 +117,7 @@ function VimFSM() {
     state_display.html(from + " -> " + to);
   };
   fsm.onleave_none = function(e, from, to) {
-    helps_display.html("");
+    helpViewer.clearCommands();
   }
 
   fsm.on_simpleMotion = keyHandler(function (help) { return "Move "+help; });
@@ -124,9 +133,9 @@ function VimFSM() {
   return fsm;
 }
 
-function CommandHelper (commandList) {
+function CommandHelper (commandList, context) {
   this.commandList = commandList;
-  this.fsm = VimFSM();
+  this.fsm = VimFSM(context);
   this.keyBuf = [];
 
   this.matchCommand = function () {
@@ -191,5 +200,5 @@ CommandHelper.prototype = {
   },
 }
 
-var commandHelper = new CommandHelper(commandListEN);
+var commandHelper = new CommandHelper(commandListEN, window.body);
 

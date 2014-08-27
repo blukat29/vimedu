@@ -54,6 +54,13 @@ var commandListEN = [
   { keys:[']'],     type:'textobj',  help:'Brackets' },
 ];
 
+function appendCommand(key, help) {
+  var div = $("#helps-display");
+  var kbd = $("<div><kbd>"+key+"</kbd></div>");
+  var txt = $("<div>"+help+"</div>");
+  div.append(kbd).append(txt);
+}
+
 function VimFSM() {
   var fsm = StateMachine.create({
     initial:'_none',
@@ -76,28 +83,28 @@ function VimFSM() {
   }
 
   fsm.on_simpleMotion = function(e, from, to, command) {
-    helps_display.append("<br>Move "+command.help);
+    appendCommand(command.keys[0], "Move "+command.help);
   };
 
   fsm.on_operator = function(e, from, to, command) {
-    helps_display.append("<br>"+command.help);
+    appendCommand(command.keys[0], command.help);
   };
   fsm.on_operatorLinewise = function(e, from, to, command) {
-    helps_display.append("<br>this line");
+    appendCommand(command.keys[0], "this line");
   };
   fsm.on_operatorsMotion = function(e, from, to, command) {
-    helps_display.append("<br>"+command.help);
+    appendCommand(command.keys[0], command.help);
   };
 
   fsm.on_action = function(e, from, to, command) {
-    helps_display.append("<br>"+command.help);
+    appendCommand(command.keys[0], command.help);
   };
 
   fsm.on_modifier = function(e, from, to, command) {
-    helps_display.append("<br>"+command.help);
+    appendCommand(command.keys[0], command.help);
   };
   fsm.on_textobj = function(e, from, to, command) {
-    helps_display.append(" "+command.help);
+    appendCommand(command.keys[0], command.help);
   };
   return fsm;
 }

@@ -31,7 +31,6 @@ var commandListEN = [
   ]},
   // Action commands. Always used alone. Each one is complete as itself.
   { type:'action', commands:[
-    { keys:['<Esc>'], help:'Exit to normal mode' },
     { keys:['i'],     help:'Switch to insert mode' },
     { keys:['v'],     help:'Switch to visual mode' },
     { keys:['x'],     help:'Delete a character' },
@@ -62,6 +61,10 @@ var commandListEN = [
   // Ex commands.
   { type:'ex', commands:[
     { keys:[':'],     help:'Use ex command' },
+  ]},
+  // Esc is treated specially.
+  { type:'done', commands:[
+    { keys:['<Esc>'], help:'Cancel command' },
   ]},
 ];
 

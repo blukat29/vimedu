@@ -127,11 +127,14 @@ function VimFSM() {
 function CommandHelper (commandList) {
   this.commandList = commandList;
   this.fsm = VimFSM();
+  this.keyBuf = [];
 
-  this.simpleMatch = function (key) {
+  this.matchCommand = function () {
+
     matchList = [];
     var commandList = this.commandList;
     var fsm = this.fsm;
+    var keys = this.keyBuf;
 
     for (var i=0; i<commandList.length; i++) {
       var bundle = commandList[i];
@@ -140,7 +143,7 @@ function CommandHelper (commandList) {
         for (var j=0; j<bundle.commands.length; j++) {
           var cmd = bundle.commands[j];
 
-          if (cmd.keys[0] == key && cmd.keys.length == 1) {
+          if (compareKeys(cmd.keys, keys)) {
             cmd.type = bundle.type;
             matchList.push(cmd);
           }
@@ -149,29 +152,7 @@ function CommandHelper (commandList) {
     }
     return matchList;
   };
-
-  this.residue = [];
-  this.longMatch = function (keys) {
-    matchList = [];
-    var commandList = this.commandList;
-    var fsm = this.fsm;
-    for (var i=0; i<commandList.length; i++) {
-      var bundle = commandList[i];
-
-      if (fsm.can(bundle.type)) {
-        for (var j=0; j<bundle.commands.length; j++) {
-          var cmd = bundle.commands[j];
-
-          if (compareLongKeys(cmd.keys, keys)) {
-            cmd.type = bundle.type;
-            matchList.push(cmd);
-          }
-        }
-      }
-    }
-    return matchList;
-  };
-  function compareLongKeys(a, b) {
+  function compareKeys(a, b) {
     if (a.length != b.length)
       return false;
     for (var i=0; i<a.length; i++) {
@@ -180,42 +161,34 @@ function CommandHelper (commandList) {
     }
     return true;
   }
-  this.a = compareLongKeys;
 }
 CommandHelper.prototype = {
-  matchCommand: function(key) {
+
+  onKey: function(key) {
 
     var fsm = this.fsm;
     var commandList = this.commandList;
 
-    // First look for one-key simple match.
-    var matchList = this.simpleMatch(key);
+    this.keyBuf.push(key);
+    var matchList = this.matchCommand();
+
     if (matchList.length > 1) {
       throw ("More than one commands match:" + key);
     }
     else if (matchList.length == 1) {
+      this.keyBuf = [];
       var match = matchList[0];
       fsm[match.type](match);
       return match;
     }
-
-    this.residue.push(key);
-    matchList = this.longMatch(this.residue);
-    if (matchList.length > 1) {
-      throw ("More than one commands match:" + key);
+    else {
+      return undefined;
     }
-    else if (matchList.length == 1) {
-      this.residue = [];
-      var match = matchList[0];
-      fsm[match.type](match);
-      return match;
-    }
-
-    return undefined;
   },
+
   done: function() {
     this.fsm.done();
-  }
+  },
 }
 
 var commandHelper = new CommandHelper(commandListEN);

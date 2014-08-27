@@ -90,6 +90,47 @@ function HelpViewer(context) {
   };
 }
 
+// Interface to suggested keys help at the right.
+function KeysViewer(context) {
+  var display = $("#keys-display");
+
+  var appendType = function(bundle) {
+    var div = $("<div></div>");
+    var title = $("<h4>"+bundle.type+"</h4>");
+    div.append(title);
+    display.append(div);
+    return div;
+  };
+
+  var appendCommand = function(container, cmd) {
+    var keys = cmd.keys;
+    keys = keys.join('').replace('<','&lt;').replace('>','&gt;');
+
+    var div = $("<div></div>");
+    var kbd = $("<kbd>"+keys+"</kbd>");
+    var txt = $("<span>  "+cmd.help+"</span>");
+    div.append(kbd).append(txt);
+    container.append(div);
+  };
+
+  var init = function(commandList) {
+
+    for (var i=0; i<commandList.length; i++) {
+      var bundle = commandList[i];
+      var container = appendType(bundle);
+
+      for (var j=0; j<bundle.commands.length; j++) {
+        var cmd = bundle.commands[j];
+        appendCommand(container, cmd);
+      }
+    }
+  };
+
+  return {
+    init: init,
+  };
+}
+
 // Simple model for vim command grammar.
 function VimFSM(context) {
   var fsm = StateMachine.create({
@@ -116,6 +157,7 @@ function CommandHelper (commandList_, context) {
   var fsm = VimFSM(context);
 
   var helpViewer = HelpViewer(context);
+  var keysViewer = KeysViewer(context);
 
   var keyBuf = [];
   var matchCommand = function () {
@@ -187,12 +229,17 @@ function CommandHelper (commandList_, context) {
     }
   };
 
+  var init = function() {
+    keysViewer.init(commandList);
+  };
+
   var done = function() {
     fsm.done();
   };
 
   return {
     onKey: onKey,
+    init: init,
     done: done,
   };
 }

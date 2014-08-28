@@ -793,11 +793,15 @@
       this.insertModeChanges = [];
       this.searchQueries = [];
       this.linewise = !!linewise;
+      this.cm = null;
     }
     Register.prototype = {
       setText: function(text, linewise) {
         this.keyBuffer = [text || ''];
         this.linewise = !!linewise;
+        if (this.cm) {
+          CodeMirror.signal(this.cm, 'vim-set-register', this.keyBuffer);
+        }
       },
       pushText: function(text, linewise) {
         // if this register has ever been set to linewise, use linewise.
@@ -823,6 +827,9 @@
       },
       toString: function() {
         return this.keyBuffer.join('');
+      },
+      setListener: function(cm) {
+        this.cm = cm;
       }
     };
 

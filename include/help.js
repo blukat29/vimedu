@@ -78,9 +78,28 @@ function HelpViewer(context) {
     keys = keys.replace("<","&lt;");
     keys = keys.replace(">","&gt;");
 
+    var div = $("<div></div>")
     var kbd = $("<div><kbd>"+keys+"</kbd></div>");
     var txt = $("<div>"+help+"</div>");
-    display.append(kbd).append(txt);
+
+    div.append(kbd).append(txt);
+    display.append(div);
+  };
+
+  var updateLast = function(keys, help) {
+    var children = display.children();
+    var last = $(children[children.length - 1])
+
+    keys = keys.join('');
+    keys = keys.replace("<","&lt;");
+    keys = keys.replace(">","&gt;");
+
+    var div = $("<div></div>")
+    var kbd = $("<div><kbd>"+keys+"</kbd></div>");
+    var txt = $("<div>"+help+"</div>");
+
+    div.append(kbd).append(txt);
+    last.html(div);
   };
 
   var clear = function() {
@@ -89,6 +108,7 @@ function HelpViewer(context) {
 
   return {
     append: append,
+    updateLast: updateLast,
     clear: clear,
   };
 }
@@ -216,7 +236,10 @@ function CommandHelper (commandList_, context) {
   fsm.on_ex = helpFormat();
 
   fsm.onnonzero = function() {
-    helpViewer.append(numBuf, "Repeat "+numBuf.join('')+" times.");
+    if (numBuf.length == 1)
+      helpViewer.append(numBuf, "Repeat "+numBuf.join('')+" times.");
+    else
+      helpViewer.updateLast(numBuf, "Repeat "+numBuf.join('')+" times.");
   };
   fsm.onzero = fsm.onnonzero;
 

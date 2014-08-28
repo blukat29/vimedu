@@ -170,6 +170,7 @@ function VimFSM(context) {
 
       { name:'nonzero',  from:'_none',       to:'_noneRepeat'      },
       { name:'nonzero',  from:'_noneRepeat', to:'_noneRepeat'      },
+      { name:'zero',     from:'_noneRepeat', to:'_noneRepeat'      },
   ]});
   fsm.events = ['motion','operator','action','modifier','textobj','search','ex'];
   return fsm;
@@ -262,16 +263,25 @@ function CommandHelper (commandList_, context) {
   };
 
   var onKey = function(key) {
+
     keyBuf.push(key);
-    var match = matchCommand();
+    var match;
+
+    // '0' key is special case since it belongs
+    // in both command and repeat.
+    if (key != '0' || numBuf.length == 0)
+      match = matchCommand();
+
     if (match) {
       keyBuf = [];
-      fsm[match.type]();
-      showHelp(match);
+      fsm[match.type](match);
       showKeys();
     }
     else {
-      if (isNonzero(key) && fsm.can('nonzero')) {
+      if (isNonzero(key) && fsm.can('nonzero') ||
+          key == '0' && fsm.can('zero')) {
+
+        // keyBuf is for command sequences, no repeat counts.
         numBuf.push(keyBuf.pop());
         fsm.nonzero();
         showRepeat();

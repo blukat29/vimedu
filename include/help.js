@@ -78,9 +78,28 @@ function HelpViewer(context) {
     keys = keys.replace("<","&lt;");
     keys = keys.replace(">","&gt;");
 
+    var div = $("<div></div>")
     var kbd = $("<div><kbd>"+keys+"</kbd></div>");
     var txt = $("<div>"+help+"</div>");
-    display.append(kbd).append(txt);
+
+    div.append(kbd).append(txt);
+    display.append(div);
+  };
+
+  var updateLast = function(keys, help) {
+    var children = display.children();
+    var last = $(children[children.length - 1])
+
+    keys = keys.join('');
+    keys = keys.replace("<","&lt;");
+    keys = keys.replace(">","&gt;");
+
+    var div = $("<div></div>")
+    var kbd = $("<div><kbd>"+keys+"</kbd></div>");
+    var txt = $("<div>"+help+"</div>");
+
+    div.append(kbd).append(txt);
+    last.html(div);
   };
 
   var clear = function() {
@@ -89,6 +108,7 @@ function HelpViewer(context) {
 
   return {
     append: append,
+    updateLast: updateLast,
     clear: clear,
   };
 }
@@ -149,16 +169,33 @@ function VimFSM(context) {
   var fsm = StateMachine.create({
     initial:'_none',
     events: [
-      { name:'motion',   from:'_none',     to:'_simpleMotion'    },
-      { name:'motion',   from:'_operator', to:'_operatorsMotion' },
-      { name:'operator', from:'_none',     to:'_operator'        },
-      { name:'operator', from:'_operator', to:'_operatorLinewise'},
-      { name:'action',   from:'_none',     to:'_action'          },
-      { name:'modifier', from:'_operator', to:'_modifier'        },
-      { name:'textobj',  from:'_modifier', to:'_textobj'         },
-      { name:'search',   from:'_none',     to:'_search'          },
-      { name:'ex',       from:'_none',     to:'_ex'              },
-      { name:'done',     from:'*',         to:'_none'            },
+      { name:'motion',   from:'_none',       to:'_simpleMotion'    },
+      { name:'motion',   from:'_noneRepeat', to:'_simpleMotion'    },
+      { name:'motion',   from:'_operator',   to:'_operatorsMotion' },
+      { name:'motion',   from:'_opRepeat',   to:'_operatorsMotion' },
+
+      { name:'operator', from:'_none',       to:'_operator'        },
+      { name:'operator', from:'_noneRepeat', to:'_operator'        },
+      { name:'operator', from:'_operator',   to:'_operatorLinewise'},
+
+      { name:'action',   from:'_none',       to:'_action'          },
+      { name:'action',   from:'_noneRepeat', to:'_action'          },
+
+      { name:'modifier', from:'_operator',   to:'_modifier'        },
+      { name:'textobj',  from:'_modifier',   to:'_textobj'         },
+
+      { name:'search',   from:'_none',       to:'_search'          },
+      { name:'ex',       from:'_none',       to:'_ex'              },
+
+      { name:'done',     from:'*',           to:'_none'            },
+
+      { name:'nonzero',  from:'_none',       to:'_noneRepeat'      },
+      { name:'nonzero',  from:'_noneRepeat', to:'_noneRepeat'      },
+      { name:'zero',     from:'_noneRepeat', to:'_noneRepeat'      },
+
+      { name:'nonzero',  from:'_operator',   to:'_opRepeat'        },
+      { name:'nonzero',  from:'_opRepeat',   to:'_opRepeat'        },
+      { name:'zero',     from:'_opRepeat',   to:'_opRepeat'        },
   ]});
   fsm.events = ['motion','operator','action','modifier','textobj','search','ex'];
   return fsm;
@@ -168,12 +205,51 @@ function VimFSM(context) {
 function CommandHelper (commandList_, context) {
 
   var commandList = commandList_;
-  var fsm = VimFSM(context);
 
   var helpViewer = HelpViewer(context);
   var keysViewer = KeysViewer(context);
 
+  var fsm = VimFSM(context);
+
+  // Returns a default event handler for FSM.
+  // The argument is optional function that decorates
+  // the printing format of command.help.
+  var helpFormat = function(f) {
+    f = (typeof f !== 'undefined')? f : function(s) { return s; };
+    return function(e, from, to, cmd) {
+      helpViewer.append(cmd.keys, f(cmd.help));
+    };
+  };
+
+  // Leaving _none state implies we start a new command.
+  fsm.onleave_none = function() {
+    helpViewer.clear();
+  }
+
+  // Describe the current command on state change.
+  fsm.on_simpleMotion = helpFormat(function(s) { return "Move "+s});
+  fsm.on_operatorsMotion = helpFormat();
+
+  fsm.on_operator = helpFormat();
+  fsm.on_operatorLinewise = helpFormat(function(s) { return "This line"});
+
+  fsm.on_action = helpFormat();
+  fsm.on_modifier = helpFormat();
+  fsm.on_textobj = helpFormat();
+
+  fsm.on_search = helpFormat();
+  fsm.on_ex = helpFormat();
+
+  fsm.onnonzero = function() {
+    if (numBuf.length == 1)
+      helpViewer.append(numBuf, "Repeat "+numBuf.join('')+" times.");
+    else
+      helpViewer.updateLast(numBuf, "Repeat "+numBuf.join('')+" times.");
+  };
+  fsm.onzero = fsm.onnonzero;
+
   var keyBuf = [];
+  var numBuf = [];
   var matchCommand = function () {
     var match;
     for (var i=0; i<commandList.length; i++) {
@@ -204,35 +280,6 @@ function CommandHelper (commandList_, context) {
     return true;
   };
 
-  var showHelp = function(cmd) {
-    switch (fsm.current) {
-      case '_simpleMotion':
-        helpViewer.clear();
-        helpViewer.append(cmd.keys, "Move "+cmd.help);
-        break;
-      case '_operatorLinewise':
-        helpViewer.append(cmd.keys, "This line");
-        break;
-      case '_operator':
-      case '_action':
-      case '_search':
-      case '_ex':
-        helpViewer.clear();
-        helpViewer.append(cmd.keys, cmd.help);
-        break;
-      case '_operatorsMotion':
-      case '_modifier':
-      case '_textobj':
-        helpViewer.append(cmd.keys, cmd.help);
-        break;
-      case '_none':
-        helpViewer.clear();
-        break;
-      default:
-        throw "no such state.";
-    }
-  };
-
   var showKeys = function() {
     filter = [];
     for (var i=0; i<fsm.events.length; i++) {
@@ -247,13 +294,35 @@ function CommandHelper (commandList_, context) {
 
   var onKey = function(key) {
     keyBuf.push(key);
-    var match = matchCommand();
+    var match;
+
+    // '0' key is special case since it belongs
+    // in both command and repeat.
+    if (key != '0' || numBuf.length == 0)
+      match = matchCommand();
+
     if (match) {
       keyBuf = [];
-      fsm[match.type]();
-      showHelp(match);
+      numBuf = [];
+      fsm[match.type](match);
       showKeys();
     }
+    else {
+      if (isNonzero(key) && fsm.can('nonzero') ||
+          key == '0' && fsm.can('zero')) {
+
+        // keyBuf is for command sequences, not repeat counts.
+        numBuf.push(keyBuf.pop());
+        if (key == '0') fsm.zero();
+        else fsm.nonzero();
+        showKeys();
+      }
+    }
+  };
+
+  var isNonzero = function(key) {
+    return (key.charCodeAt(0) >= '1'.charCodeAt(0)
+         && key.charCodeAt(0) <= '9'.charCodeAt(0));
   };
 
   var init = function() {

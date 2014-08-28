@@ -180,10 +180,45 @@ function VimFSM(context) {
 function CommandHelper (commandList_, context) {
 
   var commandList = commandList_;
-  var fsm = VimFSM(context);
 
   var helpViewer = HelpViewer(context);
   var keysViewer = KeysViewer(context);
+
+  var fsm = VimFSM(context);
+
+  // Returns a default event handler for FSM.
+  // The argument is optional function that decorates
+  // the printing format of command.help.
+  var helpFormat = function(f) {
+    f = (typeof f !== 'undefined')? f : function(s) { return s; };
+    return function(e, from, to, cmd) {
+      helpViewer.append(cmd.keys, f(cmd.help));
+    };
+  };
+
+  // Leaving _none state implies we start a new command.
+  fsm.onleave_none = function() {
+    helpViewer.clear();
+  }
+
+  // Describe the current command on state change.
+  fsm.on_simpleMotion = helpFormat(function(s) { return "Move "+s});
+  fsm.on_operatorsMotion = helpFormat();
+
+  fsm.on_operator = helpFormat();
+  fsm.on_operatorLinewise = helpFormat(function(s) { return "This line"});
+
+  fsm.on_action = helpFormat();
+  fsm.on_modifier = helpFormat();
+  fsm.on_textobj = helpFormat();
+
+  fsm.on_search = helpFormat();
+  fsm.on_ex = helpFormat();
+
+  fsm.onnonzero = function() {
+    helpViewer.append(numBuf, "Repeat "+numBuf.join('')+" times.");
+  };
+  fsm.onzero = fsm.onnonzero;
 
   var keyBuf = [];
   var numBuf = [];
@@ -217,39 +252,6 @@ function CommandHelper (commandList_, context) {
     return true;
   };
 
-  var showHelp = function(cmd) {
-    switch (fsm.current) {
-      case '_simpleMotion':
-        helpViewer.clear();
-        helpViewer.append(cmd.keys, "Move "+cmd.help);
-        break;
-      case '_operatorLinewise':
-        helpViewer.append(cmd.keys, "This line");
-        break;
-      case '_operator':
-      case '_action':
-      case '_search':
-      case '_ex':
-        helpViewer.clear();
-        helpViewer.append(cmd.keys, cmd.help);
-        break;
-      case '_operatorsMotion':
-      case '_modifier':
-      case '_textobj':
-        helpViewer.append(cmd.keys, cmd.help);
-        break;
-      case '_none':
-        helpViewer.clear();
-        break;
-      default:
-        throw "no such state.";
-    }
-  };
-
-  var showRepeat = function() {
-    helpViewer.append(numBuf, "Repeat "+numBuf.join('')+" times.");
-  };
-
   var showKeys = function() {
     filter = [];
     for (var i=0; i<fsm.events.length; i++) {
@@ -263,7 +265,6 @@ function CommandHelper (commandList_, context) {
   };
 
   var onKey = function(key) {
-
     keyBuf.push(key);
     var match;
 
@@ -274,6 +275,7 @@ function CommandHelper (commandList_, context) {
 
     if (match) {
       keyBuf = [];
+      numBuf = [];
       fsm[match.type](match);
       showKeys();
     }
@@ -281,10 +283,11 @@ function CommandHelper (commandList_, context) {
       if (isNonzero(key) && fsm.can('nonzero') ||
           key == '0' && fsm.can('zero')) {
 
-        // keyBuf is for command sequences, no repeat counts.
+        // keyBuf is for command sequences, not repeat counts.
         numBuf.push(keyBuf.pop());
-        fsm.nonzero();
-        showRepeat();
+        if (key == '0') fsm.zero();
+        else fsm.nonzero();
+        showKeys();
       }
     }
   };

@@ -172,6 +172,7 @@ function VimFSM(context) {
       { name:'motion',   from:'_none',       to:'_simpleMotion'    },
       { name:'motion',   from:'_noneRepeat', to:'_simpleMotion'    },
       { name:'motion',   from:'_operator',   to:'_operatorsMotion' },
+      { name:'motion',   from:'_opRepeat',   to:'_operatorsMotion' },
 
       { name:'operator', from:'_none',       to:'_operator'        },
       { name:'operator', from:'_noneRepeat', to:'_operator'        },
@@ -191,6 +192,10 @@ function VimFSM(context) {
       { name:'nonzero',  from:'_none',       to:'_noneRepeat'      },
       { name:'nonzero',  from:'_noneRepeat', to:'_noneRepeat'      },
       { name:'zero',     from:'_noneRepeat', to:'_noneRepeat'      },
+
+      { name:'nonzero',  from:'_operator',   to:'_opRepeat'        },
+      { name:'nonzero',  from:'_opRepeat',   to:'_opRepeat'        },
+      { name:'zero',     from:'_opRepeat',   to:'_opRepeat'        },
   ]});
   fsm.events = ['motion','operator','action','modifier','textobj','search','ex'];
   return fsm;

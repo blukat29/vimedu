@@ -21,6 +21,11 @@ CodeMirror.on(editor, 'vim-keypress', function(e) {
 CodeMirror.on(editor, 'vim-command-done', function(e) {
   commandHelper.done();
 });
+var ee = null
+CodeMirror.Vim.getRegisterController().unnamedRegister.setListener(editor);
+CodeMirror.on(editor, 'vim-set-register', function(e) {
+  $("#register-display").val(e).trigger('autosize.resize');
+});
 
 // Mode display.
 function mode_change(mode) {

@@ -317,6 +317,13 @@ function CommandHelper (commandList_, context) {
         else fsm.nonzero();
         showKeys();
       }
+      else {
+        console.log("unknown command: " + keyBuf.join());
+        keyBuf = [];
+        numBuf = [];
+        fsm.done();
+        helpViewer.clear();
+      }
     }
   };
 

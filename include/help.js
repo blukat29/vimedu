@@ -149,16 +149,27 @@ function VimFSM(context) {
   var fsm = StateMachine.create({
     initial:'_none',
     events: [
-      { name:'motion',   from:'_none',     to:'_simpleMotion'    },
-      { name:'motion',   from:'_operator', to:'_operatorsMotion' },
-      { name:'operator', from:'_none',     to:'_operator'        },
-      { name:'operator', from:'_operator', to:'_operatorLinewise'},
-      { name:'action',   from:'_none',     to:'_action'          },
-      { name:'modifier', from:'_operator', to:'_modifier'        },
-      { name:'textobj',  from:'_modifier', to:'_textobj'         },
-      { name:'search',   from:'_none',     to:'_search'          },
-      { name:'ex',       from:'_none',     to:'_ex'              },
-      { name:'done',     from:'*',         to:'_none'            },
+      { name:'motion',   from:'_none',       to:'_simpleMotion'    },
+      { name:'motion',   from:'_noneRepeat', to:'_simpleMotion'    },
+      { name:'motion',   from:'_operator',   to:'_operatorsMotion' },
+
+      { name:'operator', from:'_none',       to:'_operator'        },
+      { name:'operator', from:'_noneRepeat', to:'_operator'        },
+      { name:'operator', from:'_operator',   to:'_operatorLinewise'},
+
+      { name:'action',   from:'_none',       to:'_action'          },
+      { name:'action',   from:'_noneRepeat', to:'_action'          },
+
+      { name:'modifier', from:'_operator',   to:'_modifier'        },
+      { name:'textobj',  from:'_modifier',   to:'_textobj'         },
+
+      { name:'search',   from:'_none',       to:'_search'          },
+      { name:'ex',       from:'_none',       to:'_ex'              },
+
+      { name:'done',     from:'*',           to:'_none'            },
+
+      { name:'nonzero',  from:'_none',       to:'_noneRepeat'      },
+      { name:'nonzero',  from:'_noneRepeat', to:'_noneRepeat'      },
   ]});
   fsm.events = ['motion','operator','action','modifier','textobj','search','ex'];
   return fsm;
@@ -174,6 +185,7 @@ function CommandHelper (commandList_, context) {
   var keysViewer = KeysViewer(context);
 
   var keyBuf = [];
+  var numBuf = [];
   var matchCommand = function () {
     var match;
     for (var i=0; i<commandList.length; i++) {
@@ -233,6 +245,10 @@ function CommandHelper (commandList_, context) {
     }
   };
 
+  var showRepeat = function() {
+    helpViewer.append(numBuf, "Repeat "+numBuf.join('')+" times.");
+  };
+
   var showKeys = function() {
     filter = [];
     for (var i=0; i<fsm.events.length; i++) {
@@ -254,6 +270,18 @@ function CommandHelper (commandList_, context) {
       showHelp(match);
       showKeys();
     }
+    else {
+      if (isNonzero(key) && fsm.can('nonzero')) {
+        numBuf.push(keyBuf.pop());
+        fsm.nonzero();
+        showRepeat();
+      }
+    }
+  };
+
+  var isNonzero = function(key) {
+    return (key.charCodeAt(0) >= '1'.charCodeAt(0)
+         && key.charCodeAt(0) <= '9'.charCodeAt(0));
   };
 
   var init = function() {

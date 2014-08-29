@@ -18,6 +18,7 @@ var commandListEN = [
     { keys:['$'],       help:'to end of line' },
 
     { keys:['g','g'],   help:'to start of file' },
+    { keys:['f','char'],help:'To given character' },
   ]},
   // Operator commands. Always used with either (i) motion,
   // (ii) a modifier + text-object (iii) itself, meaning linewise operation.

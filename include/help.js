@@ -1,4 +1,6 @@
 
+/* global StateMachine */
+
 var commandListEN = [
   // Motion commands. Can be used alone, or used with operator.
   { type:'motion', commands:[
@@ -75,7 +77,7 @@ function HelpViewer(context) {
   var display = $("#helps-display", context);
 
   var getKeyObject = function(keys, help) {
-    var div = $("<div></div>")
+    var div = $("<div></div>");
     var kbd = $("<div></div>");
     for (var i=0; i<keys.length; i++) {
       var key = keys[i];
@@ -87,7 +89,7 @@ function HelpViewer(context) {
 
     div.append(kbd).append(txt);
     return div;
-  }
+  };
 
   var append = function(keys, help) {
     display.append(getKeyObject(keys, help));
@@ -95,7 +97,7 @@ function HelpViewer(context) {
 
   var updateLast = function(keys, help) {
     var children = display.children();
-    var last = $(children[children.length - 1])
+    var last = $(children[children.length - 1]);
     last.html(getKeyObject(keys, help));
   };
 
@@ -112,7 +114,7 @@ function HelpViewer(context) {
 
 // Interface to suggested keys help at the right.
 function KeysViewer(context) {
-  var display = $("#keys-display");
+  var display = $("#keys-display", context);
 
   var appendType = function(bundle) {
     var div = $("<div></div>").addClass(bundle.type);
@@ -123,7 +125,7 @@ function KeysViewer(context) {
   };
 
   var getKeyObject = function(keys, help) {
-    var div = $("<div></div>")
+    var div = $("<div></div>");
     for (var i=0; i<keys.length; i++) {
       var key = keys[i];
       key = key.replace("<","&lt;");
@@ -134,8 +136,7 @@ function KeysViewer(context) {
     div.append(txt);
 
     return div;
-  }
-
+  };
 
   var appendCommand = function(container, cmd) {
     container.append(getKeyObject(cmd.keys, cmd.help));
@@ -215,10 +216,10 @@ function CommandHelper (commandList_, context) {
 
   var commandList = commandList_;
 
-  var helpViewer = HelpViewer(context);
-  var keysViewer = KeysViewer(context);
+  var helpViewer = new HelpViewer(context);
+  var keysViewer = new KeysViewer(context);
 
-  var fsm = VimFSM(context);
+  var fsm = new VimFSM(context);
 
   // Returns a default event handler for FSM.
   // The argument is optional function that decorates
@@ -233,14 +234,14 @@ function CommandHelper (commandList_, context) {
   // Leaving _none state implies we start a new command.
   fsm.onleave_none = function() {
     helpViewer.clear();
-  }
+  };
 
   // Describe the current command on state change.
-  fsm.on_simpleMotion = helpFormat(function(s) { return "Move "+s});
+  fsm.on_simpleMotion = helpFormat(function(s) { return "Move "+s; });
   fsm.on_operatorsMotion = helpFormat();
 
   fsm.on_operator = helpFormat();
-  fsm.on_operatorLinewise = helpFormat(function(s) { return "This line"});
+  fsm.on_operatorLinewise = helpFormat(function() { return "This line"; });
 
   fsm.on_action = helpFormat();
   fsm.on_modifier = helpFormat();
@@ -250,7 +251,7 @@ function CommandHelper (commandList_, context) {
   fsm.on_ex = helpFormat();
 
   fsm.onnonzero = function() {
-    if (numBuf.length == 1)
+    if (numBuf.length === 1)
       helpViewer.append(numBuf, "Repeat "+numBuf.join('')+" times.");
     else
       helpViewer.updateLast(numBuf, "Repeat "+numBuf.join('')+" times.");
@@ -275,7 +276,7 @@ function CommandHelper (commandList_, context) {
 
           if (compareKeys(cmd.keys, keyBuf)) {
             if (match)
-              throw ("Duplicate command: " + keys.join());
+              throw ("Duplicate command: " + keyBuF.join());
             match = { type:bundle.type, keys:cmd.keys, help:cmd.help };
           }
         }
@@ -285,10 +286,10 @@ function CommandHelper (commandList_, context) {
   };
 
   var compareKeys = function (a, b) {
-    if (a.length != b.length)
+    if (a.length !== b.length)
       return false;
     for (var i=0; i<a.length; i++) {
-      if (a[i] != b[i] && a[i] != 'char')
+      if (a[i] !== b[i] && a[i] !== 'char')
         return false;
     }
     return true;
@@ -314,17 +315,17 @@ function CommandHelper (commandList_, context) {
 
   var comparePartial = function(a, b) {
     var minLength = (a.length < b.length)? a.length : b.length;
-    if (minLength == 0)
+    if (minLength === 0)
       return false;
     for (var i=0; i<minLength; i++) {
-      if (a[i] != b[i] && a[i] != 'char')
+      if (a[i] !== b[i] && a[i] !== 'char')
         return false;
     }
     return true;
   };
 
   var showKeys = function() {
-    filter = [];
+    var filter = [];
     for (var i=0; i<fsm.events.length; i++) {
       var e = fsm.events[i];
       if (fsm.can(e))
@@ -341,8 +342,9 @@ function CommandHelper (commandList_, context) {
 
     // '0' key is special case since it belongs
     // in both command and repeat.
-    if (key != '0' || numBuf.length == 0)
+    if (key !== '0' || numBuf.length === 0) {
       match = matchCommand();
+    }
 
     if (match) {
       keyBuf = [];
@@ -356,13 +358,13 @@ function CommandHelper (commandList_, context) {
 
         // keyBuf is for command sequences, not repeat counts.
         numBuf.push(keyBuf.pop());
-        if (key == '0') fsm.zero();
+        if (key === '0') fsm.zero();
         else fsm.nonzero();
         showKeys();
       }
       else {
         var matches = matchPartial();
-        if (matches.length == 0) {
+        if (matches.length === 0) {
           console.log("unknown command: " + keyBuf.join());
           keyBuf = [];
           numBuf = [];
@@ -377,8 +379,8 @@ function CommandHelper (commandList_, context) {
   };
 
   var isNonzero = function(key) {
-    return (key.charCodeAt(0) >= '1'.charCodeAt(0)
-         && key.charCodeAt(0) <= '9'.charCodeAt(0));
+    return (key.charCodeAt(0) >= '1'.charCodeAt(0) &&
+            key.charCodeAt(0) <= '9'.charCodeAt(0));
   };
 
   var init = function() {
@@ -397,5 +399,5 @@ function CommandHelper (commandList_, context) {
   };
 }
 
-var commandHelper = CommandHelper(commandListEN, window.body);
+var commandHelper = new CommandHelper(commandListEN, window.body);
 

@@ -1,4 +1,7 @@
 
+/* global CodeMirror */
+/* global commandHelper */
+
 // Save command override.
 CodeMirror.commands.save = function() {
   alert("saved.");
@@ -16,12 +19,11 @@ var editor = CodeMirror.fromTextArea(document.getElementById("vim"), {
 
 // Key input events.
 CodeMirror.on(editor, 'vim-keypress', function(e) {
-  var match = commandHelper.onKey(e);
+  commandHelper.onKey(e);
 });
-CodeMirror.on(editor, 'vim-command-done', function(e) {
+CodeMirror.on(editor, 'vim-command-done', function() {
   commandHelper.done();
 });
-var ee = null
 CodeMirror.Vim.getRegisterController().unnamedRegister.setListener(editor);
 CodeMirror.on(editor, 'vim-set-register', function(e) {
   $("#register-display").val(e).trigger('autosize.resize');
@@ -39,7 +41,7 @@ function mode_change(mode) {
   $("#mode-selector").animate({top:t, left:l, height:h, width:w}, 100);
 }
 CodeMirror.on(editor, 'vim-mode-change', function(e) {
-  mode_change(e['mode']);
+  mode_change(e.mode);
 });
 
 // Initialize the site.

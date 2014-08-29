@@ -274,7 +274,36 @@ function CommandHelper (commandList_, context) {
     if (a.length != b.length)
       return false;
     for (var i=0; i<a.length; i++) {
-      if (a[i] != b[i])
+      if (a[i] != b[i] && a[i] != 'char')
+        return false;
+    }
+    return true;
+  };
+
+  var matchPartial = function () {
+    var matches = [];
+    for (var i=0; i<commandList.length; i++) {
+      var bundle = commandList[i];
+
+      if (fsm.can(bundle.type)) {
+        for (var j=0; j<bundle.commands.length; j++) {
+          var cmd = bundle.commands[j];
+
+          if (comparePartial(cmd.keys, keyBuf)) {
+            matches.push({ type:bundle.type, keys:cmd.keys, help:cmd.help });
+          }
+        }
+      }
+    }
+    return matches;
+  };
+
+  var comparePartial = function(a, b) {
+    var minLength = (a.length < b.length)? a.length : b.length;
+    if (minLength == 0)
+      return false;
+    for (var i=0; i<minLength; i++) {
+      if (a[i] != b[i] && a[i] != 'char')
         return false;
     }
     return true;
@@ -318,11 +347,17 @@ function CommandHelper (commandList_, context) {
         showKeys();
       }
       else {
-        console.log("unknown command: " + keyBuf.join());
-        keyBuf = [];
-        numBuf = [];
-        fsm.done();
-        helpViewer.clear();
+        var matches = matchPartial();
+        if (matches.length == 0) {
+          console.log("unknown command: " + keyBuf.join());
+          keyBuf = [];
+          numBuf = [];
+          fsm.done();
+          helpViewer.clear();
+        }
+        else {
+          console.log("partial command: " + keyBuf.join());
+        }
       }
     }
   };

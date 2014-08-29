@@ -88,6 +88,7 @@ function HelpViewer(context) {
     var txt = $("<div>"+help+"</div>");
 
     div.append(kbd).append(txt);
+    div.addClass('help-view');
     return div;
   };
 
@@ -98,7 +99,7 @@ function HelpViewer(context) {
   var updateLast = function(keys, help) {
     var children = display.children();
     var last = $(children[children.length - 1]);
-    last.html(getKeyObject(keys, help));
+    last.replaceWith(getKeyObject(keys, help));
   };
 
   var clear = function() {

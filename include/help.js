@@ -178,6 +178,7 @@ function VimFSM(context) {
       { name:'motion',   from:'_noneRepeat', to:'_simpleMotion'    },
       { name:'motion',   from:'_operator',   to:'_operatorsMotion' },
       { name:'motion',   from:'_opRepeat',   to:'_operatorsMotion' },
+      { name:'motion',   from:'_nonePartial',to:'_simpleMotion'    },
 
       { name:'operator', from:'_none',       to:'_operator'        },
       { name:'operator', from:'_noneRepeat', to:'_operator'        },
@@ -201,6 +202,9 @@ function VimFSM(context) {
       { name:'nonzero',  from:'_operator',   to:'_opRepeat'        },
       { name:'nonzero',  from:'_opRepeat',   to:'_opRepeat'        },
       { name:'zero',     from:'_opRepeat',   to:'_opRepeat'        },
+
+      { name:'partial',  from:'_none',       to:'_nonePartial'     },
+      { name:'partial',  from:'_nonePartial',to:'_nonePartial'     },
   ]});
   fsm.events = ['motion','operator','action','modifier','textobj','search','ex'];
   return fsm;
@@ -252,6 +256,11 @@ function CommandHelper (commandList_, context) {
       helpViewer.updateLast(numBuf, "Repeat "+numBuf.join('')+" times.");
   };
   fsm.onzero = fsm.onnonzero;
+
+  fsm.on_nonePartial = helpFormat();
+  fsm.onleave_nonePartial = function() {
+    helpViewer.clear();
+  };
 
   var keyBuf = [];
   var numBuf = [];
@@ -361,7 +370,7 @@ function CommandHelper (commandList_, context) {
           helpViewer.clear();
         }
         else {
-          console.log("partial command: " + keyBuf.join());
+          fsm.partial({ keys:keyBuf, help:'Finish this command.' });
         }
       }
     }

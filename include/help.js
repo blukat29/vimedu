@@ -18,7 +18,7 @@ var commandListEN = [
     { keys:['$'],       help:'to end of line' },
 
     { keys:['g','g'],   help:'to start of file' },
-    { keys:['f','char'],help:'To given character' },
+    { keys:['f','char'],help:'to given character', key_display:['f','target'] },
   ]},
   // Operator commands. Always used with either (i) motion,
   // (ii) a modifier + text-object (iii) itself, meaning linewise operation.
@@ -74,33 +74,29 @@ function HelpViewer(context) {
 
   var display = $("#helps-display", context);
 
-  var append = function(keys, help) {
-    keys = keys.join('');
-    keys = keys.replace("<","&lt;");
-    keys = keys.replace(">","&gt;");
-
+  var getKeyObject = function(keys, help) {
     var div = $("<div></div>")
-    var kbd = $("<div><kbd>"+keys+"</kbd></div>");
+    var kbd = $("<div></div>");
+    for (var i=0; i<keys.length; i++) {
+      var key = keys[i];
+      key = key.replace("<","&lt;");
+      key = key.replace(">","&gt;");
+      kbd.append($("<kbd>"+key+"</kbd>"));
+    }
     var txt = $("<div>"+help+"</div>");
 
     div.append(kbd).append(txt);
-    display.append(div);
+    return div;
+  }
+
+  var append = function(keys, help) {
+    display.append(getKeyObject(keys, help));
   };
 
   var updateLast = function(keys, help) {
     var children = display.children();
     var last = $(children[children.length - 1])
-
-    keys = keys.join('');
-    keys = keys.replace("<","&lt;");
-    keys = keys.replace(">","&gt;");
-
-    var div = $("<div></div>")
-    var kbd = $("<div><kbd>"+keys+"</kbd></div>");
-    var txt = $("<div>"+help+"</div>");
-
-    div.append(kbd).append(txt);
-    last.html(div);
+    last.html(getKeyObject(keys, help));
   };
 
   var clear = function() {
@@ -126,15 +122,23 @@ function KeysViewer(context) {
     return div;
   };
 
-  var appendCommand = function(container, cmd) {
-    var keys = cmd.keys;
-    keys = keys.join('').replace('<','&lt;').replace('>','&gt;');
+  var getKeyObject = function(keys, help) {
+    var div = $("<div></div>")
+    for (var i=0; i<keys.length; i++) {
+      var key = keys[i];
+      key = key.replace("<","&lt;");
+      key = key.replace(">","&gt;");
+      div.append($("<kbd>"+key+"</kbd>"));
+    }
+    var txt = $("<span>  "+help+"</span>");
+    div.append(txt);
 
-    var div = $("<div></div>");
-    var kbd = $("<kbd>"+keys+"</kbd>");
-    var txt = $("<span>  "+cmd.help+"</span>");
-    div.append(kbd).append(txt);
-    container.append(div);
+    return div;
+  }
+
+
+  var appendCommand = function(container, cmd) {
+    container.append(getKeyObject(cmd.keys, cmd.help));
   };
 
   var init = function(commandList) {

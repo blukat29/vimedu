@@ -18,6 +18,7 @@ var commandListEN = [
     { keys:['$'],       help:'to end of line' },
 
     { keys:['g','g'],   help:'to start of file' },
+    { keys:['f','char'],help:'to given character', key_display:['f','target'] },
   ]},
   // Operator commands. Always used with either (i) motion,
   // (ii) a modifier + text-object (iii) itself, meaning linewise operation.
@@ -73,33 +74,29 @@ function HelpViewer(context) {
 
   var display = $("#helps-display", context);
 
-  var append = function(keys, help) {
-    keys = keys.join('');
-    keys = keys.replace("<","&lt;");
-    keys = keys.replace(">","&gt;");
-
+  var getKeyObject = function(keys, help) {
     var div = $("<div></div>")
-    var kbd = $("<div><kbd>"+keys+"</kbd></div>");
+    var kbd = $("<div></div>");
+    for (var i=0; i<keys.length; i++) {
+      var key = keys[i];
+      key = key.replace("<","&lt;");
+      key = key.replace(">","&gt;");
+      kbd.append($("<kbd>"+key+"</kbd>"));
+    }
     var txt = $("<div>"+help+"</div>");
 
     div.append(kbd).append(txt);
-    display.append(div);
+    return div;
+  }
+
+  var append = function(keys, help) {
+    display.append(getKeyObject(keys, help));
   };
 
   var updateLast = function(keys, help) {
     var children = display.children();
     var last = $(children[children.length - 1])
-
-    keys = keys.join('');
-    keys = keys.replace("<","&lt;");
-    keys = keys.replace(">","&gt;");
-
-    var div = $("<div></div>")
-    var kbd = $("<div><kbd>"+keys+"</kbd></div>");
-    var txt = $("<div>"+help+"</div>");
-
-    div.append(kbd).append(txt);
-    last.html(div);
+    last.html(getKeyObject(keys, help));
   };
 
   var clear = function() {
@@ -125,15 +122,23 @@ function KeysViewer(context) {
     return div;
   };
 
-  var appendCommand = function(container, cmd) {
-    var keys = cmd.keys;
-    keys = keys.join('').replace('<','&lt;').replace('>','&gt;');
+  var getKeyObject = function(keys, help) {
+    var div = $("<div></div>")
+    for (var i=0; i<keys.length; i++) {
+      var key = keys[i];
+      key = key.replace("<","&lt;");
+      key = key.replace(">","&gt;");
+      div.append($("<kbd>"+key+"</kbd>"));
+    }
+    var txt = $("<span>  "+help+"</span>");
+    div.append(txt);
 
-    var div = $("<div></div>");
-    var kbd = $("<kbd>"+keys+"</kbd>");
-    var txt = $("<span>  "+cmd.help+"</span>");
-    div.append(kbd).append(txt);
-    container.append(div);
+    return div;
+  }
+
+
+  var appendCommand = function(container, cmd) {
+    container.append(getKeyObject(cmd.keys, cmd.help));
   };
 
   var init = function(commandList) {
@@ -173,6 +178,7 @@ function VimFSM(context) {
       { name:'motion',   from:'_noneRepeat', to:'_simpleMotion'    },
       { name:'motion',   from:'_operator',   to:'_operatorsMotion' },
       { name:'motion',   from:'_opRepeat',   to:'_operatorsMotion' },
+      { name:'motion',   from:'_nonePartial',to:'_simpleMotion'    },
 
       { name:'operator', from:'_none',       to:'_operator'        },
       { name:'operator', from:'_noneRepeat', to:'_operator'        },
@@ -196,6 +202,9 @@ function VimFSM(context) {
       { name:'nonzero',  from:'_operator',   to:'_opRepeat'        },
       { name:'nonzero',  from:'_opRepeat',   to:'_opRepeat'        },
       { name:'zero',     from:'_opRepeat',   to:'_opRepeat'        },
+
+      { name:'partial',  from:'_none',       to:'_nonePartial'     },
+      { name:'partial',  from:'_nonePartial',to:'_nonePartial'     },
   ]});
   fsm.events = ['motion','operator','action','modifier','textobj','search','ex'];
   return fsm;
@@ -248,6 +257,11 @@ function CommandHelper (commandList_, context) {
   };
   fsm.onzero = fsm.onnonzero;
 
+  fsm.on_nonePartial = helpFormat();
+  fsm.onleave_nonePartial = function() {
+    helpViewer.clear();
+  };
+
   var keyBuf = [];
   var numBuf = [];
   var matchCommand = function () {
@@ -274,7 +288,36 @@ function CommandHelper (commandList_, context) {
     if (a.length != b.length)
       return false;
     for (var i=0; i<a.length; i++) {
-      if (a[i] != b[i])
+      if (a[i] != b[i] && a[i] != 'char')
+        return false;
+    }
+    return true;
+  };
+
+  var matchPartial = function () {
+    var matches = [];
+    for (var i=0; i<commandList.length; i++) {
+      var bundle = commandList[i];
+
+      if (fsm.can(bundle.type)) {
+        for (var j=0; j<bundle.commands.length; j++) {
+          var cmd = bundle.commands[j];
+
+          if (comparePartial(cmd.keys, keyBuf)) {
+            matches.push({ type:bundle.type, keys:cmd.keys, help:cmd.help });
+          }
+        }
+      }
+    }
+    return matches;
+  };
+
+  var comparePartial = function(a, b) {
+    var minLength = (a.length < b.length)? a.length : b.length;
+    if (minLength == 0)
+      return false;
+    for (var i=0; i<minLength; i++) {
+      if (a[i] != b[i] && a[i] != 'char')
         return false;
     }
     return true;
@@ -318,11 +361,17 @@ function CommandHelper (commandList_, context) {
         showKeys();
       }
       else {
-        console.log("unknown command: " + keyBuf.join());
-        keyBuf = [];
-        numBuf = [];
-        fsm.done();
-        helpViewer.clear();
+        var matches = matchPartial();
+        if (matches.length == 0) {
+          console.log("unknown command: " + keyBuf.join());
+          keyBuf = [];
+          numBuf = [];
+          fsm.done();
+          helpViewer.clear();
+        }
+        else {
+          fsm.partial({ keys:keyBuf, help:'Finish this command.' });
+        }
       }
     }
   };

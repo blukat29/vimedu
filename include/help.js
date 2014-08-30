@@ -8,10 +8,10 @@ var commandListEN = [
     { keys:['j'],       help:'to down' },
     { keys:['k'],       help:'to up' },
     { keys:['l'],       help:'to right' },
-    { keys:['<Left>'],  help:'to left' },
-    { keys:['<Down>'],  help:'to down' },
-    { keys:['<Up>'],    help:'to up' },
-    { keys:['<Right>'], help:'to right' },
+    { keys:['<Left>'],  help:'to left',  keysDisp:['←'] },
+    { keys:['<Down>'],  help:'to down',  keysDisp:['↓'] },
+    { keys:['<Up>'],    help:'to up',    keysDisp:['↑'] },
+    { keys:['<Right>'], help:'to right', keysDisp:['→'] },
 
     { keys:['w'],       help:'a word' },
     { keys:['b'],       help:'a word backward' },
@@ -20,7 +20,7 @@ var commandListEN = [
     { keys:['$'],       help:'to end of line' },
 
     { keys:['g','g'],   help:'to start of file' },
-    { keys:['f','char'],help:'to given character', key_display:['f','target'] },
+    { keys:['f','char'],help:'to given character', keysDisp:['f','target'] },
   ]},
   // Operator commands. Always used with either (i) motion,
   // (ii) a modifier + text-object (iii) itself, meaning linewise operation.
@@ -38,7 +38,7 @@ var commandListEN = [
     { keys:['v'],     help:'Switch to visual mode' },
     { keys:['x'],     help:'Delete a character' },
     { keys:['u'],     help:'Undo' },
-    { keys:['<C-r>'], help:'Redo' },
+    { keys:['<C-r>'], help:'Redo', keysDisp:['Ctrl+r']  },
   ]},
   // Modifiers. Used before text object.
   { type:'modifier', commands:[
@@ -67,7 +67,7 @@ var commandListEN = [
   ]},
   // Esc is treated specially.
   { type:'done', commands:[
-    { keys:['<Esc>'], help:'Cancel command' },
+    { keys:['<Esc>'], help:'Cancel command', keysDisp:['Esc']  },
   ]},
 ];
 
@@ -228,7 +228,8 @@ function CommandHelper (commandList_, context) {
   var helpFormat = function(f) {
     f = (typeof f !== 'undefined')? f : function(s) { return s; };
     return function(e, from, to, cmd) {
-      helpViewer.append(cmd.keys, f(cmd.help));
+      var keys = (typeof cmd.keysDisp !== 'undefined')? cmd.keysDisp : cmd.keys;
+      helpViewer.append(keys, f(cmd.help));
     };
   };
 
@@ -278,7 +279,7 @@ function CommandHelper (commandList_, context) {
           if (compareKeys(cmd.keys, keyBuf)) {
             if (match)
               throw ("Duplicate command: " + keyBuF.join());
-            match = { type:bundle.type, keys:cmd.keys, help:cmd.help };
+            match = { type:bundle.type, cmd:cmd };
           }
         }
       }
@@ -350,7 +351,7 @@ function CommandHelper (commandList_, context) {
     if (match) {
       keyBuf = [];
       numBuf = [];
-      fsm[match.type](match);
+      fsm[match.type](match.cmd);
       showKeys();
     }
     else {
@@ -373,7 +374,7 @@ function CommandHelper (commandList_, context) {
           helpViewer.clear();
         }
         else {
-          fsm.partial({ keys:keyBuf, help:'Finish this command.' });
+          fsm.partial({ keys:keyBuf, help:'...' });
         }
       }
     }

@@ -176,37 +176,33 @@ function VimFSM(context) {
   var fsm = StateMachine.create({
     initial:'_none',
     events: [
-      { name:'motion',   from:'_none',       to:'_none'            },
-      { name:'motion',   from:'_noneRepeat', to:'_none'            },
-      { name:'motion',   from:'_operator',   to:'_none'            },
-      { name:'motion',   from:'_opRepeat',   to:'_none'            },
-      { name:'motion',   from:'_nonePartial',to:'_none'            },
+      { name:'motion',   from:'_none',     to:'_none'     },
+      { name:'motion',   from:'_repeat',   to:'_none'     },
+      { name:'motion',   from:'_operator', to:'_none'     },
+      { name:'motion',   from:'_partial',  to:'_none'     },
 
-      { name:'operator', from:'_none',       to:'_operator'        },
-      { name:'operator', from:'_noneRepeat', to:'_operator'        },
-      { name:'operator', from:'_operator',   to:'_none'            },
+      { name:'operator', from:'_none',     to:'_operator' },
+      { name:'operator', from:'_repeat',   to:'_operator' },
+      { name:'operator', from:'_operator', to:'_none'     },
 
-      { name:'action',   from:'_none',       to:'_none'            },
-      { name:'action',   from:'_noneRepeat', to:'_none'            },
+      { name:'action',   from:'_none',     to:'_none'     },
+      { name:'action',   from:'_repeat',   to:'_none'     },
 
-      { name:'modifier', from:'_operator',   to:'_modifier'        },
-      { name:'textobj',  from:'_modifier',   to:'_none'            },
+      { name:'modifier', from:'_operator', to:'_modifier' },
+      { name:'textobj',  from:'_modifier', to:'_none'     },
 
-      { name:'search',   from:'_none',       to:'_search'          },
-      { name:'ex',       from:'_none',       to:'_ex'              },
+      { name:'search',   from:'_none',     to:'_search'   },
+      { name:'ex',       from:'_none',     to:'_ex'       },
 
-      { name:'done',     from:'*',           to:'_none'            },
+      { name:'done',     from:'*',         to:'_none'     },
 
-      { name:'nonzero',  from:'_none',       to:'_noneRepeat'      },
-      { name:'nonzero',  from:'_noneRepeat', to:'_noneRepeat'      },
-      { name:'zero',     from:'_noneRepeat', to:'_noneRepeat'      },
+      { name:'nonzero',  from:'_none',     to:'_repeat'   },
+      { name:'nonzero',  from:'_operator', to:'_repeat'   },
+      { name:'nonzero',  from:'_repeat',   to:'_repeat'   },
+      { name:'zero',     from:'_repeat',   to:'_repeat'   },
 
-      { name:'nonzero',  from:'_operator',   to:'_opRepeat'        },
-      { name:'nonzero',  from:'_opRepeat',   to:'_opRepeat'        },
-      { name:'zero',     from:'_opRepeat',   to:'_opRepeat'        },
-
-      { name:'partial',  from:'_none',       to:'_nonePartial'     },
-      { name:'partial',  from:'_nonePartial',to:'_nonePartial'     },
+      { name:'partial',  from:'_none',     to:'_partial'  },
+      { name:'partial',  from:'_partial',  to:'_partial'  },
   ]});
   fsm.events = ['motion','operator','action','modifier','textobj','search','ex'];
   return fsm;
@@ -223,13 +219,13 @@ function CommandHelper (commandList_, context) {
   var fsm = new VimFSM(context);
 
   fsm.onbeforeevent = function(e, from, to) {
-    if (from === '_none' || from === '_nonePartial') {
+    if (from === '_none' || from === '_partial') {
       helpViewer.clear();
     }
   };
 
   fsm.onmotion = function(e, from, to, cmd) {
-    if ($.inArray(from, ['_none', '_noneRepeat', '_nonePartial']) >= 0) {
+    if ($.inArray(from, ['_none', '_repeat', '_partial']) >= 0) {
       helpViewer.append(cmd.keys, "Move " + cmd.help);
     }
     else {

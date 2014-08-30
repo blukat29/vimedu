@@ -44,3 +44,26 @@ body {
 h4 {
   display: inline-block;
 }
+
+kbd {
+  margin: 2px;
+}
+
+#helps-display {
+  display: table;
+  border-collapse: separate;
+  border-spacing: 10px;
+}
+
+.help-view {
+  display: table-cell;
+  background-color: #eeeeee;
+  text-align: center;
+}
+
+.help-view > div > kbd {
+  padding-left: 8px;
+  padding-right: 8px;
+  font-size: 20px;
+}
+

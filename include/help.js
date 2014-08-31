@@ -35,7 +35,6 @@ var commandListEN = [
   // Action commands. Always used alone. Each one is complete as itself.
   { type:'action', commands:[
     { keys:['i'],     help:'Switch to insert mode' },
-    { keys:['v'],     help:'Switch to visual mode' },
     { keys:['x'],     help:'Delete a character' },
     { keys:['u'],     help:'Undo' },
     { keys:['<C-r>'], help:'Redo', keysDisp:['Ctrl+r']  },
@@ -68,6 +67,10 @@ var commandListEN = [
   // Esc is treated specially.
   { type:'done', commands:[
     { keys:['<Esc>'], help:'Cancel command', keysDisp:['Esc']  },
+  ]},
+  // v keys toggles visual mode.
+  { type:'visual', commands:[
+    { keys:['v'],     help:'Toggle visual mode' },
   ]},
 ];
 
@@ -203,6 +206,19 @@ function VimFSM(context) {
 
       { name:'partial',  from:'_none',     to:'_partial'  },
       { name:'partial',  from:'_partial',  to:'_partial'  },
+
+      { name:'visual',   from:'_none',     to:'_vnone'    },
+      { name:'visual',   from:'_vnone',    to:'_none'     },
+      { name:'visual',   from:'_vmodifier',to:'_none'     },
+
+      { name:'motion',   from:'_vnone',    to:'_vnone'    },
+      { name:'operator', from:'_vnone',    to:'_none',    },
+      { name:'modifier', from:'_vnone',    to:'_vmodifier'},
+      { name:'textobj',  from:'_vmodifier',to:'_vnone'    },
+
+      { name:'nonzero',  from:'_vnone',    to:'_repeat'   },
+      { name:'nonzero',  from:'_repeat',   to:'_repeat'   },
+      { name:'zero',     from:'_repeat',   to:'_repeat'   },
   ]});
   fsm.events = ['motion','operator','action','modifier','textobj','search','ex'];
 
@@ -211,6 +227,10 @@ function VimFSM(context) {
   fsm.onbeforeevent = function(e, from, to) {
     if (from === '_none' || from === '_partial') {
       helpViewer.clear();
+    }
+    else if (from === '_vnone') {
+      helpViewer.clear();
+      helpViewer.append(['v'], "Select");
     }
   };
 
@@ -245,10 +265,12 @@ function VimFSM(context) {
   };
 
   fsm.onnonzero = function(e, from, to, numBuf) {
-    if (from === '_none' || from === '_operator')
+    if (from === '_none' || from === '_operator' || from === '_vnone') {
       helpViewer.append(numBuf, "Repeat "+numBuf.join('')+" times.");
-    else
+    }
+    else {
       helpViewer.updateLast(numBuf, "Repeat "+numBuf.join('')+" times.");
+    }
   };
   fsm.onzero = fsm.onnonzero;
 
@@ -258,6 +280,12 @@ function VimFSM(context) {
     }
     else {
       helpViewer.updateLast(cmd.keys, "...");
+    }
+  };
+
+  fsm.onvisual = function(e, from, to, cmd) {
+    if (from === '_none') {
+      helpViewer.append(cmd.keys, "Select: ");
     }
   };
 

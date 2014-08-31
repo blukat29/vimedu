@@ -205,18 +205,8 @@ function VimFSM(context) {
       { name:'partial',  from:'_partial',  to:'_partial'  },
   ]});
   fsm.events = ['motion','operator','action','modifier','textobj','search','ex'];
-  return fsm;
-}
-
-// Outermost interface to overall help functionality.
-function CommandHelper (commandList_, context) {
-
-  var commandList = commandList_;
 
   var helpViewer = new HelpViewer(context);
-  var keysViewer = new KeysViewer(context);
-
-  var fsm = new VimFSM(context);
 
   fsm.onbeforeevent = function(e, from, to) {
     if (from === '_none' || from === '_partial') {
@@ -254,8 +244,8 @@ function CommandHelper (commandList_, context) {
     helpViewer.append(cmd.keys, cmd.help);
   };
 
-  fsm.onnonzero = function() {
-    if (numBuf.length === 1)
+  fsm.onnonzero = function(e, from, to, numBuf) {
+    if (from === '_none' || from === '_operator')
       helpViewer.append(numBuf, "Repeat "+numBuf.join('')+" times.");
     else
       helpViewer.updateLast(numBuf, "Repeat "+numBuf.join('')+" times.");
@@ -275,6 +265,17 @@ function CommandHelper (commandList_, context) {
     helpViewer.clear();
   };
 
+  return fsm;
+}
+
+// Outermost interface to overall help functionality.
+function CommandHelper (commandList_, context) {
+
+  var commandList = commandList_;
+
+  var keysViewer = new KeysViewer(context);
+
+  var fsm = new VimFSM(context);
   var keyBuf = [];
   var numBuf = [];
   var matchCommand = function () {
@@ -370,8 +371,8 @@ function CommandHelper (commandList_, context) {
 
         // keyBuf is for command sequences, not repeat counts.
         numBuf.push(keyBuf.pop());
-        if (key === '0') fsm.zero();
-        else fsm.nonzero();
+        if (key === '0') fsm.zero(numBuf);
+        else fsm.nonzero(numBuf);
         showKeys();
       }
       else {

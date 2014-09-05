@@ -212,9 +212,11 @@ function VimFSM(context) {
       { name:'visual',   from:'_vmodifier',to:'_none'     },
 
       { name:'motion',   from:'_vnone',    to:'_vnone'    },
+      { name:'motion',   from:'_vpartial', to:'_vnone'    },
       { name:'operator', from:'_vnone',    to:'_none',    },
       { name:'modifier', from:'_vnone',    to:'_vmodifier'},
       { name:'textobj',  from:'_vmodifier',to:'_vnone'    },
+      { name:'partial',  from:'_vnone',    to:'_vpartial' },
 
       { name:'nonzero',  from:'_vnone',    to:'_repeat'   },
       { name:'nonzero',  from:'_repeat',   to:'_repeat'   },
@@ -225,10 +227,11 @@ function VimFSM(context) {
   var helpViewer = new HelpViewer(context);
 
   fsm.onbeforeevent = function(e, from, to) {
+    console.log(e + from + to);
     if (from === '_none' || from === '_partial') {
       helpViewer.clear();
     }
-    else if (from === '_vnone') {
+    else if (from === '_vnone' || from === '_vpartial') {
       helpViewer.clear();
       helpViewer.append(['v'], "Select");
     }
@@ -275,7 +278,7 @@ function VimFSM(context) {
   fsm.onzero = fsm.onnonzero;
 
   fsm.onpartial = function(e, from, to, cmd) {
-    if (from === '_none') {
+    if (from === '_none' || from === '_vnone') {
       helpViewer.append(cmd.keys, "...");
     }
     else {
@@ -285,7 +288,11 @@ function VimFSM(context) {
 
   fsm.onvisual = function(e, from, to, cmd) {
     if (from === '_none') {
-      helpViewer.append(cmd.keys, "Select: ");
+      helpViewer.append(cmd.keys, "Select");
+    }
+    else if (to === '_none') {
+      helpViewer.clear();
+      helpViewer.append(cmd.keys, "Cancel visual mode");
     }
   };
 

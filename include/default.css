@@ -67,3 +67,8 @@ kbd {
   font-size: 20px;
 }
 
+#vim-overlay {
+  background-color: #aaaaff;
+  opacity: 0.2;
+}
+

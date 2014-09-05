@@ -17,6 +17,20 @@ var editor = CodeMirror.fromTextArea(document.getElementById("vim"), {
   lineWrapping: true,
 });
 
+$("#vim-overlay").click(function() {
+  editor.focus();
+});
+
+(function() {
+  var cm = $(".CodeMirror");
+  var ov = $("#vim-overlay");
+  ov.css("z-index",10);
+  ov.css("position","absolute");
+  ov.offset(cm.offset());
+  ov.outerHeight(cm.outerHeight());
+  ov.outerWidth(cm.outerWidth());
+})();
+
 // Key input events.
 CodeMirror.on(editor, 'vim-keypress', function(e) {
   commandHelper.onKey(e);

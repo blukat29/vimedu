@@ -2,39 +2,6 @@
 /* global CodeMirror */
 /* global commandHelper */
 
-// Save command override.
-CodeMirror.commands.save = function() {
-  alert("saved.");
-};
-
-// Initialize vim.
-var editor = CodeMirror.fromTextArea(document.getElementById("vim"), {
-  lineNumbers: true,
-  mode: "text/x-csrc",
-  vimMode: true,
-  matchBrackets: true,
-  showCursorWhenSelecting: true,
-  lineWrapping: true,
-});
-
-$("#vim-overlay").click(function() {
-  editor.focus();
-});
-
-(function() {
-  var cm = $(".CodeMirror");
-  var ov = $("#vim-overlay");
-  ov.css("z-index",10);
-  ov.css("position","absolute");
-  ov.offset(cm.offset());
-  ov.outerHeight(cm.outerHeight());
-  ov.outerWidth(cm.outerWidth());
-})();
-
-CodeMirror.on(editor, 'vim-quit', function() {
-  alert("quit");
-});
-
 // Key input events.
 CodeMirror.on(editor, 'vim-keypress', function(e) {
   commandHelper.onKey(e);

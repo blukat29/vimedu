@@ -3730,6 +3730,7 @@
       { name: 'vmap', shortName: 'vm' },
       { name: 'unmap' },
       { name: 'write', shortName: 'w' },
+      { name: 'quit', shortName: 'q' },
       { name: 'undo', shortName: 'u' },
       { name: 'redo', shortName: 'red' },
       { name: 'set', shortName: 'set' },
@@ -4298,6 +4299,9 @@
           // Saves to text area if no save command is defined.
           cm.save();
         }
+      },
+      quit: function(cm) {
+        CodeMirror.signal(cm, 'vim-quit');
       },
       nohlsearch: function(cm) {
         clearSearchHighlight(cm);

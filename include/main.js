@@ -31,6 +31,10 @@ $("#vim-overlay").click(function() {
   ov.outerWidth(cm.outerWidth());
 })();
 
+CodeMirror.on(editor, 'vim-quit', function() {
+  alert("quit");
+});
+
 // Key input events.
 CodeMirror.on(editor, 'vim-keypress', function(e) {
   commandHelper.onKey(e);

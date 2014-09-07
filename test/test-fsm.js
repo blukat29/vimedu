@@ -25,15 +25,23 @@ function runSingleTest(assert, test) {
   assert.deepEqual(getHelps(), test.output, test.comment);
 }
 
-var motionTests = [
-  { input:['w'], output:['w'], comment:"one key motion" },
-  { input:['2','b'], output:['2','b'], comment:"motion with repetition" },
-  { input:['g','g'], output:['gg'], comment:"two key motion" },
-];
+function runTestSuite(title, testSuite) {
+  QUnit.test(title, function(assert) {
+    for (var i=0; i < testSuite.length; i ++) {
+      runSingleTest(assert, testSuite[i]);
+    }
+  });
+}
 
-QUnit.test("motion keys", function(assert) {
-  for (var i=0; i < motionTests.length; i ++) {
-    runSingleTest(assert, motionTests[i]);
-  }
-});
+runTestSuite("motion keys", [
+  { input:['w'], output:['w'], comment:"simple motion 'w'" },
+  { input:['2','b'], output:['2','b'], comment:"motion with count '2b'" },
+  { input:['g','g'], output:['gg'], comment:"two key motion 'gg'" },
+  { input:['f','w'], output:['fchar'], comment:"two key motion with wildcard 'f+char'" },
+]);
+
+runTestSuite("operators", [
+  { input:['d','d'], output:['d','d'], comment:"simple double operator" },
+  { input:['d','2','d'], output:['d','2','d'], comment:"double operator with repetition" },
+]);
 

@@ -90,10 +90,13 @@
 			QUnit.log(function(details) {
 				var response;
 
-				console.log((details.result ? "✔ ": "✖ ") + details.message);
+				var message = details.result ? "\x1b[0;32m":"\x1b[0;31m";
+				message += (details.result ? "✔ ": "✖ ") + details.message;
+				message += "\x1b[0m";
+				console.log(message);
 
 				if (!details.result) {
-					response = details.message || '';
+					response = '';
 
 					if (typeof details.expected !== 'undefined') {
 						if (response) {
@@ -107,18 +110,18 @@
 						response += '\n' + details.source;
 					}
 
-					console.log('    Failed assertion: ' + response);
+					console.log('    Failed assertion - ' + response);
 				}
 			});
 
 			QUnit.moduleStart(function( details ) {
 				if (details.name) {
-					console.log('\n' + details.name);
+					console.log('\n\x1b[0;35m----------[' + details.name + ']----------\x1b[0m');
 				}
 			});
 
 			QUnit.testStart(function(result) {
-				console.log('\n' + result.name);
+				console.log('\n\x1b[0;36m----------[' + result.name + ']----------\x1b[0m');
 			});
 
 			QUnit.done(function(result) {

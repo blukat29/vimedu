@@ -60,7 +60,7 @@ CodeMirror.on(editor, 'vim-quit', function() {
           break;
         case 9:  // tab
           e.preventDefault();
-          level[next(i)].focus();
+          move_if_exists(i+1);
           break;
       }
     };

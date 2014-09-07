@@ -67,3 +67,12 @@ kbd {
   font-size: 20px;
 }
 
+#vim-overlay {
+  opacity: 0.0;
+}
+
+#quest-explorer {
+  background-color: #eeeeee;
+  height: 100%
+}
+

@@ -227,7 +227,6 @@ function VimFSM(context) {
   var helpViewer = new HelpViewer(context);
 
   fsm.onbeforeevent = function(e, from, to) {
-    console.log(e + from + to);
     if (from === '_none' || from === '_partial') {
       helpViewer.clear();
     }

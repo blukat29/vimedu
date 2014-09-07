@@ -68,7 +68,11 @@ kbd {
 }
 
 #vim-overlay {
-  background-color: #aaaaff;
-  opacity: 0.2;
+  opacity: 0.0;
+}
+
+#quest-explorer {
+  background-color: #eeeeee;
+  height: 100%
 }
 

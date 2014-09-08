@@ -181,11 +181,13 @@ function VimFSM(context) {
     events: [
       { name:'motion',   from:'_none',     to:'_none'     },
       { name:'motion',   from:'_repeat',   to:'_none'     },
+      { name:'motion',   from:'_opRepeat', to:'_none'     },
       { name:'motion',   from:'_operator', to:'_none'     },
       { name:'motion',   from:'_partial',  to:'_none'     },
 
       { name:'operator', from:'_none',     to:'_operator' },
       { name:'operator', from:'_repeat',   to:'_operator' },
+      { name:'operator', from:'_opRepeat', to:'_none'     },
       { name:'operator', from:'_operator', to:'_none'     },
 
       { name:'action',   from:'_none',     to:'_none'     },
@@ -200,9 +202,12 @@ function VimFSM(context) {
       { name:'done',     from:'*',         to:'_none'     },
 
       { name:'nonzero',  from:'_none',     to:'_repeat'   },
-      { name:'nonzero',  from:'_operator', to:'_repeat'   },
       { name:'nonzero',  from:'_repeat',   to:'_repeat'   },
       { name:'zero',     from:'_repeat',   to:'_repeat'   },
+
+      { name:'nonzero',  from:'_operator', to:'_opRepeat' },
+      { name:'nonzero',  from:'_opRepeat', to:'_opRepeat' },
+      { name:'zero',     from:'_opRepeat', to:'_opRepeat' },
 
       { name:'partial',  from:'_none',     to:'_partial'  },
       { name:'partial',  from:'_partial',  to:'_partial'  },
@@ -246,7 +251,7 @@ function VimFSM(context) {
   };
 
   fsm.onoperator = function(e, from, to ,cmd) {
-    if (from === '_operator') {
+    if (from === '_operator' || from === '_opRepeat') {
       helpViewer.append(cmd.keys, "This line");
     }
     else {

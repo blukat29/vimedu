@@ -22,7 +22,9 @@ function runSingleTest(assert, test) {
     var key = test.input[i];
     commandHelper.onKey(key);
   }
-  assert.deepEqual(getHelps(), test.output, test.comment);
+  var comment = test.comment || "";
+  var message = test.input.toString() + " : " + comment;
+  assert.deepEqual(getHelps(), test.output, message);
 }
 
 function runTestSuite(title, testSuite) {
@@ -36,14 +38,20 @@ function runTestSuite(title, testSuite) {
 QUnit.module("FSM tests", {});
 
 runTestSuite("motion keys", [
-  { input:['w'], output:['w'], comment:"simple motion 'w'" },
-  { input:['2','b'], output:['2','b'], comment:"motion with count '2b'" },
-  { input:['g','g'], output:['gg'], comment:"two key motion 'gg'" },
-  { input:['f','w'], output:['fchar'], comment:"two key motion with wildcard 'f+char'" },
+  { input:['w'], output:['w'], comment:"simple motion" },
+  { input:['g','g'], output:['gg'], comment:"two key motion" },
+  { input:['f','w'], output:['fchar'], comment:"two key motion with wildcard" },
+  { input:['0','w'], output:['w'], comment:"zero key should not treated as count." },
+  { input:['2','b'], output:['2','b'], comment:"motion with count" },
+  { input:['1','0','w'], output:['10','w'] },
 ]);
 
 runTestSuite("operators", [
   { input:['d','d'], output:['d','d'], comment:"simple double operator" },
   { input:['d','2','d'], output:['d','2','d'], comment:"double operator with repetition" },
+  { input:['2','d','d'], output:['2','d','d'], comment:"double operator with repetition" },
+  { input:['2','d','3','d'], output:['2','d','3','d'], comment:"double operator with repetition" },
+  { input:['d','w'], output:['d','w'], comment:"simple operator motion" },
+  { input:['1','2','d','2','0','3','w'], output:['12','d','203','w'], comment:"repeatition frenzy!" },
 ]);
 

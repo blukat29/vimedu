@@ -1,3 +1,5 @@
+QUnit.module("jsHint tests", {});
+
 qHint("../include/init.js");
 qHint("../include/quest.js");
 qHint("../include/help.js");

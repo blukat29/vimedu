@@ -53,5 +53,9 @@ runTestSuite("operators", [
   { input:['2','d','3','d'], output:['2','d','3','d'], comment:"double operator with repetition" },
   { input:['d','w'], output:['d','w'], comment:"simple operator motion" },
   { input:['1','2','d','2','0','3','w'], output:['12','d','203','w'], comment:"repeatition frenzy!" },
+  { input:['d','c'], output:[], comment:"different operators in a row is an error." },
+  { input:['d','2','c'], output:[], comment:"different operators in a row is an error." },
+  { input:['2','d','c'], output:[], comment:"different operators in a row is an error." },
+  { input:['4','d','2','c'], output:[], comment:"different operators in a row is an error." },
 ]);
 

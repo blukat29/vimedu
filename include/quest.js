@@ -21,9 +21,10 @@ CodeMirror.on(editor, 'vim-quit', function() {
 
 (function() {
   var nLevels = 5;
+  var i;
 
   var level = [];
-  for (var i = 0; i < nLevels; i ++) {
+  for (i = 0; i < nLevels; i ++) {
     level[i] = $("<button id='level-"+i+"' class='btn btn-default'></button>");
     level[i].html("Level " + i);
     var div = $("<div class='col-sm-4 quest-block'></div>");
@@ -66,13 +67,15 @@ CodeMirror.on(editor, 'vim-quit', function() {
     };
   };
 
-  for (var i=0; i < nLevels; i ++) {
+  var returnToEditor = function() {
+    $("#vim-overlay").css("opacity","0.0");
+    $("#quest-explorer").hide();
+    editor.focus();
+  };
+
+  for (i=0; i < nLevels; i ++) {
     level[i].keydown(handler(i));
-    level[i].click(function() {
-      $("#vim-overlay").css("opacity","0.0");
-      $("#quest-explorer").hide();
-      editor.focus();
-    });
+    level[i].click(returnToEditor);
   }
 })();
 

@@ -33,6 +33,8 @@ function runTestSuite(title, testSuite) {
   });
 }
 
+QUnit.module("FSM tests", {});
+
 runTestSuite("motion keys", [
   { input:['w'], output:['w'], comment:"simple motion 'w'" },
   { input:['2','b'], output:['2','b'], comment:"motion with count '2b'" },

@@ -250,6 +250,20 @@ function VimFSM(context) {
     }
   };
 
+  // Check if double operators are the same key.
+  var lastOperator = null;
+  fsm.onbeforeoperator = function(e, from, to, cmd) {
+    if (from === '_operator' || from === '_opRepeat') {
+      if(lastOperator !== cmd.keys[0])
+        return false;
+      else
+        lastOperator = null;
+    }
+    else {
+      lastOperator = cmd.keys[0];
+    }
+  };
+
   fsm.onoperator = function(e, from, to ,cmd) {
     if (from === '_operator' || from === '_opRepeat') {
       helpViewer.append(cmd.keys, "This line");
@@ -401,7 +415,10 @@ function CommandHelper (commandList_, context) {
     if (match) {
       keyBuf = [];
       numBuf = [];
-      fsm[match.type](match.cmd);
+      var result = fsm[match.type](match.cmd);
+      if (result === StateMachine.Result.CANCELLED) {
+        fsm.done();
+      }
       showKeys();
     }
     else {

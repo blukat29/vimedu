@@ -6,6 +6,7 @@
 // Key input events.
 CodeMirror.on(editor, 'vim-keypress', function(e) {
   commandHelper.onKey(e);
+  tutorial.onKey();
 });
 CodeMirror.on(editor, 'vim-command-done', function() {
   commandHelper.done();

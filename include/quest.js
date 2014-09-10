@@ -98,7 +98,7 @@ function Tutorial() {
       $("#vim-overlay").css("opacity","0.0");
       $("#quest-explorer").hide();
       editor.focus();
-      goTutorial("level0.html");
+      goTutorial("level6.html");
     }; // returnToEditor
 
     for (i=0; i < nLevels; i ++) {
@@ -107,13 +107,42 @@ function Tutorial() {
     }
   }; // initLevelButtons
 
+  var compareKeys = function (a, b) {
+    if (a.length !== b.length)
+      return false;
+    for (var i=0; i<a.length; i++) {
+      if (a[i] !== b[i] && a[i] !== 'char')
+        return false;
+    }
+    return true;
+  };
+
   var init = function() {
     initVimOverlay();
     initLevelButtons(6);
   };
 
+  var listeners = [];
+
+  var onKey = function() {
+    var helps = getHelps();
+    for (var i = 0; i < listeners.length; i ++) {
+      var listener = listeners[i];
+      if (compareKeys(listener.keys, helps)) {
+        goTutorial(listener.file);
+        break;
+      }
+    }
+  };
+
+  var addListener = function(keys, file) {
+    listeners.push({keys: keys, file: file});
+  };
+
   return {
     init: init,
+    onKey: onKey,
+    addListener: addListener,
   };
 }
 

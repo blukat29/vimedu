@@ -236,7 +236,8 @@ function VimFSM(context) {
     if (from === '_none' || from === '_partial') {
       helpViewer.clear();
     }
-    else if (from === '_vnone' || from === '_vpartial') {
+    else if ((from === '_vnone' || from === '_vpartial') &&
+             e !== 'operator') {
       helpViewer.clear();
       helpViewer.append(['v'], "Select");
     }

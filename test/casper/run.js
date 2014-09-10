@@ -96,6 +96,7 @@ runTestSuite("operators", [
   [ ['d','2','c'],     [], "different operators in a row is an error." ],
   [ ['2','d','c'],     [], "different operators in a row is an error." ],
   [ ['4','d','2','c'], [], "different operators in a row is an error." ],
+  [ ['x','w'],         ['w'], "x key is not an operator in normal mode" ],
 ]);
 
 runTestSuite("visual mode", [
@@ -104,5 +105,6 @@ runTestSuite("visual mode", [
   [ ['v','w','w','w','d'],     ['v','w','d'],       "show only last motion" ],
   [ ['v','3','0','2','w','d'], ['v','302','w','d'], "show only last motion" ],
   [ ['v','i',')','d'],         ['v','i',')','d'],   "visual mode text object" ],
+  [ ['v','w','x'],             ['v','w','x'],       "x key is an operator in visual mode" ],
 ]);
 

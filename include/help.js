@@ -26,6 +26,7 @@ var commandListEN = [
   // (ii) a modifier + text-object (iii) itself, meaning linewise operation.
   { type:'operator', commands:[
     { keys:['d'],     help:'Delete' },
+    { keys:['x'],     help:'Delete', mode:'visual' },
     { keys:['y'],     help:'Yank (copy)' },
     { keys:['c'],     help:'Change' },
     { keys:['p'],     help:'Paste' },
@@ -35,7 +36,7 @@ var commandListEN = [
   // Action commands. Always used alone. Each one is complete as itself.
   { type:'action', commands:[
     { keys:['i'],     help:'Switch to insert mode' },
-    { keys:['x'],     help:'Delete a character' },
+    { keys:['x'],     help:'Delete a character', mode:'normal' },
     { keys:['u'],     help:'Undo' },
     { keys:['<C-r>'], help:'Redo', keysDisp:['Ctrl+r']  },
   ]},
@@ -333,20 +334,24 @@ function CommandHelper (commandList_, context) {
   var fsm = new VimFSM(context);
   var keyBuf = [];
   var numBuf = [];
+  var mode = 'normal';
+
   var matchCommand = function () {
     var match;
     for (var i=0; i<commandList.length; i++) {
       var bundle = commandList[i];
 
-      if (fsm.can(bundle.type)) {
-        for (var j=0; j<bundle.commands.length; j++) {
-          var cmd = bundle.commands[j];
+      if (!fsm.can(bundle.type)) {
+        continue;
+      }
+      for (var j=0; j<bundle.commands.length; j++) {
+        var cmd = bundle.commands[j];
 
-          if (compareKeys(cmd.keys, keyBuf)) {
-            if (match)
-              throw ("Duplicate command: " + keyBuF.join());
-            match = { type:bundle.type, cmd:cmd };
-          }
+        if (compareKeys(cmd.keys, keyBuf) &&
+           (!cmd.mode || cmd.mode === mode)) {
+          if (match)
+            throw ("Duplicate command: " + keyBuF.join());
+          match = { type:bundle.type, cmd:cmd };
         }
       }
     }
@@ -448,6 +453,10 @@ function CommandHelper (commandList_, context) {
     }
   };
 
+  var onMode = function(mode_) {
+    mode = mode_;
+  };
+
   var isNonzero = function(key) {
     return (key.charCodeAt(0) >= '1'.charCodeAt(0) &&
             key.charCodeAt(0) <= '9'.charCodeAt(0));
@@ -463,6 +472,7 @@ function CommandHelper (commandList_, context) {
 
   return {
     onKey: onKey,
+    onMode: onMode,
     init: init,
     done: done,
   };

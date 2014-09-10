@@ -29,6 +29,7 @@ function mode_change(mode) {
 }
 CodeMirror.on(editor, 'vim-mode-change', function(e) {
   mode_change(e.mode);
+  commandHelper.onMode(e.mode);
 });
 
 // Initialize the site.

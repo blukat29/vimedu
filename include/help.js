@@ -218,14 +218,15 @@ function VimFSM(context) {
 
       { name:'motion',   from:'_vnone',    to:'_vnone'    },
       { name:'motion',   from:'_vpartial', to:'_vnone'    },
+      { name:'motion',   from:'_vrepeat',  to:'_vnone'    },
       { name:'operator', from:'_vnone',    to:'_none',    },
       { name:'modifier', from:'_vnone',    to:'_vmodifier'},
       { name:'textobj',  from:'_vmodifier',to:'_vnone'    },
       { name:'partial',  from:'_vnone',    to:'_vpartial' },
 
-      { name:'nonzero',  from:'_vnone',    to:'_repeat'   },
-      { name:'nonzero',  from:'_repeat',   to:'_repeat'   },
-      { name:'zero',     from:'_repeat',   to:'_repeat'   },
+      { name:'nonzero',  from:'_vnone',    to:'_vrepeat'   },
+      { name:'nonzero',  from:'_vrepeat',   to:'_vrepeat'   },
+      { name:'zero',     from:'_vrepeat',   to:'_vrepeat'   },
   ]});
   fsm.events = ['motion','operator','action','modifier','textobj','search','ex'];
 
@@ -235,7 +236,8 @@ function VimFSM(context) {
     if (from === '_none' || from === '_partial') {
       helpViewer.clear();
     }
-    else if (from === '_vnone' || from === '_vpartial') {
+    else if ((from === '_vnone' || from === '_vpartial') &&
+             e !== 'operator') {
       helpViewer.clear();
       helpViewer.append(['v'], "Select");
     }

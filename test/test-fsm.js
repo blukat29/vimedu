@@ -59,3 +59,11 @@ runTestSuite("operators", [
   { input:['4','d','2','c'], output:[], comment:"different operators in a row is an error." },
 ]);
 
+runTestSuite("visual mode", [
+  { input:['v','v'], output:['v'], comment:"abort visual mode" },
+  { input:['v','d'], output:['v','d'], comment:"simple visual mode operation" },
+  { input:['v','w','w','w','d'], output:['v','w','d'], comment:"show only last motion" },
+  { input:['v','3','0','2','w','d'], output:['v','302','w','d'], comment:"show only last motion" },
+  { input:['v','i',')','d'], output:['v','i',')','d'], comment:"visual mode text object" },
+]);
+

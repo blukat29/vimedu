@@ -1,10 +1,12 @@
 
 /* global CodeMirror */
 /* global commandHelper */
+/* global tutorial */
 
 // Key input events.
 CodeMirror.on(editor, 'vim-keypress', function(e) {
   commandHelper.onKey(e);
+  tutorial.onKey();
 });
 CodeMirror.on(editor, 'vim-command-done', function() {
   commandHelper.done();
@@ -33,5 +35,6 @@ CodeMirror.on(editor, 'vim-mode-change', function(e) {
 $(document).ready(function(){
   mode_change('normal');
   commandHelper.init();
+  tutorial.init();
 });
 

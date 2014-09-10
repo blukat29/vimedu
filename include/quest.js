@@ -19,6 +19,14 @@ CodeMirror.on(editor, 'vim-quit', function() {
   $("#level-0").focus();
 });
 
+var goTutorial = function(filename) {
+  $.ajax({
+    url: "levels/" + filename,
+  }).done(function(data) {
+    $("#tutorial").html(data);
+  });
+};
+
 (function() {
   var nLevels = 5;
   var i;
@@ -71,6 +79,7 @@ CodeMirror.on(editor, 'vim-quit', function() {
     $("#vim-overlay").css("opacity","0.0");
     $("#quest-explorer").hide();
     editor.focus();
+    goTutorial("level0.html");
   };
 
   for (i=0; i < nLevels; i ++) {
@@ -78,4 +87,6 @@ CodeMirror.on(editor, 'vim-quit', function() {
     level[i].click(returnToEditor);
   }
 })();
+
+
 

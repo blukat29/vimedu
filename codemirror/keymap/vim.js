@@ -1256,6 +1256,7 @@
           // an error, the elements don't overlap.
           vimGlobalState.exCommandHistoryController.pushInput(input);
           vimGlobalState.exCommandHistoryController.reset();
+          CodeMirror.signal(cm, 'vim-ex-done', input);
           exCommandDispatcher.processCommand(cm, input);
         }
         function onPromptKeyDown(e, input, close) {

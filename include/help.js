@@ -199,6 +199,7 @@ function VimFSM(context) {
 
       { name:'search',   from:'_none',     to:'_search'   },
       { name:'ex',       from:'_none',     to:'_ex'       },
+      { name:'exdone',   from:'_ex',       to:'_none'     },
 
       { name:'done',     from:'*',         to:'_none'     },
 
@@ -470,11 +471,18 @@ function CommandHelper (commandList_, context) {
     showKeys();
   };
 
+  var exdone = function() {
+    if (fsm.can('exdone')) {
+      fsm.exdone();
+    }
+  };
+
   return {
     onKey: onKey,
     onMode: onMode,
     init: init,
     done: done,
+    exdone: exdone,
   };
 }
 

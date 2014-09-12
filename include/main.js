@@ -11,6 +11,10 @@ CodeMirror.on(editor, 'vim-keypress', function(e) {
 CodeMirror.on(editor, 'vim-command-done', function() {
   commandHelper.done();
 });
+CodeMirror.on(editor, 'vim-ex-done', function(e) {
+  console.log(e);
+  commandHelper.exdone();
+});
 CodeMirror.Vim.getRegisterController().unnamedRegister.setListener(editor);
 CodeMirror.on(editor, 'vim-set-register', function(e) {
   $("#register-display").val(e).trigger('autosize.resize');

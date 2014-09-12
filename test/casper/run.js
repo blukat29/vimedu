@@ -108,3 +108,8 @@ runTestSuite("visual mode", [
   [ ['v','w','x'],             ['v','w','x'],       "x key is an operator in visual mode" ],
 ]);
 
+var ENTER = casper.page.event.key.Enter;
+runTestSuite("ex mode", [
+  [ [':set nu',ENTER,'d','d'], ['d','d'],           "enter key to come back to normal mode" ],
+]);
+

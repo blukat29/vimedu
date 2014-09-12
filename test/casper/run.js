@@ -1,5 +1,9 @@
 // casperjs test
 
+INTERVAL_TEST_CASE = 500;
+  INTERVAL_KEY_EVENT = 50;
+  INTERVAL_RESULT = 100;
+
 function getHelps() {
   var children = $("#helps-display").children();
 
@@ -22,32 +26,56 @@ function getFocus() {
   casper.page.evaluate(function() {
     editor.focus();
   });
+}; // getFocus()
+
+function runSingleTest(test, testCase) {
+
+  var given = testCase.given;
+  var expected = testCase.expected;
+  var comment = testCase.comment || "no comment.";
+
+  // Send key inputs.
+  casper.each(given, function(self, key) {
+    self.wait(INTERVAL_KEY_EVENT, function() {
+      casper.page.sendEvent('keypress', key);
+    });
+  });
+
+  // After a while, get the displayed helps.
+  casper.wait(INTERVAL_RESULT, function() {
+    var result = casper.evaluate(getHelps);
+    var message = given.toString() + " : " + comment;
+
+    test.assertEquals(result, expected, message);
+  });
+}; // singleFSMTest()
+
+function runTestSuite(title, suite) {
+
+  casper.test.begin(title, suite.length, function (test) {
+    casper.start("../../index.html", function() {
+      getFocus();
+    });
+
+    casper.each(suite, function(self, testCase) {
+      self.wait(INTERVAL_TEST_CASE, function() {
+        runSingleTest(test, testCase);
+      });
+    });
+
+    casper.run(function() {
+      test.done();
+    });
+  });
 };
 
-casper.test.begin("Interaction test.", 1, function suite(test) {
-  casper.start("../../index.html", function() {
-    test.assertExists("#helps-display", "#helps-display exists.");
-  });
+runTestSuite("operators", [
+  { given: ['d','3','0','w'], expected: ['d','30','w'], comment: "operator with counted motion" },
+  { given: ['d','3','0','w'], expected: ['d','30','w'], comment: "operator with counted motion" },
+]);
 
-  casper.then(function() {
-
-    casper.wait(1000, function() {
-    getFocus();
-    casper.page.sendEvent('keypress', 'd');
-    casper.page.sendEvent('keypress', '3');
-    casper.page.sendEvent('keypress', '0');
-    casper.page.sendEvent('keypress', 'w');
-
-    casper.wait(500, function() {
-    var result = casper.evaluate(getHelps);
-    console.log(result);
-
-    });
-    });
-  });
-
-  casper.run(function() {
-    test.done();
-  });
-});
+runTestSuite("operators", [
+  { given: ['d','3','0','w'], expected: ['d','30','w'], comment: "operator with counted motion" },
+  { given: ['d','3','0','w'], expected: ['d','30','w'], comment: "operator with counted motion" },
+]);
 

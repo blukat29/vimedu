@@ -9,10 +9,10 @@ var commandListEN = [
     { keys:['k'],       help:'to up',    familyId:'hjkl' },
     { keys:['l'],       help:'to right', familyId:'hjkl' },
 
-    { keys:['<Left>'],  help:'to left',  keysDisp:['←'] },
-    { keys:['<Down>'],  help:'to down',  keysDisp:['↓'] },
-    { keys:['<Up>'],    help:'to up',    keysDisp:['↑'] },
-    { keys:['<Right>'], help:'to right', keysDisp:['→'] },
+    { keys:['<Left>'],  help:'to left',  keysDisp:['←'], familyId:'arrow', familyHelp:'easy.' },
+    { keys:['<Down>'],  help:'to down',  keysDisp:['↓'], familyId:'arrow' },
+    { keys:['<Up>'],    help:'to up',    keysDisp:['↑'], familyId:'arrow' },
+    { keys:['<Right>'], help:'to right', keysDisp:['→'], familyId:'arrow' },
 
     { keys:['w'],       help:'a word' },
     { keys:['b'],       help:'a word backward' },
@@ -199,9 +199,12 @@ function KeysViewer(context) {
 
       // Member of some family.
       if (cmd.familyId) {
-        inFamily = true;
         // Start of an (another) family.
         if (cmd.familyId !== currFamilyId) {
+          if (inFamily) {
+              appendCommandFamily(type, currFamilyId, currFamilyHelp, currFamilyMember);
+          }
+          inFamily = true;
           currFamilyId = cmd.familyId;
           currFamilyHelp = cmd.familyHelp;
           currFamilyMember = [cmd];

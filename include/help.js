@@ -51,12 +51,12 @@ var commandListEN = [
     { keys:['w'],     help:'Word' },
     { keys:['"'],     help:'Dobule quote' },
     { keys:['\''],    help:'Single quote' },
-    { keys:['('],     help:'Parenthesis' },
-    { keys:[')'],     help:'Parenthesis' },
-    { keys:['{'],     help:'Braces' },
-    { keys:['}'],     help:'Braces' },
-    { keys:['['],     help:'Brackets' },
-    { keys:[']'],     help:'Brackets' },
+    { keys:['('],     help:'Parenthesis', familyId:'Parenthesis', familyHelp:'Parenthesis' },
+    { keys:[')'],     help:'Parenthesis', familyId:'Parenthesis' },
+    { keys:['{'],     help:'Braces',      familyId:'Braces',      familyHelp:'Braces' },
+    { keys:['}'],     help:'Braces',      familyId:'Braces' },
+    { keys:['['],     help:'Brackets',    familyId:'Brackets',    familyHelp:'Brackets' },
+    { keys:[']'],     help:'Brackets',    familyId:'Brackets' },
   ]},
   // Search commands.
   { type:'search', commands:[
@@ -224,6 +224,9 @@ function KeysViewer(context) {
         setKeyClasses(type, cmd, div);
         display.append(div);
       }
+    }
+    if (inFamily) {
+      appendCommandFamily(type, currFamilyId, currFamilyHelp, currFamilyMember);
     }
   };
 

@@ -127,29 +127,23 @@ function HelpViewer(context) {
 function KeysViewer(context) {
   var display = $("#keys-display", context);
 
-  var appendType = function(bundle) {
-    var div = $("<div></div>").addClass(bundle.type);
-    var title = $("<h4>"+bundle.type+"</h4>");
-    div.append(title);
-    display.append(div);
-    return div;
-  };
-
-  var getKeyObject = function(cmd) {
-
+  var appendKbd = function(container, cmd) {
     var keys = typeof cmd.keysDisp !== 'undefined' ? cmd.keysDisp : cmd.keys;
-    var help = cmd.help;
 
-    var div = $("<div></div>");
     for (var i=0; i<keys.length; i++) {
       var key = keys[i];
       key = key.replace("<","&lt;");
       key = key.replace(">","&gt;");
-      div.append($("<kbd>"+key+"</kbd>"));
+      container.append($("<kbd>"+key+"</kbd>"));
     }
+  };
+
+  var getKeyObject = function(cmd) {
+    var help = cmd.help;
+    var div = $("<div></div>");
+    appendKbd(div, cmd);
     var txt = $("<span>  "+help+"</span>");
     div.append(txt);
-
     return div;
   };
 
@@ -182,7 +176,15 @@ function KeysViewer(context) {
   };
 
   var appendCommandFamily = function(type, id, help, member) {
-    console.log(member);
+    var div = $("<div></div>");
+    for (var i=0; i < member.length; i ++) {
+      var cmd = member[i];
+      appendKbd(div, cmd);
+    }
+    var txt = $("<span>  "+help+"</span>");
+    div.append(txt);
+    setKeyClasses(type, member[0], div);
+    display.append(div);
   };
 
   var appendCommands = function(type, commands) {

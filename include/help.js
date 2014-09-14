@@ -20,7 +20,7 @@ var commandListEN = [
     { keys:['$'],       help:'to end of line' },
 
     { keys:['g','g'],   help:'to start of file' },
-    { keys:['f','char'],help:'to given character', keysDisp:['f','target'] },
+    { keys:['f','char'],help:'to given character', keysDisp:['f','char'] },
   ]},
   // Operator commands. Always used with either (i) motion,
   // (ii) a modifier + text-object (iii) itself, meaning linewise operation.
@@ -71,7 +71,8 @@ var commandListEN = [
   ]},
   // v keys toggles visual mode.
   { type:'visual', commands:[
-    { keys:['v'],     help:'Toggle visual mode' },
+    { keys:['v'],     help:'Select', mode:'normal' },
+    { keys:['v'],     help:'Cancel selecting', mode:'visual' },
   ]},
 ];
 
@@ -80,7 +81,11 @@ function HelpViewer(context) {
 
   var display = $("#helps-display", context);
 
-  var getKeyObject = function(keys, help) {
+  var getKeyObject = function(cmd, help) {
+
+    var help = typeof help !== 'undefined' ? help : cmd.help;
+    var keys = typeof cmd.keysDisp !== 'undefined' ? cmd.keysDisp : cmd.keys;
+
     var div = $("<div></div>");
     var kbd = $("<div></div>");
     for (var i=0; i<keys.length; i++) {
@@ -96,14 +101,14 @@ function HelpViewer(context) {
     return div;
   };
 
-  var append = function(keys, help) {
-    display.append(getKeyObject(keys, help));
+  var append = function(cmd, help) {
+    display.append(getKeyObject(cmd, help));
   };
 
-  var updateLast = function(keys, help) {
+  var updateLast = function(cmd, help) {
     var children = display.children();
     var last = $(children[children.length - 1]);
-    last.replaceWith(getKeyObject(keys, help));
+    last.replaceWith(getKeyObject(cmd, help));
   };
 
   var clear = function() {
@@ -241,16 +246,16 @@ function VimFSM(context) {
     else if ((from === '_vnone' || from === '_vpartial') &&
              e !== 'operator') {
       helpViewer.clear();
-      helpViewer.append(['v'], "Select");
+      helpViewer.append({keys: ['v'], help: "Select"});
     }
   };
 
   fsm.onmotion = function(e, from, to, cmd) {
     if ($.inArray(from, ['_none', '_repeat', '_partial']) >= 0) {
-      helpViewer.append(cmd.keys, "Move " + cmd.help);
+      helpViewer.append(cmd, "Move " + cmd.help);
     }
     else {
-      helpViewer.append(cmd.keys, cmd.help);
+      helpViewer.append(cmd);
     }
   };
 
@@ -270,51 +275,51 @@ function VimFSM(context) {
 
   fsm.onoperator = function(e, from, to ,cmd) {
     if (from === '_operator' || from === '_opRepeat') {
-      helpViewer.append(cmd.keys, "This line");
+      helpViewer.append(cmd, "This line");
     }
     else {
-      helpViewer.append(cmd.keys, cmd.help);
+      helpViewer.append(cmd);
     }
   };
 
   fsm.onaction = function(e, from, to, cmd) {
-    helpViewer.append(cmd.keys, cmd.help);
+    helpViewer.append(cmd);
   };
 
   fsm.onmodifier = function(e, from, to, cmd) {
-    helpViewer.append(cmd.keys, cmd.help);
+    helpViewer.append(cmd);
   };
 
   fsm.ontextobj = function(e, from, to, cmd) {
-    helpViewer.append(cmd.keys, cmd.help);
+    helpViewer.append(cmd);
   };
 
   fsm.onnonzero = function(e, from, to, numBuf) {
     if (from === '_none' || from === '_operator' || from === '_vnone') {
-      helpViewer.append(numBuf, "Repeat "+numBuf.join('')+" times.");
+      helpViewer.append({ keys: numBuf, help: "Repeat "+numBuf.join('')+" times." });
     }
     else {
-      helpViewer.updateLast(numBuf, "Repeat "+numBuf.join('')+" times.");
+      helpViewer.updateLast({ keys: numBuf, help: "Repeat "+numBuf.join('')+" times." });
     }
   };
   fsm.onzero = fsm.onnonzero;
 
   fsm.onpartial = function(e, from, to, cmd) {
     if (from === '_none' || from === '_vnone') {
-      helpViewer.append(cmd.keys, "...");
+      helpViewer.append(cmd, "...");
     }
     else {
-      helpViewer.updateLast(cmd.keys, "...");
+      helpViewer.updateLast(cmd, "...");
     }
   };
 
   fsm.onvisual = function(e, from, to, cmd) {
     if (from === '_none') {
-      helpViewer.append(cmd.keys, "Select");
+      helpViewer.append(cmd);
     }
     else if (to === '_none') {
       helpViewer.clear();
-      helpViewer.append(cmd.keys, "Cancel visual mode");
+      helpViewer.append(cmd);
     }
   };
 

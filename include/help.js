@@ -134,7 +134,11 @@ function KeysViewer(context) {
     return div;
   };
 
-  var getKeyObject = function(keys, help) {
+  var getKeyObject = function(cmd) {
+
+    var keys = typeof cmd.keysDisp !== 'undefined' ? cmd.keysDisp : cmd.keys;
+    var help = cmd.help;
+
     var div = $("<div></div>");
     for (var i=0; i<keys.length; i++) {
       var key = keys[i];
@@ -149,7 +153,7 @@ function KeysViewer(context) {
   };
 
   var appendCommand = function(container, cmd) {
-    container.append(getKeyObject(cmd.keys, cmd.help));
+    container.append(getKeyObject(cmd));
   };
 
   var init = function(commandList) {

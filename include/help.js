@@ -4,14 +4,15 @@
 var commandListEN = [
   // Motion commands. Can be used alone, or used with operator.
   { type:'motion', commands:[
-    { keys:['h'],       help:'to left' },
-    { keys:['j'],       help:'to down' },
-    { keys:['k'],       help:'to up' },
-    { keys:['l'],       help:'to right' },
-    { keys:['<Left>'],  help:'to left',  keysDisp:['←'] },
-    { keys:['<Down>'],  help:'to down',  keysDisp:['↓'] },
-    { keys:['<Up>'],    help:'to up',    keysDisp:['↑'] },
-    { keys:['<Right>'], help:'to right', keysDisp:['→'] },
+    { keys:['h'],       help:'to left',  familyId:'hjkl',  familyHelp:'== arrow keys' },
+    { keys:['j'],       help:'to down',  familyId:'hjkl' },
+    { keys:['k'],       help:'to up',    familyId:'hjkl' },
+    { keys:['l'],       help:'to right', familyId:'hjkl' },
+
+    { keys:['<Left>'],  help:'to left',  keysDisp:['←'], familyId:'arrow', familyHelp:'easy.' },
+    { keys:['<Down>'],  help:'to down',  keysDisp:['↓'], familyId:'arrow' },
+    { keys:['<Up>'],    help:'to up',    keysDisp:['↑'], familyId:'arrow' },
+    { keys:['<Right>'], help:'to right', keysDisp:['→'], familyId:'arrow' },
 
     { keys:['w'],       help:'a word' },
     { keys:['b'],       help:'a word backward' },
@@ -50,12 +51,12 @@ var commandListEN = [
     { keys:['w'],     help:'Word' },
     { keys:['"'],     help:'Dobule quote' },
     { keys:['\''],    help:'Single quote' },
-    { keys:['('],     help:'Parenthesis' },
-    { keys:[')'],     help:'Parenthesis' },
-    { keys:['{'],     help:'Braces' },
-    { keys:['}'],     help:'Braces' },
-    { keys:['['],     help:'Brackets' },
-    { keys:[']'],     help:'Brackets' },
+    { keys:['('],     help:'Parenthesis', familyId:'Parenthesis', familyHelp:'Parenthesis' },
+    { keys:[')'],     help:'Parenthesis', familyId:'Parenthesis' },
+    { keys:['{'],     help:'Braces',      familyId:'Braces',      familyHelp:'Braces' },
+    { keys:['}'],     help:'Braces',      familyId:'Braces' },
+    { keys:['['],     help:'Brackets',    familyId:'Brackets',    familyHelp:'Brackets' },
+    { keys:[']'],     help:'Brackets',    familyId:'Brackets' },
   ]},
   // Search commands.
   { type:'search', commands:[
@@ -126,29 +127,23 @@ function HelpViewer(context) {
 function KeysViewer(context) {
   var display = $("#keys-display", context);
 
-  var appendType = function(bundle) {
-    var div = $("<div></div>").addClass(bundle.type);
-    var title = $("<h4>"+bundle.type+"</h4>");
-    div.append(title);
-    display.append(div);
-    return div;
-  };
-
-  var getKeyObject = function(cmd) {
-
+  var appendKbd = function(container, cmd) {
     var keys = typeof cmd.keysDisp !== 'undefined' ? cmd.keysDisp : cmd.keys;
-    var help = cmd.help;
 
-    var div = $("<div></div>");
     for (var i=0; i<keys.length; i++) {
       var key = keys[i];
       key = key.replace("<","&lt;");
       key = key.replace(">","&gt;");
-      div.append($("<kbd>"+key+"</kbd>"));
+      container.append($("<kbd>"+key+"</kbd>"));
     }
+  };
+
+  var getKeyObject = function(cmd) {
+    var help = cmd.help;
+    var div = $("<div></div>");
+    appendKbd(div, cmd);
     var txt = $("<span>  "+help+"</span>");
     div.append(txt);
-
     return div;
   };
 
@@ -180,12 +175,58 @@ function KeysViewer(context) {
     display.append(div);
   };
 
+  var appendCommandFamily = function(type, id, help, member) {
+    var div = $("<div></div>");
+    for (var i=0; i < member.length; i ++) {
+      var cmd = member[i];
+      appendKbd(div, cmd);
+    }
+    var txt = $("<span>  "+help+"</span>");
+    div.append(txt);
+    setKeyClasses(type, member[0], div);
+    display.append(div);
+  };
+
   var appendCommands = function(type, commands) {
+
+    var inFamily = false;
+    var currFamilyId = null;
+    var currFamilyHelp = null;
+    var currFamilyMember = [];
+
     for (var i=0; i < commands.length; i ++) {
       var cmd = commands[i];
-      var div = getKeyObject(cmd);
-      setKeyClasses(type, cmd, div);
-      display.append(div);
+
+      // Member of some family.
+      if (cmd.familyId) {
+        // Start of an (another) family.
+        if (cmd.familyId !== currFamilyId) {
+          if (inFamily) {
+              appendCommandFamily(type, currFamilyId, currFamilyHelp, currFamilyMember);
+          }
+          inFamily = true;
+          currFamilyId = cmd.familyId;
+          currFamilyHelp = cmd.familyHelp;
+          currFamilyMember = [cmd];
+        }
+        // Current family continued.
+        else {
+          currFamilyMember.push(cmd);
+        }
+      }
+      // Not a family member.
+      else {
+        if (inFamily) {
+          inFamily = false;
+          appendCommandFamily(type, currFamilyId, currFamilyHelp, currFamilyMember);
+        }
+        var div = getKeyObject(cmd);
+        setKeyClasses(type, cmd, div);
+        display.append(div);
+      }
+    }
+    if (inFamily) {
+      appendCommandFamily(type, currFamilyId, currFamilyHelp, currFamilyMember);
     }
   };
 

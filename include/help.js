@@ -124,7 +124,8 @@ function HelpViewer(context) {
 }
 
 // Interface to suggested keys help at the right.
-function KeysViewer(context) {
+function KeysViewer(context, commandList_) {
+  var commandList = commandList_;
   var display = $("#keys-display", context);
 
   var appendKbd = function(container, cmd) {
@@ -230,7 +231,7 @@ function KeysViewer(context) {
     }
   };
 
-  var init = function(commandList) {
+  var init = function() {
     for (var i=0; i<commandList.length; i++) {
       var type = commandList[i].type;
       var commands = commandList[i].commands;
@@ -255,7 +256,7 @@ function KeysViewer(context) {
 }
 
 // Simple model for vim command grammar.
-function VimFSM(context) {
+function VimFSM(context, commandList) {
   var fsm = StateMachine.create({
     initial:'_none',
     events: [
@@ -312,8 +313,22 @@ function VimFSM(context) {
   fsm.events = ['motion','operator','action','modifier','textobj','search','ex','visual'];
 
   var helpViewer = new HelpViewer(context);
+  var keysViewer = new KeysViewer(context, commandList);
+
+  var showKeys = function() {
+    var filter = [];
+    for (var i=0; i<fsm.events.length; i++) {
+      var e = fsm.events[i];
+      if (fsm.can(e))
+        filter[e] = true;
+      else
+        filter[e] = false;
+    }
+    keysViewer.update(filter);
+  };
 
   fsm.onbeforeevent = function(e, from, to) {
+    showKeys();
     if (from === '_none' || from === '_partial') {
       helpViewer.clear();
     }
@@ -401,17 +416,19 @@ function VimFSM(context) {
     helpViewer.clear();
   };
 
+  fsm.initKeysViewer = function() {
+    keysViewer.init();
+  };
+
   return fsm;
 }
 
 // Outermost interface to overall help functionality.
-function CommandHelper (commandList_, context) {
+function CommandHelper (context, commandList_) {
 
   var commandList = commandList_;
 
-  var keysViewer = new KeysViewer(context);
-
-  var fsm = new VimFSM(context);
+  var fsm = new VimFSM(context, commandList);
   var keyBuf = [];
   var numBuf = [];
   var mode = 'normal';
@@ -477,18 +494,6 @@ function CommandHelper (commandList_, context) {
     return true;
   };
 
-  var showKeys = function() {
-    var filter = [];
-    for (var i=0; i<fsm.events.length; i++) {
-      var e = fsm.events[i];
-      if (fsm.can(e))
-        filter[e] = true;
-      else
-        filter[e] = false;
-    }
-    keysViewer.update(filter);
-  };
-
   var onKey = function(key) {
     keyBuf.push(key);
     var match;
@@ -506,7 +511,6 @@ function CommandHelper (commandList_, context) {
       if (result === StateMachine.Result.CANCELLED) {
         fsm.done();
       }
-      showKeys();
     }
     else {
       if (isNonzero(key) && fsm.can('nonzero') ||
@@ -516,7 +520,6 @@ function CommandHelper (commandList_, context) {
         numBuf.push(keyBuf.pop());
         if (key === '0') fsm.zero(numBuf);
         else fsm.nonzero(numBuf);
-        showKeys();
       }
       else {
         var matches = matchPartial();
@@ -543,11 +546,10 @@ function CommandHelper (commandList_, context) {
   };
 
   var init = function() {
-    keysViewer.init(commandList);
+    fsm.initKeysViewer();
   };
 
   var done = function() {
-    showKeys();
   };
 
   var exdone = function() {
@@ -565,5 +567,5 @@ function CommandHelper (commandList_, context) {
   };
 }
 
-var commandHelper = new CommandHelper(commandListEN, window.body);
+var commandHelper = new CommandHelper(window.body, commandListEN);
 

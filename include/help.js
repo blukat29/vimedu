@@ -172,6 +172,14 @@ function KeysViewer(context) {
     }
   };
 
+  var appendHeader = function(type) {
+    var div = $("<div></div>");
+    div.css("background-color","#aaaaaa");
+    div.html("&nbsp;&nbsp;"+type +" commands");
+    div.addClass(type);
+    display.append(div);
+  };
+
   var appendCommands = function(type, commands) {
     for (var i=0; i < commands.length; i ++) {
       var cmd = commands[i];
@@ -185,13 +193,14 @@ function KeysViewer(context) {
     for (var i=0; i<commandList.length; i++) {
       var type = commandList[i].type;
       var commands = commandList[i].commands;
+      appendHeader(type);
       appendCommands(type, commands);
     }
   };
 
   var update = function(filter) {
     for (var key in filter) {
-      if (filter[type])
+      if (filter[key])
         $("."+key, display).show();
       else
         $("."+key, display).hide();
@@ -259,7 +268,7 @@ function VimFSM(context) {
       { name:'nonzero',  from:'_vrepeat',   to:'_vrepeat'   },
       { name:'zero',     from:'_vrepeat',   to:'_vrepeat'   },
   ]});
-  fsm.events = ['motion','operator','action','modifier','textobj','search','ex'];
+  fsm.events = ['motion','operator','action','modifier','textobj','search','ex','visual'];
 
   var helpViewer = new HelpViewer(context);
 

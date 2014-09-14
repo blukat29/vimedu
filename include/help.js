@@ -4,10 +4,11 @@
 var commandListEN = [
   // Motion commands. Can be used alone, or used with operator.
   { type:'motion', commands:[
-    { keys:['h'],       help:'to left' },
-    { keys:['j'],       help:'to down' },
-    { keys:['k'],       help:'to up' },
-    { keys:['l'],       help:'to right' },
+    { keys:['h'],       help:'to left',  familyId:'hjkl',  familyHelp:'== arrow keys' },
+    { keys:['j'],       help:'to down',  familyId:'hjkl' },
+    { keys:['k'],       help:'to up',    familyId:'hjkl' },
+    { keys:['l'],       help:'to right', familyId:'hjkl' },
+
     { keys:['<Left>'],  help:'to left',  keysDisp:['←'] },
     { keys:['<Down>'],  help:'to down',  keysDisp:['↓'] },
     { keys:['<Up>'],    help:'to up',    keysDisp:['↑'] },
@@ -180,12 +181,44 @@ function KeysViewer(context) {
     display.append(div);
   };
 
+  var appendCommandFamily = function(type, id, help, member) {
+    console.log(member);
+  };
+
   var appendCommands = function(type, commands) {
+
+    var inFamily = false;
+    var currFamilyId = null;
+    var currFamilyHelp = null;
+    var currFamilyMember = [];
+
     for (var i=0; i < commands.length; i ++) {
       var cmd = commands[i];
-      var div = getKeyObject(cmd);
-      setKeyClasses(type, cmd, div);
-      display.append(div);
+
+      // Member of some family.
+      if (cmd.familyId) {
+        inFamily = true;
+        // Start of an (another) family.
+        if (cmd.familyId !== currFamilyId) {
+          currFamilyId = cmd.familyId;
+          currFamilyHelp = cmd.familyHelp;
+          currFamilyMember = [cmd];
+        }
+        // Current family continued.
+        else {
+          currFamilyMember.push(cmd);
+        }
+      }
+      // Not a family member.
+      else {
+        if (inFamily) {
+          inFamily = false;
+          appendCommandFamily(type, currFamilyId, currFamilyHelp, currFamilyMember);
+        }
+        var div = getKeyObject(cmd);
+        setKeyClasses(type, cmd, div);
+        display.append(div);
+      }
     }
   };
 

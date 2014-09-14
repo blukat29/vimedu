@@ -152,29 +152,49 @@ function KeysViewer(context) {
     return div;
   };
 
-  var appendCommand = function(container, cmd) {
-    container.append(getKeyObject(cmd));
+  var setKeyClasses = function(type, cmd, div) {
+    // Command type
+    div.addClass(type);
+    // Multi-key command support
+    if (cmd.keys.length == 1) {
+      div.addClass("single-key");
+    }
+    else {
+      div.addClass("multi-key");
+      div.addClass("partial-" + cmd.keys[0]);
+    }
+    // Mode dependent command support
+    if (!cmd.mode) {
+      div.addClass("any-mode");
+    }
+    else {
+      div.addClass(cmd.mode + "-mode");
+    }
+  };
+
+  var appendCommands = function(type, commands) {
+    for (var i=0; i < commands.length; i ++) {
+      var cmd = commands[i];
+      var div = getKeyObject(cmd);
+      setKeyClasses(type, cmd, div);
+      display.append(div);
+    }
   };
 
   var init = function(commandList) {
-
     for (var i=0; i<commandList.length; i++) {
-      var bundle = commandList[i];
-      var container = appendType(bundle);
-
-      for (var j=0; j<bundle.commands.length; j++) {
-        var cmd = bundle.commands[j];
-        appendCommand(container, cmd);
-      }
+      var type = commandList[i].type;
+      var commands = commandList[i].commands;
+      appendCommands(type, commands);
     }
   };
 
   var update = function(filter) {
-    for (var type in filter) {
+    for (var key in filter) {
       if (filter[type])
-        $("."+type, display).show();
+        $("."+key, display).show();
       else
-        $("."+type, display).hide();
+        $("."+key, display).hide();
     }
   };
 

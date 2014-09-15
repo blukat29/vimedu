@@ -238,18 +238,18 @@ function KeysViewer(context, commandList_) {
     }
   };
 
-  var update = function(filter) {
-    for (var key in filter) {
-      if (filter[key])
-        $("."+key, display).show();
-      else
-        $("."+key, display).hide();
+  var setVisibility = function(key, truthy) {
+    if (truthy) {
+      $("."+key, display).show();
+    }
+    else {
+      $("."+key, display).hide();
     }
   };
 
   return {
     init: init,
-    update: update,
+    set: setVisibility,
   };
 }
 
@@ -313,26 +313,6 @@ function VimFSM(context, commandList) {
   var helpViewer = new HelpViewer(context);
   var keysViewer = new KeysViewer(context, commandList);
 
-  var showKeys = function() {
-    var filter = [];
-    for (var i=0; i<fsm.events.length; i++) {
-      var e = fsm.events[i];
-      if (fsm.can(e))
-        filter[e] = true;
-      else
-        filter[e] = false;
-    }
-    keysViewer.update(filter);
-  };
-
-  var showPartialKeys = function(firstKey) {
-    keysViewer.update({'keys-entry':false});
-    filter = {};
-    filter['partial-'+firstKey] = true;
-    keysViewer.update(filter);
-    keysViewer.update({done: true});
-  };
-
   fsm.onbeforeevent = function(e, from, to) {
     if (from === '_none' || from === '_partial') {
       helpViewer.clear();
@@ -345,9 +325,14 @@ function VimFSM(context, commandList) {
   };
 
   fsm.onafterevent = function(e, from, to, cmd) {
-    showKeys();
+    for (var i=0; i<fsm.events.length; i++) {
+      var e = fsm.events[i];
+      keysViewer.set(e, fsm.can(e));
+    }
     if (to === '_partial' || to === '_vpartial') {
-      showPartialKeys(cmd.keys[0]);
+      keysViewer.set('keys-entry', false);
+      keysViewer.set('partial-' + cmd.keys[0], true);
+      keysViewer.set('done', true);
     }
   };
 

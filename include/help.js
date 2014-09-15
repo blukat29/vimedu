@@ -152,11 +152,7 @@ function KeysViewer(context, commandList_) {
     // Command type
     div.addClass(type);
     // Multi-key command support
-    if (cmd.keys.length == 1) {
-      div.addClass("single-key");
-    }
-    else {
-      div.addClass("multi-key");
+    if (cmd.keys.length > 1) {
       div.addClass("partial-" + cmd.keys[0]);
     }
     // Mode dependent command support
@@ -166,13 +162,15 @@ function KeysViewer(context, commandList_) {
     else {
       div.addClass(cmd.mode + "-mode");
     }
+    // The common class
+    div.addClass("keys-entry");
   };
 
   var appendHeader = function(type) {
     var div = $("<div></div>");
     div.css("background-color","#aaaaaa");
     div.html("&nbsp;&nbsp;"+type +" commands");
-    div.addClass(type);
+    div.addClass(type).addClass("keys-header");
     display.append(div);
   };
 
@@ -310,7 +308,7 @@ function VimFSM(context, commandList) {
       { name:'nonzero',  from:'_vrepeat',   to:'_vrepeat'   },
       { name:'zero',     from:'_vrepeat',   to:'_vrepeat'   },
   ]});
-  fsm.events = ['motion','operator','action','modifier','textobj','search','ex','visual'];
+  fsm.events = ['motion','operator','action','modifier','textobj','search','ex','visual','done'];
 
   var helpViewer = new HelpViewer(context);
   var keysViewer = new KeysViewer(context, commandList);
@@ -327,6 +325,14 @@ function VimFSM(context, commandList) {
     keysViewer.update(filter);
   };
 
+  var showPartialKeys = function(firstKey) {
+    keysViewer.update({'keys-entry':false});
+    filter = {};
+    filter['partial-'+firstKey] = true;
+    keysViewer.update(filter);
+    keysViewer.update({done: true});
+  };
+
   fsm.onbeforeevent = function(e, from, to) {
     if (from === '_none' || from === '_partial') {
       helpViewer.clear();
@@ -338,6 +344,13 @@ function VimFSM(context, commandList) {
     }
   };
 
+  fsm.onafterevent = function(e, from, to, cmd) {
+    showKeys();
+    if (to === '_partial' || to === '_vpartial') {
+      showPartialKeys(cmd.keys[0]);
+    }
+  };
+
   fsm.onmotion = function(e, from, to, cmd) {
     if ($.inArray(from, ['_none', '_repeat', '_partial']) >= 0) {
       helpViewer.append(cmd, "Move " + cmd.help);
@@ -345,10 +358,6 @@ function VimFSM(context, commandList) {
     else {
       helpViewer.append(cmd);
     }
-  };
-
-  fsm.onafterevent = function(e, from, to, cmd) {
-    showKeys();
   };
 
   // Check if double operators are the same key.

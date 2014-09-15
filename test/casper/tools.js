@@ -32,4 +32,23 @@ casper.maybeSpecialKey = function(key) {
   }
 };
 
+casper.runTestSuite = function(title, runner, suite) {
+
+  casper.test.begin(title, suite.length, function (test) {
+    casper.start("../../index.html", function() {
+      casper.getFocus();
+    });
+
+    casper.each(suite, function(self, testCase) {
+      self.wait(INTERVAL_TEST_CASE, function() {
+        runner(test, testCase);
+      });
+    });
+
+    casper.run(function() {
+      test.done();
+    });
+  });
+};
+
 

@@ -1,6 +1,6 @@
 // casperjs test
 
-function runSingleTest(test, testCase) {
+function fsmTester(test, testCase) {
 
   var given = testCase[0];
   var expected = testCase[1];
@@ -23,26 +23,7 @@ function runSingleTest(test, testCase) {
   });
 }; // singleFSMTest()
 
-function runTestSuite(title, suite) {
-
-  casper.test.begin(title, suite.length, function (test) {
-    casper.start("../../index.html", function() {
-      casper.getFocus();
-    });
-
-    casper.each(suite, function(self, testCase) {
-      self.wait(INTERVAL_TEST_CASE, function() {
-        runSingleTest(test, testCase);
-      });
-    });
-
-    casper.run(function() {
-      test.done();
-    });
-  });
-};
-
-runTestSuite("motion keys", [
+casper.runTestSuite("motion keys", fsmTester, [
   [ ['w'],         ['w'],      "simple motion" ],
   [ ['g','g'],     ['gg'],     "two key motion" ],
   [ ['f','w'],     ['fchar'],  "two key motion with wildcard" ],
@@ -51,7 +32,7 @@ runTestSuite("motion keys", [
   [ ['1','0','w'], ['10','w'], "zero key as a count" ],
 ]);
 
-runTestSuite("operators", [
+casper.runTestSuite("operators", fsmTester, [
   [ ['d','d'],         ['d','d'],         "simple double operator" ],
   [ ['d','2','d'],     ['d','2','d'],     "double operator with repetition" ],
   [ ['2','d','d'],     ['2','d','d'],     "double operator with repetition" ],
@@ -65,7 +46,7 @@ runTestSuite("operators", [
   [ ['x','w'],         ['w'], "x key is not an operator in normal mode" ],
 ]);
 
-runTestSuite("visual mode", [
+casper.runTestSuite("visual mode", fsmTester, [
   [ ['v','v'],                 ['v'],               "abort visual mode" ],
   [ ['v','d'],                 ['v','d'],           "simple visual mode operation" ],
   [ ['v','w','w','w','d'],     ['v','w','d'],       "show only last motion" ],
@@ -74,7 +55,7 @@ runTestSuite("visual mode", [
   [ ['v','w','x'],             ['v','w','x'],       "x key is an operator in visual mode" ],
 ]);
 
-runTestSuite("ex mode", [
+casper.runTestSuite("ex mode", fsmTester, [
   [ [':set nu','ENTER','d','d'], ['d','d'],           "enter key to come back to normal mode" ],
 ]);
 

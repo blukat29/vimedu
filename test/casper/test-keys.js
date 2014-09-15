@@ -9,11 +9,7 @@ function getVisibility(list) {
   return result;
 }
 
-var c = [ ['w'],   "_none state",
-          ['motion','operator','action','search','ex','done','visual'],
-          ['modifier','textobj'] ];
-
-function runSingleTest(test, testCase) {
+function keysTester(test, testCase) {
   var given = testCase[0];
   var comment = testCase[1];
   var shown = testCase[2];
@@ -44,4 +40,10 @@ function runSingleTest(test, testCase) {
     test.assertEquals(result, expected, message);
   });
 };
+
+casper.runTestSuite("Normal mode", keysTester, [
+  [ ['w'],   "_none state",
+    ['motion','operator','action','search','ex','done','visual'],
+    ['modifier','textobj'] ],
+]);
 

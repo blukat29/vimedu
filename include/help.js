@@ -328,7 +328,6 @@ function VimFSM(context, commandList) {
   };
 
   fsm.onbeforeevent = function(e, from, to) {
-    showKeys();
     if (from === '_none' || from === '_partial') {
       helpViewer.clear();
     }
@@ -346,6 +345,10 @@ function VimFSM(context, commandList) {
     else {
       helpViewer.append(cmd);
     }
+  };
+
+  fsm.onafterevent = function(e, from, to, cmd) {
+    showKeys();
   };
 
   // Check if double operators are the same key.

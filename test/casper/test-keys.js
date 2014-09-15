@@ -41,8 +41,16 @@ function keysTester(test, testCase) {
   });
 };
 
-casper.runTestSuite("Normal mode", keysTester, [
+casper.runTestSuite("visibility", keysTester, [
   [ ['w'],   "_none state",
+    ['motion','operator','action','search','ex','done','visual'],
+    ['modifier','textobj'] ],
+
+  [ ['g'],   "partial key",
+    ['partial-g'],
+    ['single-key:not(.done)'], ],
+
+  [ ['g'],   "... and get back to _none state",
     ['motion','operator','action','search','ex','done','visual'],
     ['modifier','textobj'] ],
 ]);

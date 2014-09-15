@@ -1,30 +1,6 @@
 // casperjs test
 
-function getHelps() {
-  var children = $("#helps-display").children();
-
-  var result = [];
-  for (var i = 0; i < children.length; i ++) {
-    var child = children[i];
-    var kbds = $("div:first", child).children();
-
-    var keys = "";
-    for (var j = 0; j < kbds.length; j ++) {
-      var kbd = kbds[j];
-      keys += kbd.innerHTML;
-    }
-    result.push(keys);
-  }
-  return result;
-}; // getHelps()
-
-function getFocus() {
-  casper.page.evaluate(function() {
-    editor.focus();
-  });
-}; // getFocus()
-
-function runSingleTest(test, testCase) {
+function fsmTester(test, testCase) {
 
   var given = testCase[0];
   var expected = testCase[1];
@@ -33,50 +9,21 @@ function runSingleTest(test, testCase) {
   // Send key inputs.
   casper.each(given, function(self, key) {
     self.wait(INTERVAL_KEY_EVENT, function() {
+      key = casper.maybeSpecialKey(key);
       casper.page.sendEvent('keypress', key);
     });
   });
 
   // After a while, get the displayed helps.
   casper.wait(INTERVAL_RESULT, function() {
-    var result = casper.evaluate(getHelps);
+    var result = casper.evaluate(casper.getHelps);
     var message = given.toString() + " : " + comment;
 
     test.assertEquals(result, expected, message);
   });
 }; // singleFSMTest()
 
-function runTestSuite(title, suite) {
-
-  casper.test.begin(title, suite.length, function (test) {
-    casper.start("../../index.html", function() {
-      getFocus();
-    });
-
-    casper.each(suite, function(self, testCase) {
-      self.wait(INTERVAL_TEST_CASE, function() {
-        runSingleTest(test, testCase);
-      });
-    });
-
-    casper.run(function() {
-      test.done();
-    });
-  });
-};
-
-var INTERVAL_TEST_CASE = 150;
-var   INTERVAL_KEY_EVENT = 10;
-var   INTERVAL_RESULT = 30;
-
-casper.test.begin("Confirm test parameters", 1, function(test) {
-  var LONGEST_KEYS = 10;
-  var longest_test_case = INTERVAL_KEY_EVENT * LONGEST_KEYS + INTERVAL_RESULT;
-  test.assertTruthy(INTERVAL_TEST_CASE > longest_test_case, "interval values are ok");
-  test.done();
-});
-
-runTestSuite("motion keys", [
+casper.runTestSuite("motion keys", fsmTester, [
   [ ['w'],         ['w'],      "simple motion" ],
   [ ['g','g'],     ['gg'],     "two key motion" ],
   [ ['f','w'],     ['fchar'],  "two key motion with wildcard" ],
@@ -85,7 +32,7 @@ runTestSuite("motion keys", [
   [ ['1','0','w'], ['10','w'], "zero key as a count" ],
 ]);
 
-runTestSuite("operators", [
+casper.runTestSuite("operators", fsmTester, [
   [ ['d','d'],         ['d','d'],         "simple double operator" ],
   [ ['d','2','d'],     ['d','2','d'],     "double operator with repetition" ],
   [ ['2','d','d'],     ['2','d','d'],     "double operator with repetition" ],
@@ -99,7 +46,7 @@ runTestSuite("operators", [
   [ ['x','w'],         ['w'], "x key is not an operator in normal mode" ],
 ]);
 
-runTestSuite("visual mode", [
+casper.runTestSuite("visual mode", fsmTester, [
   [ ['v','v'],                 ['v'],               "abort visual mode" ],
   [ ['v','d'],                 ['v','d'],           "simple visual mode operation" ],
   [ ['v','w','w','w','d'],     ['v','w','d'],       "show only last motion" ],
@@ -108,8 +55,7 @@ runTestSuite("visual mode", [
   [ ['v','w','x'],             ['v','w','x'],       "x key is an operator in visual mode" ],
 ]);
 
-var ENTER = casper.page.event.key.Enter;
-runTestSuite("ex mode", [
-  [ [':set nu',ENTER,'d','d'], ['d','d'],           "enter key to come back to normal mode" ],
+casper.runTestSuite("ex mode", fsmTester, [
+  [ [':set nu','ENTER','d','d'], ['d','d'],           "enter key to come back to normal mode" ],
 ]);
 

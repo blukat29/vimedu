@@ -155,6 +155,9 @@ function KeysViewer(context, commandList_) {
     if (cmd.keys.length > 1) {
       div.addClass("partial-" + cmd.keys[0]);
     }
+    else {
+      div.addClass("single-key");
+    }
     // Mode dependent command support
     if (!cmd.mode) {
       div.addClass("any-mode");

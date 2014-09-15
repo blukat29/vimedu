@@ -4,14 +4,15 @@
 var commandListEN = [
   // Motion commands. Can be used alone, or used with operator.
   { type:'motion', commands:[
-    { keys:['h'],       help:'to left' },
-    { keys:['j'],       help:'to down' },
-    { keys:['k'],       help:'to up' },
-    { keys:['l'],       help:'to right' },
-    { keys:['<Left>'],  help:'to left',  keysDisp:['←'] },
-    { keys:['<Down>'],  help:'to down',  keysDisp:['↓'] },
-    { keys:['<Up>'],    help:'to up',    keysDisp:['↑'] },
-    { keys:['<Right>'], help:'to right', keysDisp:['→'] },
+    { keys:['h'],       help:'to left',  familyId:'hjkl',  familyHelp:'== arrow keys' },
+    { keys:['j'],       help:'to down',  familyId:'hjkl' },
+    { keys:['k'],       help:'to up',    familyId:'hjkl' },
+    { keys:['l'],       help:'to right', familyId:'hjkl' },
+
+    { keys:['<Left>'],  help:'to left',  keysDisp:['←'], familyId:'arrow', familyHelp:'easy.' },
+    { keys:['<Down>'],  help:'to down',  keysDisp:['↓'], familyId:'arrow' },
+    { keys:['<Up>'],    help:'to up',    keysDisp:['↑'], familyId:'arrow' },
+    { keys:['<Right>'], help:'to right', keysDisp:['→'], familyId:'arrow' },
 
     { keys:['w'],       help:'a word' },
     { keys:['b'],       help:'a word backward' },
@@ -50,12 +51,12 @@ var commandListEN = [
     { keys:['w'],     help:'Word' },
     { keys:['"'],     help:'Dobule quote' },
     { keys:['\''],    help:'Single quote' },
-    { keys:['('],     help:'Parenthesis' },
-    { keys:[')'],     help:'Parenthesis' },
-    { keys:['{'],     help:'Braces' },
-    { keys:['}'],     help:'Braces' },
-    { keys:['['],     help:'Brackets' },
-    { keys:[']'],     help:'Brackets' },
+    { keys:['('],     help:'Parenthesis', familyId:'Parenthesis', familyHelp:'Parenthesis' },
+    { keys:[')'],     help:'Parenthesis', familyId:'Parenthesis' },
+    { keys:['{'],     help:'Braces',      familyId:'Braces',      familyHelp:'Braces' },
+    { keys:['}'],     help:'Braces',      familyId:'Braces' },
+    { keys:['['],     help:'Brackets',    familyId:'Brackets',    familyHelp:'Brackets' },
+    { keys:[']'],     help:'Brackets',    familyId:'Brackets' },
   ]},
   // Search commands.
   { type:'search', commands:[
@@ -123,65 +124,137 @@ function HelpViewer(context) {
 }
 
 // Interface to suggested keys help at the right.
-function KeysViewer(context) {
+function KeysViewer(context, commandList_) {
+  var commandList = commandList_;
   var display = $("#keys-display", context);
 
-  var appendType = function(bundle) {
-    var div = $("<div></div>").addClass(bundle.type);
-    var title = $("<h4>"+bundle.type+"</h4>");
-    div.append(title);
-    display.append(div);
-    return div;
-  };
+  var appendKbd = function(container, cmd) {
+    var keys = typeof cmd.keysDisp !== 'undefined' ? cmd.keysDisp : cmd.keys;
 
-  var getKeyObject = function(keys, help) {
-    var div = $("<div></div>");
     for (var i=0; i<keys.length; i++) {
       var key = keys[i];
       key = key.replace("<","&lt;");
       key = key.replace(">","&gt;");
-      div.append($("<kbd>"+key+"</kbd>"));
+      container.append($("<kbd>"+key+"</kbd>"));
     }
+  };
+
+  var getKeyObject = function(cmd) {
+    var help = cmd.help;
+    var div = $("<div></div>");
+    appendKbd(div, cmd);
     var txt = $("<span>  "+help+"</span>");
     div.append(txt);
-
     return div;
   };
 
-  var appendCommand = function(container, cmd) {
-    container.append(getKeyObject(cmd.keys, cmd.help));
+  var setKeyClasses = function(type, cmd, div) {
+    // Command type
+    div.addClass(type);
+    // Multi-key command support
+    if (cmd.keys.length > 1) {
+      div.addClass("partial-" + cmd.keys[0]);
+    }
+    // Mode dependent command support
+    if (!cmd.mode) {
+      div.addClass("any-mode");
+    }
+    else {
+      div.addClass(cmd.mode + "-mode");
+    }
+    // The common class
+    div.addClass("keys-entry");
   };
 
-  var init = function(commandList) {
+  var appendHeader = function(type) {
+    var div = $("<div></div>");
+    div.css("background-color","#aaaaaa");
+    div.html("&nbsp;&nbsp;"+type +" commands");
+    div.addClass(type).addClass("keys-header");
+    display.append(div);
+  };
 
-    for (var i=0; i<commandList.length; i++) {
-      var bundle = commandList[i];
-      var container = appendType(bundle);
+  var appendCommandFamily = function(type, id, help, member) {
+    var div = $("<div></div>");
+    for (var i=0; i < member.length; i ++) {
+      var cmd = member[i];
+      appendKbd(div, cmd);
+    }
+    var txt = $("<span>  "+help+"</span>");
+    div.append(txt);
+    setKeyClasses(type, member[0], div);
+    display.append(div);
+  };
 
-      for (var j=0; j<bundle.commands.length; j++) {
-        var cmd = bundle.commands[j];
-        appendCommand(container, cmd);
+  var appendCommands = function(type, commands) {
+
+    var inFamily = false;
+    var currFamilyId = null;
+    var currFamilyHelp = null;
+    var currFamilyMember = [];
+
+    for (var i=0; i < commands.length; i ++) {
+      var cmd = commands[i];
+
+      // Member of some family.
+      if (cmd.familyId) {
+        // Start of an (another) family.
+        if (cmd.familyId !== currFamilyId) {
+          if (inFamily) {
+              appendCommandFamily(type, currFamilyId, currFamilyHelp, currFamilyMember);
+          }
+          inFamily = true;
+          currFamilyId = cmd.familyId;
+          currFamilyHelp = cmd.familyHelp;
+          currFamilyMember = [cmd];
+        }
+        // Current family continued.
+        else {
+          currFamilyMember.push(cmd);
+        }
       }
+      // Not a family member.
+      else {
+        if (inFamily) {
+          inFamily = false;
+          appendCommandFamily(type, currFamilyId, currFamilyHelp, currFamilyMember);
+        }
+        var div = getKeyObject(cmd);
+        setKeyClasses(type, cmd, div);
+        display.append(div);
+      }
+    }
+    if (inFamily) {
+      appendCommandFamily(type, currFamilyId, currFamilyHelp, currFamilyMember);
     }
   };
 
-  var update = function(filter) {
-    for (var type in filter) {
-      if (filter[type])
-        $("."+type, display).show();
-      else
-        $("."+type, display).hide();
+  var init = function() {
+    for (var i=0; i<commandList.length; i++) {
+      var type = commandList[i].type;
+      var commands = commandList[i].commands;
+      appendHeader(type);
+      appendCommands(type, commands);
+    }
+  };
+
+  var setVisibility = function(key, truthy) {
+    if (truthy) {
+      $("."+key, display).show();
+    }
+    else {
+      $("."+key, display).hide();
     }
   };
 
   return {
     init: init,
-    update: update,
+    set: setVisibility,
   };
 }
 
 // Simple model for vim command grammar.
-function VimFSM(context) {
+function VimFSM(context, commandList) {
   var fsm = StateMachine.create({
     initial:'_none',
     events: [
@@ -235,9 +308,10 @@ function VimFSM(context) {
       { name:'nonzero',  from:'_vrepeat',   to:'_vrepeat'   },
       { name:'zero',     from:'_vrepeat',   to:'_vrepeat'   },
   ]});
-  fsm.events = ['motion','operator','action','modifier','textobj','search','ex'];
+  fsm.events = ['motion','operator','action','modifier','textobj','search','ex','visual','done'];
 
   var helpViewer = new HelpViewer(context);
+  var keysViewer = new KeysViewer(context, commandList);
 
   fsm.onbeforeevent = function(e, from, to) {
     if (from === '_none' || from === '_partial') {
@@ -247,6 +321,18 @@ function VimFSM(context) {
              e !== 'operator') {
       helpViewer.clear();
       helpViewer.append({keys: ['v'], help: "Select"});
+    }
+  };
+
+  fsm.onafterevent = function(e, from, to, cmd) {
+    for (var i=0; i<fsm.events.length; i++) {
+      var e = fsm.events[i];
+      keysViewer.set(e, fsm.can(e));
+    }
+    if (to === '_partial' || to === '_vpartial') {
+      keysViewer.set('keys-entry', false);
+      keysViewer.set('partial-' + cmd.keys[0], true);
+      keysViewer.set('done', true);
     }
   };
 
@@ -327,17 +413,19 @@ function VimFSM(context) {
     helpViewer.clear();
   };
 
+  fsm.initKeysViewer = function() {
+    keysViewer.init();
+  };
+
   return fsm;
 }
 
 // Outermost interface to overall help functionality.
-function CommandHelper (commandList_, context) {
+function CommandHelper (context, commandList_) {
 
   var commandList = commandList_;
 
-  var keysViewer = new KeysViewer(context);
-
-  var fsm = new VimFSM(context);
+  var fsm = new VimFSM(context, commandList);
   var keyBuf = [];
   var numBuf = [];
   var mode = 'normal';
@@ -403,18 +491,6 @@ function CommandHelper (commandList_, context) {
     return true;
   };
 
-  var showKeys = function() {
-    var filter = [];
-    for (var i=0; i<fsm.events.length; i++) {
-      var e = fsm.events[i];
-      if (fsm.can(e))
-        filter[e] = true;
-      else
-        filter[e] = false;
-    }
-    keysViewer.update(filter);
-  };
-
   var onKey = function(key) {
     keyBuf.push(key);
     var match;
@@ -432,7 +508,6 @@ function CommandHelper (commandList_, context) {
       if (result === StateMachine.Result.CANCELLED) {
         fsm.done();
       }
-      showKeys();
     }
     else {
       if (isNonzero(key) && fsm.can('nonzero') ||
@@ -442,7 +517,6 @@ function CommandHelper (commandList_, context) {
         numBuf.push(keyBuf.pop());
         if (key === '0') fsm.zero(numBuf);
         else fsm.nonzero(numBuf);
-        showKeys();
       }
       else {
         var matches = matchPartial();
@@ -469,11 +543,10 @@ function CommandHelper (commandList_, context) {
   };
 
   var init = function() {
-    keysViewer.init(commandList);
+    fsm.initKeysViewer();
   };
 
   var done = function() {
-    showKeys();
   };
 
   var exdone = function() {
@@ -491,5 +564,5 @@ function CommandHelper (commandList_, context) {
   };
 }
 
-var commandHelper = new CommandHelper(commandListEN, window.body);
+var commandHelper = new CommandHelper(window.body, commandListEN);
 

@@ -1,4 +1,4 @@
 TESTS=$(wildcard test-*.js)
 
 all:
-	casperjs test $(TESTS)
+	casperjs test --includes=tools.js,params.js $(TESTS)

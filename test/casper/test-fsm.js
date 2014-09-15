@@ -1,29 +1,5 @@
 // casperjs test
 
-function getHelps() {
-  var children = $("#helps-display").children();
-
-  var result = [];
-  for (var i = 0; i < children.length; i ++) {
-    var child = children[i];
-    var kbds = $("div:first", child).children();
-
-    var keys = "";
-    for (var j = 0; j < kbds.length; j ++) {
-      var kbd = kbds[j];
-      keys += kbd.innerHTML;
-    }
-    result.push(keys);
-  }
-  return result;
-}; // getHelps()
-
-function getFocus() {
-  casper.page.evaluate(function() {
-    editor.focus();
-  });
-}; // getFocus()
-
 function runSingleTest(test, testCase) {
 
   var given = testCase[0];
@@ -33,13 +9,14 @@ function runSingleTest(test, testCase) {
   // Send key inputs.
   casper.each(given, function(self, key) {
     self.wait(INTERVAL_KEY_EVENT, function() {
+      key = casper.maybeSpecialKey(key);
       casper.page.sendEvent('keypress', key);
     });
   });
 
   // After a while, get the displayed helps.
   casper.wait(INTERVAL_RESULT, function() {
-    var result = casper.evaluate(getHelps);
+    var result = casper.evaluate(casper.getHelps);
     var message = given.toString() + " : " + comment;
 
     test.assertEquals(result, expected, message);
@@ -50,7 +27,7 @@ function runTestSuite(title, suite) {
 
   casper.test.begin(title, suite.length, function (test) {
     casper.start("../../index.html", function() {
-      getFocus();
+      casper.getFocus();
     });
 
     casper.each(suite, function(self, testCase) {
@@ -64,17 +41,6 @@ function runTestSuite(title, suite) {
     });
   });
 };
-
-var INTERVAL_TEST_CASE = 150;
-var   INTERVAL_KEY_EVENT = 10;
-var   INTERVAL_RESULT = 30;
-
-casper.test.begin("Confirm test parameters", 1, function(test) {
-  var LONGEST_KEYS = 10;
-  var longest_test_case = INTERVAL_KEY_EVENT * LONGEST_KEYS + INTERVAL_RESULT;
-  test.assertTruthy(INTERVAL_TEST_CASE > longest_test_case, "interval values are ok");
-  test.done();
-});
 
 runTestSuite("motion keys", [
   [ ['w'],         ['w'],      "simple motion" ],
@@ -108,8 +74,7 @@ runTestSuite("visual mode", [
   [ ['v','w','x'],             ['v','w','x'],       "x key is an operator in visual mode" ],
 ]);
 
-var ENTER = casper.page.event.key.Enter;
 runTestSuite("ex mode", [
-  [ [':set nu',ENTER,'d','d'], ['d','d'],           "enter key to come back to normal mode" ],
+  [ [':set nu','ENTER','d','d'], ['d','d'],           "enter key to come back to normal mode" ],
 ]);
 

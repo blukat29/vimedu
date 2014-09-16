@@ -315,6 +315,7 @@ function VimFSM(context, commandList) {
 
   var helpViewer = new HelpViewer(context);
   var keysViewer = new KeysViewer(context, commandList);
+  var mode = 'normal';
 
   fsm.onbeforeevent = function(e, from, to) {
     if (from === '_none' || from === '_partial') {
@@ -328,14 +329,33 @@ function VimFSM(context, commandList) {
   };
 
   fsm.onafterevent = function(e, from, to, cmd) {
+    // Determine current mode.
+    if (to[1] == 'v') {
+      mode = 'visual';
+    }
+    else {
+      mode = 'normal';
+    }
+    // Reset all visibility.
+    keysViewer.set('keys-entry', false);
+    // Build selectors.
     for (var i=0; i<fsm.events.length; i++) {
       var e = fsm.events[i];
-      keysViewer.set(e, fsm.can(e));
-    }
-    if (to === '_partial' || to === '_vpartial') {
-      keysViewer.set('keys-entry', false);
-      keysViewer.set('partial-' + cmd.keys[0], true);
-      keysViewer.set('done', true);
+      // 1. Select by type.
+      //   ".motion" OR ".operator" OR ...
+      var selector = e;
+      if (fsm.can(e)) {
+        // 2. Select by partial key prefix, if needed.
+        //   ":not(.single-key).partial-g"
+        if (to === '_partial' || to === '_vpartial') {
+          selector += ":not(.single-key)";
+          selector += ".partial-" + cmd.keys[0];
+        }
+        // 3. Select by mode.
+        //   ".any-mode" OR ".normal-mode"
+        keysViewer.set(selector + ".any-mode", true);
+        keysViewer.set(selector + "." + mode + "-mode", true);
+      }
     }
   };
 
@@ -353,7 +373,7 @@ function VimFSM(context, commandList) {
   fsm.onbeforeoperator = function(e, from, to, cmd) {
     if (from === '_operator' || from === '_opRepeat') {
       if(lastOperator !== cmd.keys[0])
-        return false;
+        return false; // Returning false aborts the transition.
       else
         lastOperator = null;
     }

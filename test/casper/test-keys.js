@@ -4,7 +4,7 @@ function getVisibility(list) {
   var result = {};
   for (var i = 0; i < list.length; i ++) {
     var item = list[i];
-    result[item] = $("."+item).is(":visible");
+    result[item] = $("."+item+":not(.keys-header)").is(":visible");
   }
   return result;
 }

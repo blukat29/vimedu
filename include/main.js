@@ -23,13 +23,11 @@ CodeMirror.on(editor, 'vim-set-register', function(e) {
 // Mode display.
 function mode_change(mode) {
   var target = $("#mode-"+mode);
-  var t = target.offset().top;
+  var t = target.offset().top - target.parent().offset().top;
   var l = target.offset().left - target.parent().offset().left;
-  var h = target.outerHeight();
-  var w = target.outerWidth();
 
   $("#mode-selector").stop(); // Abort any previous animations.
-  $("#mode-selector").animate({top:t, left:l, height:h, width:w}, 100);
+  $("#mode-selector").animate({top:t+10, left:l-15}, 100);
 }
 CodeMirror.on(editor, 'vim-mode-change', function(e) {
   mode_change(e.mode);

@@ -1,7 +1,3 @@
-body {
-  background-color: #EEEEEE;
-}
-
 .container {
   background-color: #FFFFFF;
   overflow: hidden;
@@ -79,5 +75,25 @@ kbd {
 #quest-explorer {
   background-color: #eeeeee;
   height: 100%
+}
+
+.left-pane {
+  margin-top: 20px;
+  background-color: #dddddd;
+  box-shadow: 10px 10px #555555;
+}
+
+.mid-pane {
+  padding :30px;
+  margin-right: -10px;
+}
+
+.right-pane {
+  margin-top: 20px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  background-color: #dddddd;
+  box-shadow: 10px 10px #555555;
 }
 

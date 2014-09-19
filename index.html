@@ -16,7 +16,7 @@
 <body>
 <div class="container">
   <div class="row">
-    <div class="col-lg-3">
+    <div class="col-lg-3 left-pane">
       <h3>Modes</h3>
       <p>vim has three modes: Normal, Insert, and Visual. Each mode has different commands and purpose.</p>
       <div class="mode-container" id="mode-normal">
@@ -36,7 +36,7 @@
       <p>Every time you delete or copy some text, it goes to this register.</p>
       <textarea id="register-display" style="width:100%; height:100px"></textarea>
     </div>
-    <div class="col-lg-6">
+    <div class="col-lg-6 mid-pane">
       <h3>Vim</h3>
       <form><textarea id="vim">#include "syscalls.h"
 /* getchar:  simple buffered version */
@@ -59,7 +59,7 @@ int getchar(void)
       </div>
       <div id="tutorial"></div>
     </div>
-    <div class="col-lg-3">
+    <div class="col-lg-3 right-pane">
       <h3>Keys</h3>
       <div id="keys-display"></div>
     </div>

@@ -30,7 +30,7 @@ var commandListEN = [
     { keys:['x'],     help:'Delete', mode:'visual' },
     { keys:['y'],     help:'Yank (copy)' },
     { keys:['c'],     help:'Change' },
-    { keys:['p'],     help:'Paste' },
+    { keys:['p'],     help:'Paste', mode:'visual' },
     { keys:['>'],     help:'Indent' },
     { keys:['<'],     help:'Unindent' },
   ]},
@@ -38,6 +38,7 @@ var commandListEN = [
   { type:'action', commands:[
     { keys:['i'],     help:'Switch to insert mode' },
     { keys:['x'],     help:'Delete a character', mode:'normal' },
+    { keys:['p'],     help:'Paste', mode:'normal' },
     { keys:['u'],     help:'Undo' },
     { keys:['<C-r>'], help:'Redo', keysDisp:['Ctrl+r']  },
   ]},

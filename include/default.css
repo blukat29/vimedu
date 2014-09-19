@@ -4,12 +4,6 @@
   min-height: 600px;
 }
 
-.col-lg-4 {
-  border-style: solid;
-  border-width: 1px;
-  padding: 10px;
-}
-
 .CodeMirror-scroll {
   background-color: black;
   color: white;
@@ -21,6 +15,15 @@
 
 .CodeMirror-wrap pre {
   word-break: break-all;
+}
+
+.CodeMirror {
+  font-family: Consolas;
+}
+
+.CodeMirror-linenumbers {
+  background-color: #666666;
+  color: black;
 }
 
 .mode-container {

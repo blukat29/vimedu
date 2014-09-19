@@ -4,11 +4,6 @@
   min-height: 600px;
 }
 
-.CodeMirror-scroll {
-  background-color: black;
-  color: white;
-}
-
 .CodeMirror-vscrollbar[style] {
   display: none !important;
 }
@@ -19,11 +14,6 @@
 
 .CodeMirror {
   font-family: Consolas;
-}
-
-.CodeMirror-linenumbers {
-  background-color: #666666;
-  color: black;
 }
 
 .mode-container {

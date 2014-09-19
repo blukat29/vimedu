@@ -15,4 +15,5 @@ var editor = CodeMirror.fromTextArea(document.getElementById("vim"), {
 });
 
 editor.setSize(null, 400);
+editor.setOption("theme","blackboard");
 

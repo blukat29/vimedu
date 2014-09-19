@@ -14,3 +14,5 @@ var editor = CodeMirror.fromTextArea(document.getElementById("vim"), {
   lineWrapping: true,
 });
 
+editor.setSize(null, 400);
+

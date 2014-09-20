@@ -1,4 +1,3 @@
-
 function Tutorial() {
 
   var getHelps = function() {
@@ -19,94 +18,6 @@ function Tutorial() {
     return result;
   };
 
-  var goTutorial = function(filename) {
-    $.ajax({
-      url: "levels/" + filename,
-    }).done(function(data) {
-      $("#tutorial").html(data);
-    });
-  };
-
-  var initVimOverlay = function() {
-    var cm = $(".CodeMirror");
-    var ov = $("#vim-overlay");
-    ov.css("z-index",1000);
-    ov.css("position","absolute");
-    ov.offset(cm.offset());
-    ov.outerHeight(cm.outerHeight());
-    ov.outerWidth(cm.outerWidth());
-
-    $("#vim-overlay").click(function() {
-      editor.focus();
-    });
-
-    CodeMirror.on(editor, 'vim-quit', function() {
-      $("#vim-overlay").css("opacity","1.0");
-      $("#quest-explorer").show();
-      $("#level-0").focus();
-    });
-  }; // initVimOverlay
-
-  var initLevelButtons = function(nLevels) {
-    var i;
-    var level = [];
-
-    for (i = 0; i < nLevels; i ++) {
-      level[i] = $("<button id='level-"+i+"' class='btn btn-default'></button>");
-      level[i].html("Level " + i);
-      var div = $("<div class='col-sm-4 quest-block'></div>");
-      div.append(level[i]);
-      div.css("padding","10px");
-      $("#quest-explorer").append(div);
-    }
-
-    var handler = function(i) {
-      var move_if_exists = function(i) {
-        if (i >= 0 && i < nLevels) {
-          level[i].focus();
-        }
-      };
-      return function(e){
-        switch(e.which) {
-          case 72: // h
-          case 37: // left
-            move_if_exists(i-1);
-            break;
-          case 75: // k
-          case 38: // up
-            e.preventDefault(); // prevent browser's scrolling behavior.
-            move_if_exists(i-3);
-            break;
-          case 76: // l
-          case 39: // right
-            move_if_exists(i+1);
-            break;
-          case 74: // j
-          case 40: // down
-            e.preventDefault(); // prevent browser's scrolling behavior.
-            move_if_exists(i+3);
-            break;
-          case 9:  // tab
-            e.preventDefault();
-            move_if_exists(i+1);
-            break;
-        }
-      };
-    }; // handler
-
-    var returnToEditor = function() {
-      $("#vim-overlay").css("opacity","0.0");
-      $("#quest-explorer").hide();
-      editor.focus();
-      goTutorial("level6.html");
-    }; // returnToEditor
-
-    for (i=0; i < nLevels; i ++) {
-      level[i].keydown(handler(i));
-      level[i].click(returnToEditor);
-    }
-  }; // initLevelButtons
-
   var compareKeys = function (a, b) {
     if (a.length !== b.length)
       return false;
@@ -115,11 +26,6 @@ function Tutorial() {
         return false;
     }
     return true;
-  };
-
-  var init = function() {
-    initVimOverlay();
-    initLevelButtons(6);
   };
 
   var listeners = [];
@@ -137,6 +43,118 @@ function Tutorial() {
 
   var addListener = function(keys, file) {
     listeners.push({keys: keys, file: file});
+  };
+
+  var goTutorial = function(filename) {
+    $.ajax({
+      url: "levels/" + filename,
+    }).done(function(data) {
+      $("#tutorial").html(data);
+    }).fail(function() {
+      throw "file levels/" + filename + " not found";
+    });
+  };
+
+  var active = true;
+
+  var initVimOverlay = function() {
+    var cm = $(".CodeMirror");
+    var ov = $("#vim-overlay");
+    ov.css("z-index",1000);
+    ov.css("position","absolute");
+    ov.offset(cm.offset());
+    ov.outerHeight(cm.outerHeight());
+    ov.outerWidth(cm.outerWidth());
+
+    $("#vim-overlay").click(function() {
+      if (active) {
+        editor.focus();
+      }
+    });
+
+    // Dummy textarea to move the focus into.
+    // Prevents keys are typed into vim when shell is up.
+    var tx = $("<textarea></textarea>");
+    tx.css("position","absolute");
+    tx.offset({top:-1000});
+    ov.append(tx);
+
+    CodeMirror.on(editor, 'vim-quit', function() {
+      active = false;
+      $("#vim-overlay").css("opacity","1.0");
+      $("#quest-shell").show();
+      tx.focus();
+      $("#quest-shell").click();
+    });
+  };
+
+  var levels = ["level0","level6"];
+
+  var returnToEditor = function(file) {
+    if (file) {
+      var match = file.match(/(level\d+(-\d+)?)/);
+      if (match && $.inArray(match[1], levels) >= 0) {
+        goTutorial(match[1] + ".html");
+      }
+      else {
+        throw "no such level: " + file;
+      }
+    }
+    active = true;
+    $("#vim-overlay").css("opacity","0.0");
+    $("#quest-shell").hide();
+    $("#vim-overlay").click();
+  };
+
+  var interp = function(command) {
+    var argv = command.split(/\s+/);
+    switch (argv[0]) {
+      case 'vi':
+      case 'vim':
+        var file = (argv.length > 1)? argv[1] : null;
+        returnToEditor(file);
+        break;
+      case 'ls':
+        var s = "\nHere is the list of all available levels.\n";
+        s += "    " + levels.join("\t");
+        s += "\n";
+        return s;
+      case 'help':
+        var s = "\nHere are the commands you can use.\n";
+        s += "    vim: Back to where you were.\n";
+        s += "    vim level6: Start quest level 6.\n";
+        s += "    ls: List all levels.\n";
+        s += "    help: Shows this help.\n";
+        return s;
+      default:
+        throw "unknown command: "+command;
+    }
+  };
+
+  var initShell = function() {
+    jQuery(function($, undefined) {
+      $("#quest-shell").terminal(function(command, term) {
+        if (command !== '') {
+          try {
+            var result = interp(command);
+            if (result !== undefined) {
+              term.echo(result.toString());
+            }
+          } catch(e) {
+            term.error(e.toString());
+          }
+        }
+      }, {
+        greetings: "Quest Shell",
+        height: $("#vim-overlay").outerHeight(),
+        prompt: 'shell> '});
+    });
+  };
+
+  var init = function() {
+    initVimOverlay();
+    initShell();
+    $("#quest-shell").hide();
   };
 
   return {

@@ -50,6 +50,8 @@ function Tutorial() {
       url: "levels/" + filename,
     }).done(function(data) {
       $("#tutorial").html(data);
+    }).fail(function() {
+      throw "file levels/" + filename + " not found";
     });
   };
 
@@ -86,12 +88,22 @@ function Tutorial() {
     });
   };
 
-  var returnToEditor = function() {
+  var levels = ["level0","level6"];
+
+  var returnToEditor = function(file) {
+    if (file) {
+      var match = file.match(/(level\d+(-\d+)?)/);
+      if (match && $.inArray(match[1], levels) >= 0) {
+        goTutorial(match[1] + ".html");
+      }
+      else {
+        throw "no such level: " + file;
+      }
+    }
     active = true;
     $("#vim-overlay").css("opacity","0.0");
     $("#quest-shell").hide();
-    editor.focus();
-    goTutorial("level6.html");
+    $("#vim-overlay").click();
   };
 
   var interp = function(command) {
@@ -99,13 +111,19 @@ function Tutorial() {
     switch (argv[0]) {
       case 'vi':
       case 'vim':
-        returnToEditor();
+        var file = (argv.length > 1)? argv[1] : null;
+        returnToEditor(file);
         break;
+      case 'ls':
+        var s = "\nHere is the list of all available levels.\n";
+        s += "    " + levels.join("\t");
+        s += "\n";
+        return s;
       case 'help':
         var s = "\nHere are the commands you can use.\n";
         s += "    vim: Back to where you were.\n";
-        s += "    vim hello.txt: Open hello.txt with vim.\n";
-        s += "                   if the file does not exists, create one.\n";
+        s += "    vim level6: Start quest level 6.\n";
+        s += "    ls: List all levels.\n";
         s += "    help: Shows this help.\n";
         return s;
       default:
@@ -120,10 +138,10 @@ function Tutorial() {
           try {
             var result = interp(command);
             if (result !== undefined) {
-              term.echo(new String(result));
+              term.echo(result.toString());
             }
           } catch(e) {
-            term.error(new String(e));
+            term.error(e.toString());
           }
         }
       }, {

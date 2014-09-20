@@ -53,6 +53,8 @@ function Tutorial() {
     });
   };
 
+  var active = true;
+
   var initVimOverlay = function() {
     var cm = $(".CodeMirror");
     var ov = $("#vim-overlay");
@@ -63,16 +65,29 @@ function Tutorial() {
     ov.outerWidth(cm.outerWidth());
 
     $("#vim-overlay").click(function() {
-      editor.focus();
+      if (active) {
+        editor.focus();
+      }
     });
 
+    // Dummy textarea to move the focus into.
+    // Prevents keys are typed into vim when shell is up.
+    var tx = $("<textarea></textarea>");
+    tx.css("position","absolute");
+    tx.offset({top:-1000});
+    ov.append(tx);
+
     CodeMirror.on(editor, 'vim-quit', function() {
+      active = false;
       $("#vim-overlay").css("opacity","1.0");
       $("#quest-shell").show();
+      tx.focus();
+      $("#quest-shell").click();
     });
   };
 
   var returnToEditor = function() {
+    active = true;
     $("#vim-overlay").css("opacity","0.0");
     $("#quest-shell").hide();
     editor.focus();

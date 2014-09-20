@@ -95,10 +95,19 @@ function Tutorial() {
   };
 
   var interp = function(command) {
-    switch (command) {
+    var argv = command.split(/\s+/);
+    switch (argv[0]) {
       case 'vi':
+      case 'vim':
         returnToEditor();
         break;
+      case 'help':
+        var s = "\nHere are the commands you can use.\n";
+        s += "    vim: Back to where you were.\n";
+        s += "    vim hello.txt: Open hello.txt with vim.\n";
+        s += "                   if the file does not exists, create one.\n";
+        s += "    help: Shows this help.\n";
+        return s;
       default:
         throw "unknown command: "+command;
     }

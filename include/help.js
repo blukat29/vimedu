@@ -75,6 +75,8 @@ var commandListEN = [
   { type:'exdone', commands:[
     { keys:[':q'],    help:'Exit vim' },
     { keys:[':w'],    help:'Save file' },
+    { keys:[':set nu'],    help:'Turn on linenumbers' },
+    { keys:[':set nonu'],  help:'Turn off linenumbers' },
   ]},
   // v keys toggles visual mode.
   { type:'visual', commands:[

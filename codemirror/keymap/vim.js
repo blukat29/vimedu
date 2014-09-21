@@ -431,12 +431,13 @@
     }
 
     var options = {};
-    function defineOption(name, defaultValue, type) {
+    function defineOption(name, defaultValue, type, callback) {
       if (defaultValue === undefined) { throw Error('defaultValue is required'); }
       if (!type) { type = 'string'; }
       options[name] = {
         type: type,
-        defaultValue: defaultValue
+        defaultValue: defaultValue,
+        callback: callback,
       };
       setOption(name, defaultValue);
     }
@@ -455,6 +456,7 @@
         }
       }
       option.value = option.type == 'boolean' ? !!value : value;
+      if (option.callback !== undefined) { option.callback(value); }
     }
 
     function getOption(name) {

@@ -1,5 +1,9 @@
 // casperjs test --pre
 
+casper.on('remote.message', function(msg) {
+  casper.echo(">>>> " + msg);
+});
+
 casper.getFocus = function() {
   casper.page.evaluate(function() {
     editor.focus();
@@ -27,7 +31,8 @@ casper.getHelps = function() {
 casper.maybeSpecialKey = function(key) {
   var special = casper.page.event.key;
   switch (key) {
-    case 'ENTER': return special.Enter;
+    case 'ENTER': return special.Enter; break;
+    case 'ESC': return special.Escape; break;
     default: return key
   }
 };
@@ -36,6 +41,7 @@ casper.runTestSuite = function(title, runner, suite) {
 
   casper.test.begin(title, suite.length, function (test) {
     casper.start("../../index.html", function() {
+      this.viewport(1366, 768);
       casper.getFocus();
     });
 

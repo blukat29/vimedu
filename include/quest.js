@@ -1,4 +1,13 @@
-function Tutorial() {
+var questListEN = [
+  { short:"Level 0", file:"level0.html", text:"Insert text, Save file, Exit vim." },
+  { short:"Level 1", file:"level1.html", text:"Blah blah blah" },
+  { short:"Level 2", file:"level2.html", text:"Blah blah blah" },
+  { short:"Level 6", file:"level6.html", text:"Operators on a line." },
+];
+
+function Tutorial(questList_) {
+
+  var questList = questList_;
 
   var getHelps = function() {
     var children = $("#helps-display").children();
@@ -72,89 +81,73 @@ function Tutorial() {
       }
     });
 
-    // Dummy textarea to move the focus into.
-    // Prevents keys are typed into vim when shell is up.
-    var tx = $("<textarea></textarea>");
-    tx.css("position","absolute");
-    tx.offset({top:-1000});
-    ov.append(tx);
-
     CodeMirror.on(editor, 'vim-quit', function() {
       active = false;
+      $("#quest-explorer").show();
       $("#vim-overlay").css("opacity","1.0");
-      $("#quest-shell").show();
-      tx.focus();
-      $("#quest-shell").click();
+      $("#btn-0").focus();
     });
   };
 
-  var levels = ["level0","level6"];
+  var keyHandler = function(i) {
+    var maybeMove = function(i) {
+      if (i >= 0 && i < questList.length) {
+        $("#btn-"+i.toString()).focus();
+      }
+    };
+    return function(e) {
+      switch(e.which) {
+        case 75: // k
+        case 38: // up
+          e.preventDefault(); // Prevent browser's scrolling
+          maybeMove(i-1);
+          break;
+        case 74: // j
+        case 40: // down
+          e.preventDefault();
+          maybeMove(i+1);
+          break;
+      }
+    };
+  };
 
   var returnToEditor = function(file) {
-    if (file) {
-      var match = file.match(/(level\d+(-\d+)?)/);
-      if (match && $.inArray(match[1], levels) >= 0) {
-        goTutorial(match[1] + ".html");
-      }
-      else {
-        throw "no such level: " + file;
-      }
-    }
-    active = true;
-    $("#vim-overlay").css("opacity","0.0");
-    $("#quest-shell").hide();
-    $("#vim-overlay").click();
-  };
-
-  var interp = function(command) {
-    var argv = command.split(/\s+/);
-    switch (argv[0]) {
-      case 'vi':
-      case 'vim':
-        var file = (argv.length > 1)? argv[1] : null;
-        returnToEditor(file);
-        break;
-      case 'ls':
-        var s = "\nHere is the list of all available levels.\n";
-        s += "    " + levels.join("\t");
-        s += "\n";
-        return s;
-      case 'help':
-        var s = "\nHere are the commands you can use.\n";
-        s += "    vim: Back to where you were.\n";
-        s += "    vim level6: Start quest level 6.\n";
-        s += "    ls: List all levels.\n";
-        s += "    help: Shows this help.\n";
-        return s;
-      default:
-        throw "unknown command: "+command;
+    return function() {
+      active = true;
+      goTutorial(file);
+      $("#quest-explorer").hide();
+      $("#vim-overlay").css("opacity","0.0");
+      $("#vim-overlay").click();
     }
   };
 
-  var initShell = function() {
-    jQuery(function($, undefined) {
-      $("#quest-shell").terminal(function(command, term) {
-        if (command !== '') {
-          try {
-            var result = interp(command);
-            if (result !== undefined) {
-              term.echo(result.toString());
-            }
-          } catch(e) {
-            term.error(e.toString());
-          }
-        }
-      }, {
-        greetings: "Quest Shell",
-        height: $("#vim-overlay").outerHeight(),
-        prompt: 'shell> '});
-    });
+  var initButtons = function() {
+
+    var group = $("#quest-button-group");
+
+    for (var i = 0; i < questList.length; i ++) {
+      var level = questList[i];
+
+      var button = $("<button></button>");
+      button.addClass("btn").addClass("btn-default");
+
+      button.keydown(keyHandler(i));
+      button.click(returnToEditor(level.file));
+
+      var icon = $('<span class="glyphicon glyphicon-play"></span>');
+      var text = $('<span></span>').html(level.text);
+      button.append(icon).append(text);
+
+      button.attr("id", "btn-"+i.toString());
+      group.append(button);
+    }
+    $("#quest-explorer").append(group);
   };
 
   var init = function() {
     initVimOverlay();
-    initShell();
-    $("#quest-shell").hide();
+    initButtons();
+    $("#quest-explorer").hide();
   };
 
   return {
@@ -164,5 +157,5 @@ function Tutorial() {
   };
 }
 
-var tutorial = new Tutorial();
+var tutorial = new Tutorial(questListEN);
 

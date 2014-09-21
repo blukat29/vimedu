@@ -10,7 +10,7 @@
   <script src="codemirror/keymap/vim.js"></script>
   <script src="codemirror/mode/clike.js"></script>
   <script src="include/deps/jquery.terminal-0.8.8.min.js"></script>
-  <link href="include/deps/bootstrap.min.css" rel="stylesheet"/>
+  <link href="include/deps/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="codemirror/lib/codemirror.css" rel="stylesheet"/>
   <link href="codemirror/addon/dialog/dialog.css" rel="stylesheet"/>
   <link href="codemirror/theme/blackboard.css" rel="stylesheet"/>
@@ -57,7 +57,10 @@ int getchar(void)
 }</textarea></form>
       <div>Helps: <span id="helps-display"></span></div>
       <div id="vim-overlay">
-        <div id="quest-shell"></div>
+        <div id="quest-explorer">
+          <p>Choose a level.</p>
+          <div id="quest-button-group" class="btn-group-vertical"></div>
+        </div>
       </div>
       <div id="tutorial"></div>
     </div>

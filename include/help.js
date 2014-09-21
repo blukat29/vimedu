@@ -60,19 +60,15 @@ var commandListEN = [
     { keys:[']'],     help:'Brackets',    familyId:'Brackets' },
   ]},
   // Search commands.
-  { type:'search', commands:[
+  { type:'search', typeFamily:'search and replace', commands:[
     { keys:['/'],     help:'Search forward' },
   ]},
   // Ex commands.
-  { type:'ex', commands:[
+  { type:'ex', typeFamily:'ex', commands:[
     { keys:[':'],     help:'Use ex command' },
   ]},
-  // Esc is treated specially.
-  { type:'done', commands:[
-    { keys:['<Esc>'], help:'Cancel command', keysDisp:['Esc']  },
-  ]},
   // Ex commands are also listed.
-  { type:'exdone', commands:[
+  { type:'exdone', typeFamily:'ex', commands:[
     { keys:[':q'],    help:'Exit vim' },
     { keys:[':w'],    help:'Save file' },
     { keys:[':set nu'],    help:'Turn on linenumbers' },
@@ -80,8 +76,12 @@ var commandListEN = [
     { keys:[':syntax on'], help:'Turn on syntax highlighting' },
     { keys:[':syntax off'],help:'Turn off syntax highlighting' },
   ]},
+  // Esc is treated specially.
+  { type:'done', commands:[
+    { keys:['<Esc>'], help:'Cancel command', keysDisp:['Esc']  },
+  ]},
   // v keys toggles visual mode.
-  { type:'visual', commands:[
+  { type:'visual', typeFamily:'mode change', commands:[
     { keys:['v'],     help:'Select', mode:'normal' },
     { keys:['v'],     help:'Cancel selecting', mode:'visual' },
   ]},
@@ -243,11 +243,25 @@ function KeysViewer(context, commandList_) {
   };
 
   var init = function() {
+
+    var inFamily = false;
+    var currTypeFamily = null;
+
     for (var i=0; i<commandList.length; i++) {
-      var type = commandList[i].type;
-      var commands = commandList[i].commands;
-      appendHeader(type);
-      appendCommands(type, commands);
+      var bundle = commandList[i];
+      var type = bundle.type;
+      var commands = bundle.commands;
+
+      if (bundle.typeFamily) {
+        if (bundle.typeFamily !== currTypeFamily) {
+          appendHeader(bundle.typeFamily);
+        }
+        currTypeFamily = bundle.typeFamily;
+      }
+      else {
+        appendHeader(bundle.type);
+      }
+      appendCommands(bundle.type, bundle.commands);
     }
   };
 

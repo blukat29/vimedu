@@ -1,4 +1,13 @@
-function Tutorial() {
+var questListEN = [
+  { short:"Level 0", file:"level0.html", text:"Insert text, Save file, Exit vim." },
+  { short:"Level 1", file:"level1.html", text:"Blah blah blah" },
+  { short:"Level 2", file:"level2.html", text:"Blah blah blah" },
+  { short:"Level 6", file:"level6.html", text:"Operators on a line." },
+];
+
+function Tutorial(questList_) {
+
+  var questList = questList_;
 
   var getHelps = function() {
     var children = $("#helps-display").children();
@@ -80,11 +89,9 @@ function Tutorial() {
     });
   };
 
-  var levels = ["level0","level1","level2","level3","level6"];
-
   var keyHandler = function(i) {
     var maybeMove = function(i) {
-      if (i >= 0 && i < levels.length) {
+      if (i >= 0 && i < questList.length) {
         $("#btn-"+i.toString()).focus();
       }
     };
@@ -104,10 +111,10 @@ function Tutorial() {
     };
   };
 
-  var returnToEditor = function(level) {
+  var returnToEditor = function(file) {
     return function() {
       active = true;
-      goTutorial(level + ".html");
+      goTutorial(file);
       $("#quest-explorer").hide();
       $("#vim-overlay").css("opacity","0.0");
       $("#vim-overlay").click();
@@ -115,17 +122,19 @@ function Tutorial() {
   };
 
   var initButtons = function() {
+
     var group = $("<div></div>").addClass("btn-group-vertical");
-    for (var i = 0; i < levels.length; i ++) {
-      var level = levels[i];
+
+    for (var i = 0; i < questList.length; i ++) {
+      var level = questList[i];
 
       var button = $("<button></button>");
       button.addClass("btn").addClass("btn-default");
 
       button.keydown(keyHandler(i));
-      button.click(returnToEditor(level));
+      button.click(returnToEditor(level.file));
 
-      button.html(level);
+      button.html(level.short + " : " + level.text);
       button.attr("id", "btn-"+i.toString());
 
       group.append(button);
@@ -146,5 +155,5 @@ function Tutorial() {
   };
 }
 
-var tutorial = new Tutorial();
+var tutorial = new Tutorial(questListEN);
 

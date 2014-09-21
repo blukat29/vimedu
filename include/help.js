@@ -559,6 +559,17 @@ function CommandHelper (context, commandList_) {
       else {
         var matches = matchPartial();
         if (matches.length === 0) {
+          if (fsm.is('_ex')) {
+            // If command match has failed during _ex state,
+            // it is likely that the dialog is closed by some
+            // external events. So if it happens, reset the
+            // FSM and retry matching, as a fallback.
+            keyBuf = [];
+            numBuf = [];
+            fsm.done();
+            onKey(key);
+            return;
+          }
           console.log("unknown command: " + keyBuf.join());
           keyBuf = [];
           numBuf = [];

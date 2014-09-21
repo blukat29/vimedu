@@ -3742,7 +3742,8 @@
       { name: 'nohlsearch', shortName: 'noh' },
       { name: 'delmarks', shortName: 'delm' },
       { name: 'registers', shortName: 'reg', excludeFromCommandHistory: true },
-      { name: 'global', shortName: 'g' }
+      { name: 'global', shortName: 'g' },
+      { name: 'syntax', shortName: 'syntax' }
     ];
     Vim.ExCommandDispatcher = function() {
       this.buildCommandMap_();
@@ -4369,7 +4370,32 @@
             delete state.marks[sym];
           }
         }
-      }
+      },
+      syntax: function(cm, params) {
+        var args = params.args;
+        if (!args || args.length < 1) {
+          if (cm) {
+            showConfirm(cm, 'An argument is missing (on/off): syntax');
+          }
+          return;
+        }
+        var firstArg = args[0];
+        var value = false;
+
+        if (firstArg === 'on') {
+          value = true;
+        }
+        else if (firstArg === 'off') {
+          value = false;
+        }
+        else {
+          if (cm) {
+            showConfirm(cm, 'Invalid syntax argument: ' + firstArg);
+          }
+          return;
+        }
+        setOption('syntax', value);
+      },
     };
 
     var exCommandDispatcher = new Vim.ExCommandDispatcher();

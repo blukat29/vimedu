@@ -77,6 +77,8 @@ var commandListEN = [
     { keys:[':w'],    help:'Save file' },
     { keys:[':set nu'],    help:'Turn on linenumbers' },
     { keys:[':set nonu'],  help:'Turn off linenumbers' },
+    { keys:[':syntax on'], help:'Turn on syntax highlighting' },
+    { keys:[':syntax off'],help:'Turn off syntax highlighting' },
   ]},
   // v keys toggles visual mode.
   { type:'visual', commands:[

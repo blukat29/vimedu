@@ -21,3 +21,12 @@ CodeMirror.Vim.defineOption("nu", true, "boolean", function(value) {
   editor.setOption("lineNumbers", value);
 });
 
+CodeMirror.Vim.defineOption("syntax", true, "boolean", function(value) {
+  if (value) {
+    editor.setOption("maxHighlightLength", 10000);
+  }
+  else {
+    editor.setOption("maxHighlightLength", -100);
+  }
+});
+

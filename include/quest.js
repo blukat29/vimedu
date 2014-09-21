@@ -123,7 +123,7 @@ function Tutorial(questList_) {
 
   var initButtons = function() {
 
-    var group = $("<div></div>").addClass("btn-group-vertical");
+    var group = $("#quest-button-group");
 
     for (var i = 0; i < questList.length; i ++) {
       var level = questList[i];
@@ -134,9 +134,11 @@ function Tutorial(questList_) {
       button.keydown(keyHandler(i));
       button.click(returnToEditor(level.file));
 
-      button.html(level.short + " : " + level.text);
-      button.attr("id", "btn-"+i.toString());
+      var icon = $('<span class="glyphicon glyphicon-play"></span>');
+      var text = $('<span></span>').html(level.text);
+      button.append(icon).append(text);
 
+      button.attr("id", "btn-"+i.toString());
       group.append(button);
     }
     $("#quest-explorer").append(group);

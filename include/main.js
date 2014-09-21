@@ -12,8 +12,8 @@ CodeMirror.on(editor, 'vim-command-done', function() {
   commandHelper.done();
 });
 CodeMirror.on(editor, 'vim-ex-done', function(e) {
-  console.log(e);
-  commandHelper.exdone();
+  commandHelper.onKey(":"+e);
+  tutorial.onKey();
 });
 CodeMirror.Vim.getRegisterController().unnamedRegister.setListener(editor);
 CodeMirror.on(editor, 'vim-set-register', function(e) {

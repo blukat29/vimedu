@@ -71,6 +71,11 @@ var commandListEN = [
   { type:'done', commands:[
     { keys:['<Esc>'], help:'Cancel command', keysDisp:['Esc']  },
   ]},
+  // Ex commands are also listed.
+  { type:'exdone', commands:[
+    { keys:[':q'],    help:'Exit vim' },
+    { keys:[':w'],    help:'Save file' },
+  ]},
   // v keys toggles visual mode.
   { type:'visual', commands:[
     { keys:['v'],     help:'Select', mode:'normal' },
@@ -308,11 +313,12 @@ function VimFSM(context, commandList) {
       { name:'textobj',  from:'_vmodifier',to:'_vnone'    },
       { name:'partial',  from:'_vnone',    to:'_vpartial' },
 
-      { name:'nonzero',  from:'_vnone',    to:'_vrepeat'   },
-      { name:'nonzero',  from:'_vrepeat',   to:'_vrepeat'   },
-      { name:'zero',     from:'_vrepeat',   to:'_vrepeat'   },
+      { name:'nonzero',  from:'_vnone',    to:'_vrepeat'  },
+      { name:'nonzero',  from:'_vrepeat',  to:'_vrepeat'  },
+      { name:'zero',     from:'_vrepeat',  to:'_vrepeat'  },
   ]});
-  fsm.events = ['motion','operator','action','modifier','textobj','search','ex','visual','done'];
+  fsm.events = ['motion','operator','action','modifier','textobj',
+                'search','ex','visual','done','exdone'];
 
   var helpViewer = new HelpViewer(context);
   var keysViewer = new KeysViewer(context, commandList);
@@ -435,6 +441,10 @@ function VimFSM(context, commandList) {
 
   fsm.ondone = function() {
     helpViewer.clear();
+  };
+
+  fsm.onexdone = function(e, from, to, cmd) {
+    helpViewer.append(cmd);
   };
 
   fsm.initKeysViewer = function() {
@@ -573,18 +583,11 @@ function CommandHelper (context, commandList_) {
   var done = function() {
   };
 
-  var exdone = function() {
-    if (fsm.can('exdone')) {
-      fsm.exdone();
-    }
-  };
-
   return {
     onKey: onKey,
     onMode: onMode,
     init: init,
     done: done,
-    exdone: exdone,
   };
 }
 

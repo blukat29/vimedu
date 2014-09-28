@@ -6,14 +6,12 @@
 // Key input events.
 CodeMirror.on(editor, 'vim-keypress', function(e) {
   commandHelper.onKey(e);
-  tutorial.onKey();
 });
 CodeMirror.on(editor, 'vim-command-done', function() {
   commandHelper.done();
 });
 CodeMirror.on(editor, 'vim-ex-done', function(e) {
   commandHelper.onKey(":"+e);
-  tutorial.onKey();
 });
 CodeMirror.Vim.getRegisterController().unnamedRegister.setListener(editor);
 CodeMirror.on(editor, 'vim-set-register', function(e) {

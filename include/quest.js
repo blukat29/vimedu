@@ -9,49 +9,12 @@ function Tutorial(questList_) {
 
   var questList = questList_;
 
-  var getHelps = function() {
-    var children = $("#helps-display").children();
+  var verifier = function() { return true; };
+  var nextFile = "level0.html";
 
-    var result = [];
-    for (var i = 0; i < children.length; i ++) {
-      var child = children[i];
-      var kbds = $("div:first", child).children();
-
-      var keys = "";
-      for (var j = 0; j < kbds.length; j ++) {
-        var kbd = kbds[j];
-        keys += kbd.innerHTML;
-      }
-      result.push(keys);
-    }
-    return result;
-  };
-
-  var compareKeys = function (a, b) {
-    if (a.length !== b.length)
-      return false;
-    for (var i=0; i<a.length; i++) {
-      if (a[i] !== b[i] && a[i] !== 'char')
-        return false;
-    }
-    return true;
-  };
-
-  var listeners = [];
-
-  var onKey = function() {
-    var helps = getHelps();
-    for (var i = 0; i < listeners.length; i ++) {
-      var listener = listeners[i];
-      if (compareKeys(listener.keys, helps)) {
-        goTutorial(listener.file);
-        break;
-      }
-    }
-  };
-
-  var addListener = function(keys, file) {
-    listeners.push({keys: keys, file: file});
+  var setVerifier = function(func, file) {
+    verifier = func;
+    nextFile = file;
   };
 
   var goTutorial = function(filename) {
@@ -87,6 +50,17 @@ function Tutorial(questList_) {
       $("#vim-overlay").css("opacity","1.0");
       $("#btn-0").focus();
     });
+
+    CodeMirror.commands.save = function() {
+      var result = verifier();
+      if (result) {
+        alert("Good job! going to next level.");
+        goTutorial(nextFile);
+      }
+      else {
+        alert("Awww.. try again.");
+      }
+    };
   };
 
   var keyHandler = function(i) {
@@ -152,8 +126,7 @@ function Tutorial(questList_) {
 
   return {
     init: init,
-    onKey: onKey,
-    addListener: addListener,
+    setVerifier: setVerifier,
   };
 }
 

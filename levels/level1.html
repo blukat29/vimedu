@@ -3,7 +3,7 @@ $("#vim-large-title").html("Level 1-1");
 $("#vim-small-title").html("insert mode");
 editor.setValue(
 "\n\
-  To write something in Vim, you must first press 'i' key.\n\
+  To write something in Vim, you must press 'i' key first.\n\
   Then the Vim goes to the insert mode and you can insert\n\
   any texts.\n\
 \n\
@@ -17,13 +17,23 @@ editor.setValue(
 \n\
     1 + 1 = \n\
     100 * 3 = \n\
-    What is the second color of a rainbow? \n\
+    What is the first color of a rainbow? \n\
 \n\
 ");
-tutorial.setVerifier(function() {return true;}, "level2.html");
+tutorial.setVerifier(function() {
+    buffer = editor.getValue();
+
+    if (buffer.match(/1 \+ 1 =.*2.*\n/) &&
+        buffer.match(/100 \* 3 =.*300.*\n/) &&
+        buffer.match(/rainbow.*red\n/))
+    {
+        return true;
+    }
+    return false;
+}, "level1-2.html");
 </script>
 
 Key points:<br>
-  <kbd>i</kbd> Go in to insert mode<br>
+  <kbd>i</kbd> Start insert mode<br>
   <kbd>Esc</kbd> Exit insert mode<br>
 

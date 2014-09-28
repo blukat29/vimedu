@@ -1,0 +1,24 @@
+<script>
+$("#vim-large-title").html("Level 2");
+$("#vim-small-title").html("visual mode");
+editor.setValue(
+"\n\
+  Delete all 'x' from these lines.\n\
+\n\
+  AAAAAAAAAAxxxxxxxAAAAAAAAAAAAAxxxxxxAAAA\n\
+");
+</script>
+
+<p>Vim's third mode is the visual mode. In visual mode,
+you can select texts and manipulate them. Just as you
+would do by dragging mouse in Notepad or Word.</p>
+
+<p>Press <kbd>v</kbd> to start selecting.<br>Then move around with
+<kbd>→</kbd><kbd>↓</kbd><kbd>↑</kbd><kbd>→</kbd>To extend your selection.</p>
+
+<p>Press <kbd>d</kbd> to delete the selection.</p>
+
+<p>If something goes wrong, press <kbd>u</kbd> to undo the changes.</p>
+
+<p>Task: delete all the 'x' in the screen and press <kbd>:w</kbd> to go to next level.</p>
+

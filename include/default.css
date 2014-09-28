@@ -33,6 +33,15 @@ kbd {
   margin: 2px;
 }
 
+#vim-large-title {
+  font-size: 24px;
+}
+#vim-small-title {
+  margin-left: 10px;
+  font-size: 20px;
+  color: #666;
+}
+
 #helps-display {
   display: table;
   border-collapse: separate;

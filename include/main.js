@@ -19,13 +19,13 @@ CodeMirror.on(editor, 'vim-set-register', function(e) {
 });
 
 // Mode display.
-function mode_change(mode) {
-  var target = $("#mode-"+mode);
-  var t = target.offset().top - target.parent().offset().top;
-  var l = target.offset().left - target.parent().offset().left;
-
-  $("#mode-selector").stop(); // Abort any previous animations.
-  $("#mode-selector").animate({top:t+10, left:l-15}, 100);
+var curr_mode;
+function mode_change(next_mode) {
+  var curr = $("#mode-"+curr_mode);
+  var next = $("#mode-"+next_mode);
+  curr.removeClass("mode-active");
+  next.addClass("mode-active");
+  curr_mode = next_mode;
 }
 CodeMirror.on(editor, 'vim-mode-change', function(e) {
   mode_change(e.mode);
@@ -34,6 +34,7 @@ CodeMirror.on(editor, 'vim-mode-change', function(e) {
 
 // Initialize the site.
 $(document).ready(function(){
+  current_mode = 'normal';
   mode_change('normal');
   commandHelper.init();
   tutorial.init();

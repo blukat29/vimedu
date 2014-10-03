@@ -1,81 +1,11 @@
+/* Overall conatiner */
 .container {
   background-color: #FFFFFF;
   overflow: hidden;
   min-height: 600px;
 }
 
-.CodeMirror-vscrollbar[style] {
-  display: none !important;
-}
-
-.CodeMirror-wrap pre {
-  word-break: break-all;
-}
-
-.CodeMirror {
-  font-family: Consolas;
-}
-
-.mode-container {
-  padding-left: 10px;
-  padding-right: 10px;
-  position: relative;
-  left: 5%;
-  right: 10%;
-  width: 85%;
-}
-
-#mode-selector {
-  position: absolute;
-}
-
-kbd {
-  margin: 2px;
-}
-
-#vim-large-title {
-  font-size: 24px;
-}
-#vim-small-title {
-  margin-left: 10px;
-  font-size: 20px;
-  color: #666;
-}
-
-#helps-display {
-  display: table;
-  border-collapse: separate;
-  border-spacing: 10px;
-}
-
-.help-view {
-  display: table-cell;
-  background-color: #eeeeee;
-  text-align: center;
-}
-
-.help-view > div > kbd {
-  padding-left: 8px;
-  padding-right: 8px;
-  font-size: 20px;
-}
-
-#vim-overlay {
-  opacity: 0.0;
-}
-
-#quest-explorer {
-  background-color: #eeeeee;
-  height: 100%;
-  width: 100%;
-}
-#quest-button-group {
-  margin-left: 50px;
-}
-#quest-button-group > button {
-  text-align: left;
-}
-
+/*  Big three parts offset and background colors */
 .left-pane {
   margin-top: 20px;
   background-color: #dddddd;
@@ -94,5 +24,86 @@ kbd {
   padding-bottom: 10px;
   background-color: #dddddd;
   box-shadow: 10px 10px #555555;
+}
+
+/* CodeMirror Functional settings */
+.CodeMirror-vscrollbar[style] {
+  display: none !important;
+}
+.CodeMirror-wrap pre {
+  word-break: break-all;
+}
+.CodeMirror {
+  font-family: Consolas;
+}
+
+/* Title above the Vim */
+#vim-large-title {
+  font-size: 24px;
+}
+#vim-small-title {
+  margin-left: 10px;
+  font-size: 20px;
+  color: #666;
+}
+
+/* Current mode display */
+/* Color scheme from https://github.com/bling/vim-airline */
+#modes-display {
+  margin-top: 10px;
+  padding-left: 15px;
+  padding-right: 15px;
+  font-family: Consolas;
+  font-style: bold;
+  font-size: 15px;
+  text-align: center;
+}
+#modes-display > div {
+  background-color: #777;
+}
+#mode-normal.mode-active {
+  background-color: #dfff00;
+}
+#mode-insert.mode-active {
+  background-color: #00afff;
+}
+#mode-visual.mode-active {
+  background-color: #ffaf00;
+}
+
+/* Current command help */
+kbd {
+  margin: 2px;
+}
+#helps-display {
+  display: table;
+  border-collapse: separate;
+  border-spacing: 10px;
+}
+.help-view {
+  display: table-cell;
+  background-color: #eeeeee;
+  text-align: center;
+}
+.help-view > div > kbd {
+  padding-left: 8px;
+  padding-right: 8px;
+  font-size: 20px;
+}
+
+/* Quest UIs */
+#vim-overlay {
+  opacity: 0.0;
+}
+#quest-explorer {
+  background-color: #eeeeee;
+  height: 100%;
+  width: 100%;
+}
+#quest-button-group {
+  margin-left: 50px;
+}
+#quest-button-group > button {
+  text-align: left;
 }
 

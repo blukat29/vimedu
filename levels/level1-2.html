@@ -1,0 +1,48 @@
+<script>
+$("#vim-large-title").html("Level 1-2");
+$("#vim-small-title").html("Three ways to start insert mode");
+editor.setValue(
+"\n\
+  There are number of ways to enter insert mode.\n\
+  Press 'i' to start writing from the cursor position.\n\
+  Press 'A' to start writing from the end of this line.\n\
+  Press 'o' to create a new line below and write from there.\n\
+\n\
+  Now practice time!\n\
+\n\
+  1. Fill in the blanks. (use 'i')\n\
+\n\
+    AAA BBB CCC DDD ___ FFF GGG HHH\n\
+\n\
+  2. Finish the sequence until 10. (use 'A')\n\
+\n\
+    1,2,3,4,5,6,7,8,\n\
+\n\
+  3. Insert missing line \"4. Green\". (use 'o')\n\
+\n\
+    1. Red\n\
+    2. Orange\n\
+    3. Yellow\n\
+    5. Blue\n\
+    6. Dark blue\n\
+    7. Purple\n\
+");
+tutorial.setVerifier(function() {
+    buffer = editor.getValue();
+
+    if (buffer.match(/DDD EEE FFF/) &&
+        buffer.match(/7,8,9,10/) &&
+        buffer.match(/3\. Yellow\s+4\. Green\s+5\. Blue/))
+    {
+        return true;
+    }
+    return false;
+}, "level2.html");
+</script>
+
+Key points:<br>
+  <kbd>i</kbd> Start writing from the cursor<br>
+  <kbd>A</kbd> Start writing from the end of line<br>
+  <kbd>o</kbd> Create a new line below. Then start writing from there.<br>
+  <kbd>Esc</kbd> Exit insert mode<br>
+

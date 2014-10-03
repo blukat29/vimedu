@@ -1,24 +1,37 @@
 <script>
-$("#vim-large-title").html("Level 2");
+$("#vim-large-title").html("Level 2-1");
 $("#vim-small-title").html("visual mode");
 editor.setValue(
 "\n\
-  Delete all 'x' from these lines.\n\
+  Now you know \"normal mode\" and \"insert mode\".\n\
+  Vim's third mode is the \"visual mode\".\n\
 \n\
-  AAAAAAAAAAxxxxxxxAAAAAAAAAAAAAxxxxxxAAAA\n\
+  In visual mode, you can select some text and\n\
+  delete, copy, change them.\n\
+\n\
+  1. Press 'v' to start selecting.\n\
+  2. Use arrow keys to move around.\n\
+  3. Press 'd' to delete selected part.\n\
+\n\
+  For practice, Delete all 'x' from this line.\n\
+\n\
+    AAAAAAAAAAxxxxxxxAAAAAAAAAAAAAxxxxxxAAAA\n\
 ");
+tutorial.setVerifier(function() {
+    var buffer = editor.getValue();
+    if (buffer.match(/A{25,}/))
+      return true;
+    else
+      return false;
+}, "level2-2.html");
 </script>
 
-<p>Vim's third mode is the visual mode. In visual mode,
-you can select texts and manipulate them. Just as you
-would do by dragging mouse in Notepad or Word.</p>
-
-<p>Press <kbd>v</kbd> to start selecting.<br>Then move around with
-<kbd>→</kbd><kbd>↓</kbd><kbd>↑</kbd><kbd>→</kbd>To extend your selection.</p>
-
-<p>Press <kbd>d</kbd> to delete the selection.</p>
-
-<p>If something goes wrong, press <kbd>u</kbd> to undo the changes.</p>
-
-<p>Task: delete all the 'x' in the screen and press <kbd>:w</kbd> to go to next level.</p>
+Key points:<br>
+  <kbd>v</kbd> to start selecting.<br>
+  Arrow keys to move around.<br>
+  <kbd>d</kbd> to delete the selection.<br>
+  <br>
+  <kbd>Esc</kbd> to cancel selecting and return to normal mode.</br>
+  <br>
+  <kbd>u</kbd> to undo change.<br>
 

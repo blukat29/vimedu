@@ -91,6 +91,23 @@ var commandListEN = [
   ]},
 ];
 
+function ModeViewer(context_) {
+  var context = context_;
+  var curr_mode = 'normal';
+
+  var change = function (next_mode) {
+    var curr = $("#mode-"+curr_mode, context);
+    var next = $("#mode-"+next_mode, context);
+    curr.removeClass("mode-active");
+    next.addClass("mode-active");
+    curr_mode = next_mode;
+  };
+
+  return {
+    change: change,
+  };
+}
+
 // Interface to manipulate current command help at the bottom.
 function HelpViewer(context) {
 
@@ -351,6 +368,7 @@ function VimFSM(context, commandList) {
 
   var helpViewer = new HelpViewer(context);
   var keysViewer = new KeysViewer(context, commandList);
+  var modeViewer = new ModeViewer(context);
   var mode = 'normal';
 
   fsm.onbeforeevent = function(e, from, to) {
@@ -376,6 +394,10 @@ function VimFSM(context, commandList) {
     else {
       mode = 'normal';
     }
+
+    // Set mode viewer.
+    modeViewer.change(mode);
+
     // Reset all visibility.
     keysViewer.set('keys-entry', false);
     // Build selectors.
@@ -625,10 +647,6 @@ function CommandHelper (context, commandList_) {
     }
   };
 
-  var onMode = function(mode_) {
-    mode = mode_;
-  };
-
   var isNonzero = function(key) {
     return (key.charCodeAt(0) >= '1'.charCodeAt(0) &&
             key.charCodeAt(0) <= '9'.charCodeAt(0));
@@ -643,7 +661,6 @@ function CommandHelper (context, commandList_) {
 
   return {
     onKey: onKey,
-    onMode: onMode,
     init: init,
     done: done,
   };

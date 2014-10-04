@@ -524,6 +524,10 @@ function VimFSM(context, commandList) {
     keysViewer.init();
   };
 
+  fsm.getMode = function() {
+    return mode;
+  }
+
   return fsm;
 }
 
@@ -535,7 +539,6 @@ function CommandHelper (context, commandList_) {
   var fsm = new VimFSM(context, commandList);
   var keyBuf = [];
   var numBuf = [];
-  var mode = 'normal';
 
   var matchCommand = function () {
     var match;
@@ -549,7 +552,7 @@ function CommandHelper (context, commandList_) {
         var cmd = bundle.commands[j];
 
         if (compareKeys(cmd.keys, keyBuf) &&
-           (!cmd.mode || cmd.mode === mode)) {
+           (!cmd.mode || cmd.mode === fsm.getMode())) {
           if (match)
             throw ("Duplicate command: " + keyBuF.join());
           match = { type:bundle.type, cmd:cmd };

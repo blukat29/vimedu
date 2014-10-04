@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <script src="include/deps/jquery-2.1.1.min.js"></script>
+  <script src="codemirror/lib/codemirror.js"></script>
+  <script src="codemirror/addon/dialog/dialog.js"></script>
+  <script src="codemirror/addon/search/searchcursor.js"></script>
+  <script src="codemirror/addon/edit/matchbrackets.js"></script>
+  <script src="codemirror/keymap/vim.js"></script>
+  <script src="include/deps/jquery.terminal-0.8.8.min.js"></script>
+  <link href="include/deps/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="codemirror/lib/codemirror.css" rel="stylesheet"/>
+  <link href="codemirror/addon/dialog/dialog.css" rel="stylesheet"/>
+  <link href="codemirror/theme/blackboard.css" rel="stylesheet"/>
+  <link href="include/deps/jquery.terminal.css" rel="stylesheet"/>
+  <link href="include/default.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="container">
+  <div class="row">
+    <div class="col-lg-3 left-pane">
+      <div class="shadow">
+        <h3>Quests</h3>
+        <div id="quest-list"></div>
+      </div>
+      <div class="shadow">
+        <h3>Register</h3>
+        <p>Every time you delete or copy some text, it goes to this register.</p>
+        <textarea id="register-display" style="width:100%; height:100px"></textarea>
+      </div>
+    </div>
+    <div class="col-lg-6 mid-pane">
+      <span id="vim-large-title">Vim</span><span id="vim-small-title">emulator</span>
+      <form><textarea id="vim">#include "syscalls.h"
+/* getchar:  simple buffered version */
+int getchar(void)
+{
+  static char buf[BUFSIZ];
+  static char *bufp = buf;
+  static int n = 0;
+  if (n == 0) {  /* buffer is empty */
+    n = read(0, buf, sizeof buf);
+    bufp = buf;
+  }
+  return (--n &gt;= 0) ? (unsigned char) *bufp++ : EOF;
+}</textarea></form>
+     <div class="row" id="modes-display">
+        <div class="col-sm-4" id="mode-normal">NORMAL MODE</div>
+        <div class="col-sm-4" id="mode-insert">INSERT MODE</div>
+        <div class="col-sm-4" id="mode-visual">VISUAL MODE</div>
+     </div>
+     <div><span id="helps-display"></span></div>
+      <div id="vim-overlay">
+        <div id="vim-overlay-message">
+          Lost focus!<br>
+          click here to return to Vim.
+        </div>
+      </div>
+      <div id="tutorial"></div>
+    </div>
+    <div class="col-lg-3 right-pane">
+      <h3>Keys</h3>
+      <div id="keys-display"></div>
+    </div>
+  </div>
+</div>
+<script src="include/deps/state-machine.js"></script>
+<script src="include/init.js"></script>
+<script src="include/quest.js"></script>
+<script src="include/help.js"></script>
+<script src="include/main.js"></script>
+</body>
+</html>

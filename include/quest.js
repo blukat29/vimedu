@@ -1,8 +1,15 @@
 var questListEN = [
-  { short:"Level 0", file:"level0.html", text:"Insert text, Save file, Exit vim." },
-  { short:"Level 1", file:"level1.html", text:"Blah blah blah" },
-  { short:"Level 2", file:"level2.html", text:"Blah blah blah" },
-  { short:"Level 6", file:"level6.html", text:"Operators on a line." },
+  { link:"title-1.html", title:"Ch 1. Say hi to vim!", levels: [
+    { link:"level-1-1.html", text:"Level 1-1. Exit vim. :q" },
+    { link:"level-1-2.html", text:"Level 1-2. Save file. :w" },
+  ]},
+  { link:"title-2.html", title:"Ch 2. Writing something", levels: [
+    { link:"level-2-1.html", text:"Level 2-1. Insert mode. i, Esc" },
+    { link:"level-2-2.html", text:"Level 2-2. Advanced insert modes. A, o" },
+  ]},
+  { link:"title-3.html", title:"Ch 3. Select and edit", levels: [
+    { link:"level-3-1.html", text:"Level 3-1. Visual mode & delete. v, d" },
+  ]},
 ];
 
 function Tutorial(questList_) {
@@ -27,7 +34,7 @@ function Tutorial(questList_) {
     });
   };
 
-  var active = true;
+  var focused = true;
 
   var initVimOverlay = function() {
     var cm = $(".CodeMirror");
@@ -39,16 +46,15 @@ function Tutorial(questList_) {
     ov.outerWidth(cm.outerWidth());
 
     $("#vim-overlay").click(function() {
-      if (active) {
-        editor.focus();
+      editor.focus();
+      if (!focused) {
+        $("#vim-overlay").css("opacity","0.0");
       }
     });
 
     CodeMirror.on(editor, 'vim-quit', function() {
-      active = false;
-      $("#quest-explorer").show();
-      $("#vim-overlay").css("opacity","1.0");
-      $("#btn-0").focus();
+      focused = false;
+      $("#vim-overlay").css("opacity","0.7");
     });
 
     CodeMirror.commands.save = function() {
@@ -63,65 +69,43 @@ function Tutorial(questList_) {
     };
   };
 
-  var keyHandler = function(i) {
-    var maybeMove = function(i) {
-      if (i >= 0 && i < questList.length) {
-        $("#btn-"+i.toString()).focus();
-      }
-    };
-    return function(e) {
-      switch(e.which) {
-        case 75: // k
-        case 38: // up
-          e.preventDefault(); // Prevent browser's scrolling
-          maybeMove(i-1);
-          break;
-        case 74: // j
-        case 40: // down
-          e.preventDefault();
-          maybeMove(i+1);
-          break;
-      }
-    };
-  };
-
-  var returnToEditor = function(file) {
+  var getClickHandler = function(link) {
     return function() {
-      active = true;
-      goTutorial(file);
-      $("#quest-explorer").hide();
-      $("#vim-overlay").css("opacity","0.0");
-      $("#vim-overlay").click();
+      goTutorial(link);
     }
-  };
+  }
 
-  var initButtons = function() {
-
-    var group = $("#quest-button-group");
+  var initQuestList = function() {
 
     for (var i = 0; i < questList.length; i ++) {
-      var level = questList[i];
+      var chapter = questList[i];
 
-      var button = $("<button></button>");
-      button.addClass("btn").addClass("btn-default");
+      var a = $("<a></a>")
+        .addClass("quest-chapter")
+        .click(getClickHandler(chapter.link))
+        .html(chapter.title);
+      var ul = $("<ul></ul>");
 
-      button.keydown(keyHandler(i));
-      button.click(returnToEditor(level.file));
+      var levels = chapter.levels;
+      for (var j = 0; j < levels.length; j ++) {
+        var level = levels[j];
+        var b = $("<a></a>")
+          .addClass("quest-level")
+          .click(getClickHandler(level.link))
+          .html(level.text);
+        var li = $("<li></li>");
+        li.append(b);
+        ul.append(li);
+      }
 
-      var icon = $('<span class="glyphicon glyphicon-play"></span>');
-      var text = $('<span></span>').html(level.text);
-      button.append(icon).append(text);
-
-      button.attr("id", "btn-"+i.toString());
-      group.append(button);
+      $("#quest-list").append(a);
+      $("#quest-list").append(ul);
     }
-    $("#quest-explorer").append(group);
-  };
+  }
 
   var init = function() {
     initVimOverlay();
-    initButtons();
-    $("#quest-explorer").hide();
+    initQuestList();
   };
 
   return {

@@ -91,19 +91,17 @@ kbd {
   font-size: 20px;
 }
 
-/* Quest UIs */
+/* Vim overlay */
 #vim-overlay {
   opacity: 0.0;
+  background-color: #555;
+  color: white;
+  font-size: 20px;
+  font-style: bold, underline;
 }
-#quest-explorer {
-  background-color: #eeeeee;
-  height: 100%;
-  width: 100%;
+#vim-overlay-message {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
-#quest-button-group {
-  margin-left: 50px;
-}
-#quest-button-group > button {
-  text-align: left;
-}
-

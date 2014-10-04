@@ -27,7 +27,7 @@ function Tutorial(questList_) {
     });
   };
 
-  var active = true;
+  var focused = true;
 
   var initVimOverlay = function() {
     var cm = $(".CodeMirror");
@@ -39,16 +39,15 @@ function Tutorial(questList_) {
     ov.outerWidth(cm.outerWidth());
 
     $("#vim-overlay").click(function() {
-      if (active) {
-        editor.focus();
+      editor.focus();
+      if (!focused) {
+        $("#vim-overlay").css("opacity","0.0");
       }
     });
 
     CodeMirror.on(editor, 'vim-quit', function() {
-      active = false;
-      $("#quest-explorer").show();
-      $("#vim-overlay").css("opacity","1.0");
-      $("#btn-0").focus();
+      focused = false;
+      $("#vim-overlay").css("opacity","0.7");
     });
 
     CodeMirror.commands.save = function() {
@@ -63,65 +62,8 @@ function Tutorial(questList_) {
     };
   };
 
-  var keyHandler = function(i) {
-    var maybeMove = function(i) {
-      if (i >= 0 && i < questList.length) {
-        $("#btn-"+i.toString()).focus();
-      }
-    };
-    return function(e) {
-      switch(e.which) {
-        case 75: // k
-        case 38: // up
-          e.preventDefault(); // Prevent browser's scrolling
-          maybeMove(i-1);
-          break;
-        case 74: // j
-        case 40: // down
-          e.preventDefault();
-          maybeMove(i+1);
-          break;
-      }
-    };
-  };
-
-  var returnToEditor = function(file) {
-    return function() {
-      active = true;
-      goTutorial(file);
-      $("#quest-explorer").hide();
-      $("#vim-overlay").css("opacity","0.0");
-      $("#vim-overlay").click();
-    }
-  };
-
-  var initButtons = function() {
-
-    var group = $("#quest-button-group");
-
-    for (var i = 0; i < questList.length; i ++) {
-      var level = questList[i];
-
-      var button = $("<button></button>");
-      button.addClass("btn").addClass("btn-default");
-
-      button.keydown(keyHandler(i));
-      button.click(returnToEditor(level.file));
-
-      var icon = $('<span class="glyphicon glyphicon-play"></span>');
-      var text = $('<span></span>').html(level.text);
-      button.append(icon).append(text);
-
-      button.attr("id", "btn-"+i.toString());
-      group.append(button);
-    }
-    $("#quest-explorer").append(group);
-  };
-
   var init = function() {
     initVimOverlay();
-    initButtons();
-    $("#quest-explorer").hide();
   };
 
   return {

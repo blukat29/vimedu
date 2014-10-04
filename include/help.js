@@ -88,6 +88,8 @@ var commandListEN = [
   ]},
   { type:'insert', typeFamily:'mode change', commands:[
     { keys:['i'],     help:'Insert before cursor', mode:'normal' },
+    { keys:['A'],     help:'Insert at end of line', mode:'normal' },
+    { keys:['o'],     help:'Insert at next line', mode:'normal' },
   ]},
 ];
 

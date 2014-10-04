@@ -1,7 +1,14 @@
 var questListEN = [
-  { title:"Ch 1. Say hi to vim!", link:"title-1.html", levels: [
-    { text:"Level 1-1. Exit vim. :q", link:"level-1-1.html" },
-    { text:"Level 1-2. Save file. :w", link:"level-1-2.html" },
+  { link:"title-1.html", title:"Ch 1. Say hi to vim!", levels: [
+    { link:"level-1-1.html", text:"Level 1-1. Exit vim. :q" },
+    { link:"level-1-2.html", text:"Level 1-2. Save file. :w" },
+  ]},
+  { link:"title-2.html", title:"Ch 2. Writing something", levels: [
+    { link:"level-2-1.html", text:"Level 2-1. Insert mode. i, Esc" },
+    { link:"level-2-2.html", text:"Level 2-2. Advanced insert modes. A, o" },
+  ]},
+  { link:"title-3.html", title:"Ch 3. Select and edit", levels: [
+    { link:"level-3-1.html", text:"Level 3-1. Visual mode & delete. v, d" },
   ]},
 ];
 

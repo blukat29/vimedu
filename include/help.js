@@ -341,6 +341,10 @@ function VimFSM(context, commandList) {
 
       { name:'insert',   from:'_none',     to:'_insert'   },
       { name:'done',     from:'_insert',   to:'_none'     },
+
+      // Special transition only for change command.
+      // Not called from a matchCommand.
+      { name:'change',   from:'*',         to:'_insert'   },
   ]});
   fsm.events = ['motion','operator','action','modifier','textobj',
                 'search','ex','visual','done','exdone','insert'];
@@ -350,7 +354,8 @@ function VimFSM(context, commandList) {
   var mode = 'normal';
 
   fsm.onbeforeevent = function(e, from, to) {
-    if (from === '_none' || from === '_partial') {
+    if ((from === '_none' || from === '_partial') &&
+        e !== 'change') {
       helpViewer.clear();
     }
     else if ((from === '_vnone' || from === '_vpartial') &&
@@ -361,7 +366,6 @@ function VimFSM(context, commandList) {
   };
 
   fsm.onafterevent = function(e, from, to, cmd) {
-    console.log(to);
     // Determine current mode.
     if (to[1] == 'v') {
       mode = 'visual';
@@ -408,12 +412,18 @@ function VimFSM(context, commandList) {
   var lastOperator = null;
   fsm.onbeforeoperator = function(e, from, to, cmd) {
     if (from === '_operator' || from === '_opRepeat') {
-      if(lastOperator !== cmd.keys[0])
+      if(lastOperator !== cmd.keys[0]) {
         return false; // Returning false aborts the transition.
-      else
+      }
+      else {
+        if (cmd.keys[0] === 'c')
+          fsm.forceInsert = true;
         lastOperator = null;
+      }
     }
     else {
+      if (mode === 'visual' && cmd.keys[0] === 'c')
+        fsm.forceInsert = true;
       lastOperator = cmd.keys[0];
     }
   };
@@ -572,6 +582,10 @@ function CommandHelper (context, commandList_) {
       keyBuf = [];
       numBuf = [];
       var result = fsm[match.type](match.cmd);
+      if (fsm.forceInsert) {
+        fsm.forceInsert = false;
+        fsm.change();
+      }
       if (result === StateMachine.Result.CANCELLED) {
         fsm.done();
       }

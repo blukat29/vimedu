@@ -1,8 +1,8 @@
 var questListEN = [
-  { short:"Level 0", file:"level0.html", text:"Insert text, Save file, Exit vim." },
-  { short:"Level 1", file:"level1.html", text:"Blah blah blah" },
-  { short:"Level 2", file:"level2.html", text:"Blah blah blah" },
-  { short:"Level 6", file:"level6.html", text:"Operators on a line." },
+  { title:"Ch 1. Say hi to vim!", link:"title-1.html", levels: [
+    { text:"Level 1-1. Exit vim. :q", link:"level-1-1.html" },
+    { text:"Level 1-2. Save file. :w", link:"level-1-2.html" },
+  ]},
 ];
 
 function Tutorial(questList_) {
@@ -62,8 +62,43 @@ function Tutorial(questList_) {
     };
   };
 
+  var getClickHandler = function(link) {
+    return function() {
+      goTutorial(link);
+    }
+  }
+
+  var initQuestList = function() {
+
+    for (var i = 0; i < questList.length; i ++) {
+      var chapter = questList[i];
+
+      var a = $("<a></a>")
+        .addClass("quest-chapter")
+        .click(getClickHandler(chapter.link))
+        .html(chapter.title);
+      var ul = $("<ul></ul>");
+
+      var levels = chapter.levels;
+      for (var j = 0; j < levels.length; j ++) {
+        var level = levels[j];
+        var b = $("<a></a>")
+          .addClass("quest-level")
+          .click(getClickHandler(level.link))
+          .html(level.text);
+        var li = $("<li></li>");
+        li.append(b);
+        ul.append(li);
+      }
+
+      $("#quest-list").append(a);
+      $("#quest-list").append(ul);
+    }
+  }
+
   var init = function() {
     initVimOverlay();
+    initQuestList();
   };
 
   return {

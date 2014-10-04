@@ -431,12 +431,13 @@
     }
 
     var options = {};
-    function defineOption(name, defaultValue, type) {
+    function defineOption(name, defaultValue, type, callback) {
       if (defaultValue === undefined) { throw Error('defaultValue is required'); }
       if (!type) { type = 'string'; }
       options[name] = {
         type: type,
-        defaultValue: defaultValue
+        defaultValue: defaultValue,
+        callback: callback,
       };
       setOption(name, defaultValue);
     }
@@ -455,6 +456,7 @@
         }
       }
       option.value = option.type == 'boolean' ? !!value : value;
+      if (option.callback !== undefined) { option.callback(value); }
     }
 
     function getOption(name) {
@@ -1256,6 +1258,7 @@
           // an error, the elements don't overlap.
           vimGlobalState.exCommandHistoryController.pushInput(input);
           vimGlobalState.exCommandHistoryController.reset();
+          CodeMirror.signal(cm, 'vim-ex-done', input);
           exCommandDispatcher.processCommand(cm, input);
         }
         function onPromptKeyDown(e, input, close) {
@@ -3730,6 +3733,7 @@
       { name: 'vmap', shortName: 'vm' },
       { name: 'unmap' },
       { name: 'write', shortName: 'w' },
+      { name: 'quit', shortName: 'q' },
       { name: 'undo', shortName: 'u' },
       { name: 'redo', shortName: 'red' },
       { name: 'set', shortName: 'set' },
@@ -3738,7 +3742,8 @@
       { name: 'nohlsearch', shortName: 'noh' },
       { name: 'delmarks', shortName: 'delm' },
       { name: 'registers', shortName: 'reg', excludeFromCommandHistory: true },
-      { name: 'global', shortName: 'g' }
+      { name: 'global', shortName: 'g' },
+      { name: 'syntax', shortName: 'syntax' }
     ];
     Vim.ExCommandDispatcher = function() {
       this.buildCommandMap_();
@@ -4299,6 +4304,9 @@
           cm.save();
         }
       },
+      quit: function(cm) {
+        CodeMirror.signal(cm, 'vim-quit');
+      },
       nohlsearch: function(cm) {
         clearSearchHighlight(cm);
       },
@@ -4362,7 +4370,32 @@
             delete state.marks[sym];
           }
         }
-      }
+      },
+      syntax: function(cm, params) {
+        var args = params.args;
+        if (!args || args.length < 1) {
+          if (cm) {
+            showConfirm(cm, 'An argument is missing (on/off): syntax');
+          }
+          return;
+        }
+        var firstArg = args[0];
+        var value = false;
+
+        if (firstArg === 'on') {
+          value = true;
+        }
+        else if (firstArg === 'off') {
+          value = false;
+        }
+        else {
+          if (cm) {
+            showConfirm(cm, 'Invalid syntax argument: ' + firstArg);
+          }
+          return;
+        }
+        setOption('syntax', value);
+      },
     };
 
     var exCommandDispatcher = new Vim.ExCommandDispatcher();
@@ -4581,6 +4614,7 @@
       // update the ". register before exiting insert mode
       insertModeChangeRegister.setText(lastChange.changes.join(''));
       CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
+      CodeMirror.signal(cm, "vim-keypress", "<Esc>");
       if (macroModeState.isRecording) {
         logInsertModeChange(macroModeState);
       }

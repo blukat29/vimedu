@@ -1,69 +1,120 @@
-body {
-  background-color: #EEEEEE;
-}
-
+/* Overall conatiner */
 .container {
   background-color: #FFFFFF;
   overflow: hidden;
   min-height: 600px;
 }
 
-.col-lg-4 {
-  border-style: solid;
-  border-width: 1px;
-  padding: 10px;
+/*  Big three parts offset and background colors */
+.left-pane {
+  margin-top: 20px;
+  padding-left: 0px;
+  padding-right: 0px;
+}
+.mid-pane {
+  padding :30px;
+  margin-right: -10px;
+}
+.right-pane {
+  margin-top: 20px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  background-color: #dddddd;
+  box-shadow: 10px 10px #555555;
+}
+.shadow {
+  margin-bottom: 20px;
+  padding-top: 1px;
+  padding-bottom: 10px;
+  padding-left: 15px;
+  padding-right: 15px;
+  background-color: #dddddd;
+  box-shadow: 10px 10px #555555;
 }
 
+/* CodeMirror Functional settings */
 .CodeMirror-vscrollbar[style] {
   display: none !important;
 }
-
 .CodeMirror-wrap pre {
   word-break: break-all;
 }
-
-.mode-container {
-  padding-left: 10px;
-  padding-right: 10px;
-  position: relative;
-  z-index: 2;
-  left: 5%;
-  right: 10%;
-  width: 85%;
+.CodeMirror {
+  font-family: Consolas;
 }
 
-#mode-selector {
-  border-style: solid;
-  border-width: 1px;
-  border-color: blue;
-  background-color: #DDDDFF;
-  z-index: 0;
-  position: absolute;
+/* Quest list */
+#quest-list > ul {
+  padding: 0;
+  list-style-type: none;
 }
 
-h4 {
-  display: inline-block;
+/* Title above the Vim */
+#vim-large-title {
+  font-size: 24px;
+}
+#vim-small-title {
+  margin-left: 10px;
+  font-size: 20px;
+  color: #666;
 }
 
+/* Current mode display */
+/* Color scheme from https://github.com/bling/vim-airline */
+#modes-display {
+  margin-top: 10px;
+  padding-left: 15px;
+  padding-right: 15px;
+  font-family: Consolas;
+  font-style: bold;
+  font-size: 15px;
+  text-align: center;
+}
+#modes-display > div {
+  background-color: #777;
+}
+#mode-normal.mode-active {
+  background-color: #dfff00;
+}
+#mode-insert.mode-active {
+  background-color: #00afff;
+}
+#mode-visual.mode-active {
+  background-color: #ffaf00;
+}
+
+/* Current command help */
 kbd {
   margin: 2px;
 }
-
 #helps-display {
   display: table;
   border-collapse: separate;
   border-spacing: 10px;
 }
-
 .help-view {
   display: table-cell;
   background-color: #eeeeee;
   text-align: center;
 }
-
 .help-view > div > kbd {
   padding-left: 8px;
   padding-right: 8px;
   font-size: 20px;
 }
 
+/* Vim overlay */
+#vim-overlay {
+  opacity: 0.0;
+  background-color: #555;
+  color: white;
+  font-size: 20px;
+  font-style: bold, underline;
+}
+#vim-overlay-message {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}

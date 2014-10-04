@@ -36,7 +36,6 @@ var commandListEN = [
   ]},
   // Action commands. Always used alone. Each one is complete as itself.
   { type:'action', commands:[
-    { keys:['i'],     help:'Switch to insert mode' },
     { keys:['x'],     help:'Delete a character', mode:'normal' },
     { keys:['p'],     help:'Paste', mode:'normal' },
     { keys:['u'],     help:'Undo' },
@@ -78,14 +77,36 @@ var commandListEN = [
   ]},
   // Esc is treated specially.
   { type:'done', commands:[
-    { keys:['<Esc>'], help:'Cancel command', keysDisp:['Esc']  },
+    { keys:['<Esc>'], help:'Cancel command', mode:'normal', keysDisp:['Esc']  },
+    { keys:['<Esc>'], help:'Exit insert mode', mode:'insert', keysDisp:['Esc']  },
+    { keys:['<Esc>'], help:'Exit visual mode', mode:'visual', keysDisp:['Esc']  },
   ]},
   // v keys toggles visual mode.
   { type:'visual', typeFamily:'mode change', commands:[
     { keys:['v'],     help:'Select', mode:'normal' },
     { keys:['v'],     help:'Cancel selecting', mode:'visual' },
   ]},
+  { type:'insert', typeFamily:'mode change', commands:[
+    { keys:['i'],     help:'Insert before cursor', mode:'normal' },
+  ]},
 ];
+
+function ModeViewer(context_) {
+  var context = context_;
+  var curr_mode = 'normal';
+
+  var change = function (next_mode) {
+    var curr = $("#mode-"+curr_mode, context);
+    var next = $("#mode-"+next_mode, context);
+    curr.removeClass("mode-active");
+    next.addClass("mode-active");
+    curr_mode = next_mode;
+  };
+
+  return {
+    change: change,
+  };
+}
 
 // Interface to manipulate current command help at the bottom.
 function HelpViewer(context) {
@@ -334,16 +355,25 @@ function VimFSM(context, commandList) {
       { name:'nonzero',  from:'_vnone',    to:'_vrepeat'  },
       { name:'nonzero',  from:'_vrepeat',  to:'_vrepeat'  },
       { name:'zero',     from:'_vrepeat',  to:'_vrepeat'  },
+
+      { name:'insert',   from:'_none',     to:'_insert'   },
+      { name:'done',     from:'_insert',   to:'_none'     },
+
+      // Special transition only for change command.
+      // Not called from a matchCommand.
+      { name:'change',   from:'*',         to:'_insert'   },
   ]});
   fsm.events = ['motion','operator','action','modifier','textobj',
-                'search','ex','visual','done','exdone'];
+                'search','ex','visual','done','exdone','insert'];
 
   var helpViewer = new HelpViewer(context);
   var keysViewer = new KeysViewer(context, commandList);
+  var modeViewer = new ModeViewer(context);
   var mode = 'normal';
 
   fsm.onbeforeevent = function(e, from, to) {
-    if (from === '_none' || from === '_partial') {
+    if ((from === '_none' || from === '_partial') &&
+        e !== 'change') {
       helpViewer.clear();
     }
     else if ((from === '_vnone' || from === '_vpartial') &&
@@ -358,9 +388,16 @@ function VimFSM(context, commandList) {
     if (to[1] == 'v') {
       mode = 'visual';
     }
+    else if (to === '_insert') {
+      mode = 'insert';
+    }
     else {
       mode = 'normal';
     }
+
+    // Set mode viewer.
+    modeViewer.change(mode);
+
     // Reset all visibility.
     keysViewer.set('keys-entry', false);
     // Build selectors.
@@ -391,18 +428,28 @@ function VimFSM(context, commandList) {
     else {
       helpViewer.append(cmd);
     }
+    if (lastOperator === 'c') {
+      fsm.forceInsert = true;
+      lastOperator = null;
+    }
   };
 
   // Check if double operators are the same key.
   var lastOperator = null;
   fsm.onbeforeoperator = function(e, from, to, cmd) {
     if (from === '_operator' || from === '_opRepeat') {
-      if(lastOperator !== cmd.keys[0])
+      if(lastOperator !== cmd.keys[0]) {
         return false; // Returning false aborts the transition.
-      else
+      }
+      else {
+        if (cmd.keys[0] === 'c')
+          fsm.forceInsert = true;
         lastOperator = null;
+      }
     }
     else {
+      if (mode === 'visual' && cmd.keys[0] === 'c')
+        fsm.forceInsert = true;
       lastOperator = cmd.keys[0];
     }
   };
@@ -426,6 +473,10 @@ function VimFSM(context, commandList) {
 
   fsm.ontextobj = function(e, from, to, cmd) {
     helpViewer.append(cmd);
+    if (lastOperator === 'c') {
+      fsm.forceInsert = true;
+      lastOperator = null;
+    }
   };
 
   fsm.onnonzero = function(e, from, to, numBuf) {
@@ -457,6 +508,10 @@ function VimFSM(context, commandList) {
     }
   };
 
+  fsm.oninsert = function(e, from, to, cmd) {
+    helpViewer.append(cmd);
+  };
+
   fsm.ondone = function() {
     helpViewer.clear();
   };
@@ -469,6 +524,10 @@ function VimFSM(context, commandList) {
     keysViewer.init();
   };
 
+  fsm.getMode = function() {
+    return mode;
+  }
+
   return fsm;
 }
 
@@ -480,7 +539,6 @@ function CommandHelper (context, commandList_) {
   var fsm = new VimFSM(context, commandList);
   var keyBuf = [];
   var numBuf = [];
-  var mode = 'normal';
 
   var matchCommand = function () {
     var match;
@@ -494,7 +552,7 @@ function CommandHelper (context, commandList_) {
         var cmd = bundle.commands[j];
 
         if (compareKeys(cmd.keys, keyBuf) &&
-           (!cmd.mode || cmd.mode === mode)) {
+           (!cmd.mode || cmd.mode === fsm.getMode())) {
           if (match)
             throw ("Duplicate command: " + keyBuF.join());
           match = { type:bundle.type, cmd:cmd };
@@ -557,6 +615,10 @@ function CommandHelper (context, commandList_) {
       keyBuf = [];
       numBuf = [];
       var result = fsm[match.type](match.cmd);
+      if (fsm.forceInsert) {
+        fsm.forceInsert = false;
+        fsm.change();
+      }
       if (result === StateMachine.Result.CANCELLED) {
         fsm.done();
       }
@@ -596,10 +658,6 @@ function CommandHelper (context, commandList_) {
     }
   };
 
-  var onMode = function(mode_) {
-    mode = mode_;
-  };
-
   var isNonzero = function(key) {
     return (key.charCodeAt(0) >= '1'.charCodeAt(0) &&
             key.charCodeAt(0) <= '9'.charCodeAt(0));
@@ -614,7 +672,6 @@ function CommandHelper (context, commandList_) {
 
   return {
     onKey: onKey,
-    onMode: onMode,
     init: init,
     done: done,
   };

@@ -4614,6 +4614,7 @@
       // update the ". register before exiting insert mode
       insertModeChangeRegister.setText(lastChange.changes.join(''));
       CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
+      CodeMirror.signal(cm, "vim-keypress", "<Esc>");
       if (macroModeState.isRecording) {
         logInsertModeChange(macroModeState);
       }

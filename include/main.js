@@ -37,6 +37,7 @@ $(document).ready(function(){
   current_mode = 'normal';
   mode_change('normal');
   commandHelper.init();
+  commandHelper.onKey('<Esc>');
   tutorial.init();
 });
 

@@ -36,7 +36,6 @@ var commandListEN = [
   ]},
   // Action commands. Always used alone. Each one is complete as itself.
   { type:'action', commands:[
-    { keys:['i'],     help:'Switch to insert mode' },
     { keys:['x'],     help:'Delete a character', mode:'normal' },
     { keys:['p'],     help:'Paste', mode:'normal' },
     { keys:['u'],     help:'Undo' },
@@ -78,12 +77,17 @@ var commandListEN = [
   ]},
   // Esc is treated specially.
   { type:'done', commands:[
-    { keys:['<Esc>'], help:'Cancel command', keysDisp:['Esc']  },
+    { keys:['<Esc>'], help:'Cancel command', mode:'normal', keysDisp:['Esc']  },
+    { keys:['<Esc>'], help:'Exit insert mode', mode:'insert', keysDisp:['Esc']  },
+    { keys:['<Esc>'], help:'Exit visual mode', mode:'visual', keysDisp:['Esc']  },
   ]},
   // v keys toggles visual mode.
   { type:'visual', typeFamily:'mode change', commands:[
     { keys:['v'],     help:'Select', mode:'normal' },
     { keys:['v'],     help:'Cancel selecting', mode:'visual' },
+  ]},
+  { type:'insert', typeFamily:'mode change', commands:[
+    { keys:['i'],     help:'Insert before cursor', mode:'normal' },
   ]},
 ];
 
@@ -334,9 +338,12 @@ function VimFSM(context, commandList) {
       { name:'nonzero',  from:'_vnone',    to:'_vrepeat'  },
       { name:'nonzero',  from:'_vrepeat',  to:'_vrepeat'  },
       { name:'zero',     from:'_vrepeat',  to:'_vrepeat'  },
+
+      { name:'insert',   from:'_none',     to:'_insert'   },
+      { name:'done',     from:'_insert',   to:'_none'     },
   ]});
   fsm.events = ['motion','operator','action','modifier','textobj',
-                'search','ex','visual','done','exdone'];
+                'search','ex','visual','done','exdone','insert'];
 
   var helpViewer = new HelpViewer(context);
   var keysViewer = new KeysViewer(context, commandList);
@@ -354,9 +361,13 @@ function VimFSM(context, commandList) {
   };
 
   fsm.onafterevent = function(e, from, to, cmd) {
+    console.log(to);
     // Determine current mode.
     if (to[1] == 'v') {
       mode = 'visual';
+    }
+    else if (to === '_insert') {
+      mode = 'insert';
     }
     else {
       mode = 'normal';
@@ -455,6 +466,10 @@ function VimFSM(context, commandList) {
       helpViewer.clear();
       helpViewer.append(cmd);
     }
+  };
+
+  fsm.oninsert = function(e, from, to, cmd) {
+    helpViewer.append(cmd);
   };
 
   fsm.ondone = function() {

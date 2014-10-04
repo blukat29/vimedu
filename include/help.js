@@ -428,6 +428,10 @@ function VimFSM(context, commandList) {
     else {
       helpViewer.append(cmd);
     }
+    if (lastOperator === 'c') {
+      fsm.forceInsert = true;
+      lastOperator = null;
+    }
   };
 
   // Check if double operators are the same key.
@@ -469,6 +473,10 @@ function VimFSM(context, commandList) {
 
   fsm.ontextobj = function(e, from, to, cmd) {
     helpViewer.append(cmd);
+    if (lastOperator === 'c') {
+      fsm.forceInsert = true;
+      lastOperator = null;
+    }
   };
 
   fsm.onnonzero = function(e, from, to, numBuf) {

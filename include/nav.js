@@ -51,11 +51,31 @@
   });
 
   var selectTheme = $("#select-theme");
+
+  var themeList = ['3024-day','3024-night','ambiance','ambiance-mobile','base16-dark','base16-light','blackboard','cobalt','eclipse','elegant','erlang-dark','lesser-dark','mbo','mdn-like','midnight','monokai','neat','neo','night','paraiso-dark','paraiso-light','pastel-on-dark','rubyblue','solarized','the-matrix','tomorrow-night-eighties','twilight','vibrant-ink','xq-dark','xq-light'];
+  for (var i=0; i < themeList.length; i++) {
+    var theme = themeList[i];
+    selectTheme.append("<option value='0'>" + theme + "</option>");
+  }
+
   selectTheme.change(function() {
     var item = selectTheme.children("option").filter(":selected");
-    console.log(item.text());
+    var theme = item.text();
+    var loaded = item.val();
+
+    if (theme === "default")
+      return;
+
+    // Asynchronously load theme css file.
+    if (loaded === '0') {
+      var link = $("<link rel='stylesheet'/>");
+      link.attr("href", "codemirror/theme/" + theme + ".css");
+      $("head").append(link);
+      item.val('1');
+    }
+
+    editor.setOption("theme", theme);
   });
 
 }());
-
 

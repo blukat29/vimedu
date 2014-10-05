@@ -45,14 +45,34 @@
 (function() {
 
   var selectLang = $("#select-lang");
+  var langList = [
+      ['C/C++/C#', 'clike'], ['CSS','css'], ['HTML', 'htmlmixed'], ['Javascript', 'javascript'],
+      ['Markdown', 'markdown'], ['PHP', 'php'], ['Python', 'python'], ['Ruby', 'ruby'],
+      ['Scheme/Racket', 'scheme'], ['Shell script', 'shell'], ['XML', 'xml'], ['YAML', 'yaml']];
+  for (var i=0; i < langList.length; i++) {
+    var lang = langList[i];
+    selectLang.append("<option value='" + lang[1] + "'>" + lang[0] + "</option>");
+  }
   selectLang.change(function() {
     var item = selectLang.children("option").filter(":selected");
-    console.log(item.val());
+    var mode = item.val();
+
+    if (mode === "text")
+      return;
+
+    editor.setOption("mode", mode);
+    CodeMirror.modeURL = "codemirror/mode/%N/%N.js";
+    CodeMirror.autoLoadMode(editor, mode);
   });
 
   var selectTheme = $("#select-theme");
 
-  var themeList = ['3024-day','3024-night','ambiance','ambiance-mobile','base16-dark','base16-light','blackboard','cobalt','eclipse','elegant','erlang-dark','lesser-dark','mbo','mdn-like','midnight','monokai','neat','neo','night','paraiso-dark','paraiso-light','pastel-on-dark','rubyblue','solarized','the-matrix','tomorrow-night-eighties','twilight','vibrant-ink','xq-dark','xq-light'];
+  var themeList = ['3024-day','3024-night','ambiance','ambiance-mobile',
+      'base16-dark','base16-light','blackboard','cobalt','eclipse','elegant',
+      'erlang-dark','lesser-dark','mbo','mdn-like','midnight','monokai','neat',
+      'neo','night','paraiso-dark','paraiso-light','pastel-on-dark','rubyblue',
+      'solarized','the-matrix','tomorrow-night-eighties','twilight','vibrant-ink',
+      'xq-dark','xq-light'];
   for (var i=0; i < themeList.length; i++) {
     var theme = themeList[i];
     selectTheme.append("<option value='0'>" + theme + "</option>");
@@ -63,11 +83,8 @@
     var theme = item.text();
     var loaded = item.val();
 
-    if (theme === "default")
-      return;
-
     // Asynchronously load theme css file.
-    if (loaded === '0') {
+    if (theme !== 'default' && loaded === '0') {
       var link = $("<link rel='stylesheet'/>");
       link.attr("href", "codemirror/theme/" + theme + ".css");
       $("head").append(link);

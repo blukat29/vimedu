@@ -55,7 +55,16 @@ casper.runTestSuite("visual mode", fsmTester, [
   [ ['v','w','x'],             ['v','w','x'],       "x key is an operator in visual mode" ],
 ]);
 
+casper.runTestSuite("multi-key commands", fsmTester, [
+  [ ['g'],        ['g'],       "display partial key on the fly" ],
+  [ ['g'],        ['gg'],      "complete command replaces the patial key" ],
+  [ ['d','g'],    ['d','g'],   "display partial key after an operator" ],
+  [ ['g'],        ['d','gg'],  "complete command replaces the partial key" ],
+]);
+
 casper.runTestSuite("ex mode", fsmTester, [
   [ [':set nu','ENTER','d','d'], ['d','d'],           "enter key to come back to normal mode" ],
+  [ [':q','ENTER'],              [':q'],              "Show ex command result." ],
+  [ [':syntax off','ENTER'],     [':syntax off'],     "Syntax command" ],
 ]);
 

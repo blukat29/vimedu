@@ -1,4 +1,5 @@
 
+// Quest & Sandbox transition.
 (function() {
 
   var container = $("#upper-left");
@@ -39,4 +40,22 @@
   });
 
 }());
+
+// Vim settings.
+(function() {
+
+  var selectLang = $("#select-lang");
+  selectLang.change(function() {
+    var item = selectLang.children("option").filter(":selected");
+    console.log(item.val());
+  });
+
+  var selectTheme = $("#select-theme");
+  selectTheme.change(function() {
+    var item = selectTheme.children("option").filter(":selected");
+    console.log(item.text());
+  });
+
+}());
+
 

@@ -8,12 +8,10 @@
   <script src="codemirror/addon/search/searchcursor.js"></script>
   <script src="codemirror/addon/edit/matchbrackets.js"></script>
   <script src="codemirror/keymap/vim.js"></script>
-  <script src="include/deps/jquery.terminal-0.8.8.min.js"></script>
   <link href="include/deps/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="codemirror/lib/codemirror.css" rel="stylesheet"/>
   <link href="codemirror/addon/dialog/dialog.css" rel="stylesheet"/>
   <link href="codemirror/theme/blackboard.css" rel="stylesheet"/>
-  <link href="include/deps/jquery.terminal.css" rel="stylesheet"/>
   <link href="include/default.css" rel="stylesheet"/>
 </head>
 <body>
@@ -29,7 +27,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li><a href="#about">About</a></li>
-        <li><a href="https://github.com/blukat29/vimedu" target="_blank">View it on GitHub</a></li>
+        <li><a href="https://github.com/blukat29/vimedu" target="_blank">View on GitHub</a></li>
       </ul>
     </div>
   </div>
@@ -43,6 +41,20 @@
         </div>
         <div id="sandbox-info">
           <h3>Sandbox</h3>
+          <h4>File</h4>
+          <h4>Settings</h4>
+          <div>
+            Language: <select class="selectpicker" id="select-lang">
+              <option value="clike">C/C++</option>
+              <option value="javascript">Javascript</option>
+            </select>
+          </div>
+          <div>
+            Theme: <select class="selectpicker" id="select-theme">
+              <option>default</option>
+              <option>blackboard</option>
+            </select>
+          </div>
         </div>
       </div>
       <div class="shadow">

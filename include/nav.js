@@ -57,9 +57,12 @@
     var item = selectLang.children("option").filter(":selected");
     var mode = item.val();
 
+    if (mode === "text")
+      return;
+
+    editor.setOption("mode", mode);
     CodeMirror.modeURL = "codemirror/mode/%N/%N.js";
     CodeMirror.autoLoadMode(editor, mode);
-    editor.setOption("mode", mode);
   });
 
   var selectTheme = $("#select-theme");

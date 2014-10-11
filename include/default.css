@@ -1,8 +1,10 @@
 /* Overall conatiner */
-.container {
+#contents.container {
   background-color: #FFFFFF;
   overflow: hidden;
   min-height: 600px;
+  top: 50px;
+  position: relative;
 }
 
 /*  Big three parts offset and background colors */
@@ -117,4 +119,9 @@ kbd {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
+}
+
+/* Sandbox settings */
+#sandbox-info {
+  display: none;
 }

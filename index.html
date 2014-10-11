@@ -7,22 +7,57 @@
   <script src="codemirror/addon/dialog/dialog.js"></script>
   <script src="codemirror/addon/search/searchcursor.js"></script>
   <script src="codemirror/addon/edit/matchbrackets.js"></script>
+  <script src="codemirror/addon/mode/loadmode.js"></script>
+  <script src="codemirror/mode/clike/clike.js"></script>
   <script src="codemirror/keymap/vim.js"></script>
-  <script src="include/deps/jquery.terminal-0.8.8.min.js"></script>
   <link href="include/deps/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="codemirror/lib/codemirror.css" rel="stylesheet"/>
   <link href="codemirror/addon/dialog/dialog.css" rel="stylesheet"/>
-  <link href="codemirror/theme/blackboard.css" rel="stylesheet"/>
-  <link href="include/deps/jquery.terminal.css" rel="stylesheet"/>
   <link href="include/default.css" rel="stylesheet"/>
 </head>
 <body>
-<div class="container">
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <a href="#" class="navbar-brand">Vimedu</a>
+    </div>
+    <div class="collapse navbar-collapse">
+      <ul class="nav navbar-nav">
+        <li><a href="#quest">Quests</a></li>
+        <li><a href="#sandbox">Sandbox</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#about">About</a></li>
+        <li><a href="https://github.com/blukat29/vimedu" target="_blank">View on GitHub</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+<div class="container" id="contents">
   <div class="row">
     <div class="col-lg-3 left-pane">
-      <div class="shadow">
-        <h3>Quests</h3>
-        <div id="quest-list"></div>
+      <div id="upper-left" class="shadow">
+        <div id="quest-list">
+          <h3>Quests</h3>
+        </div>
+        <div id="sandbox-info">
+          <h3>Sandbox</h3>
+          <h4>File</h4>
+          <div>
+            Open a file: <input type="file" id="local_file"/>
+          </div>
+          <h4>Settings</h4>
+          <div>
+            Language: <select class="selectpicker" id="select-lang">
+              <option value="text">Text</option>
+            </select>
+          </div>
+          <div>
+            Theme: <select class="selectpicker" id="select-theme">
+              <option>default</option>
+            </select>
+          </div>
+        </div>
       </div>
       <div class="shadow">
         <h3>Register</h3>
@@ -69,6 +104,7 @@ int getchar(void)
 <script src="include/init.js"></script>
 <script src="include/quest.js"></script>
 <script src="include/help.js"></script>
+<script src="include/nav.js"></script>
 <script src="include/main.js"></script>
 </body>
 </html>

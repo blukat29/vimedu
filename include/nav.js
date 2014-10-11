@@ -41,6 +41,47 @@
 
 }());
 
+// Opening local file.
+(function() {
+
+  if (!(window.File && window.FileReader &&
+        window.FileList && window.Blob))
+  {
+    console.log("File upload not supported");
+    return;
+  }
+
+  var input = $("#local_file");
+  input.bind('change', function(e) {
+    var files = e.target.files;
+    if (files.length < 1)
+      return;
+    var f = files[0];
+
+    console.log(f.name);
+    console.log(f.size);
+    console.log(f.type);
+
+    var reader = new FileReader();
+    reader.onerror = function(e) {
+      console.log("Error " + e.target.error.code);
+    };
+    reader.onabort = function(e) {
+      console.log("cancelled");
+    };
+    reader.onloadstart = function(e) {
+      console.log("starting");
+    };
+    reader.onload = function(e) {
+      var content = e.target.result;
+      editor.setValue(content);
+    };
+    reader.readAsText(f);
+
+  });
+
+}());
+
 // Vim settings.
 (function() {
 

@@ -15,7 +15,6 @@ var editor = CodeMirror.fromTextArea(document.getElementById("vim"), {
 });
 
 editor.setSize(null, 400);
-editor.setOption("theme","blackboard");
 
 CodeMirror.Vim.defineOption("nu", true, "boolean", function(value) {
   editor.setOption("lineNumbers", value);

@@ -120,3 +120,8 @@ kbd {
   top: 50%;
   transform: translate(-50%, -50%);
 }
+
+/* Sandbox settings */
+#sandbox-info {
+  display: none;
+}

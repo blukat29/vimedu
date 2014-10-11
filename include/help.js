@@ -313,6 +313,7 @@ function VimFSM(context, commandList) {
       { name:'motion',   from:'_opRepeat', to:'_none'     },
       { name:'motion',   from:'_operator', to:'_none'     },
       { name:'motion',   from:'_partial',  to:'_none'     },
+      { name:'motion',   from:'_opPartial',to:'_none'     },
 
       { name:'operator', from:'_none',     to:'_operator' },
       { name:'operator', from:'_repeat',   to:'_operator' },
@@ -341,6 +342,8 @@ function VimFSM(context, commandList) {
 
       { name:'partial',  from:'_none',     to:'_partial'  },
       { name:'partial',  from:'_partial',  to:'_partial'  },
+      { name:'partial',  from:'_operator', to:'_opPartial'},
+      { name:'partial',  from:'_opRepeat', to:'_opPartial'},
 
       { name:'visual',   from:'_none',     to:'_vnone'    },
       { name:'visual',   from:'_vnone',    to:'_none'     },
@@ -374,8 +377,7 @@ function VimFSM(context, commandList) {
   var mode = 'normal';
 
   fsm.onbeforeevent = function(e, from, to) {
-    if ((from === '_none' || from === '_partial') &&
-        e !== 'change') {
+    if ((from === '_none') && e !== 'change') {
       helpViewer.clear();
     }
     else if ((from === '_vnone' || from === '_vpartial') &&
@@ -425,10 +427,16 @@ function VimFSM(context, commandList) {
 
   fsm.onmotion = function(e, from, to, cmd) {
     if ($.inArray(from, ['_none', '_repeat', '_partial']) >= 0) {
-      helpViewer.append(cmd, "Move " + cmd.help);
+      if (from === '_partial' || from === '_opPartial')
+        helpViewer.updateLast(cmd, "Move " + cmd.help);
+      else
+        helpViewer.append(cmd, "Move " + cmd.help);
     }
     else {
-      helpViewer.append(cmd);
+      if (from === '_partial' || from === '_opPartial')
+        helpViewer.updateLast(cmd);
+      else
+        helpViewer.append(cmd);
     }
     if (lastOperator === 'c') {
       fsm.forceInsert = true;
@@ -492,12 +500,7 @@ function VimFSM(context, commandList) {
   fsm.onzero = fsm.onnonzero;
 
   fsm.onpartial = function(e, from, to, cmd) {
-    if (from === '_none' || from === '_vnone') {
-      helpViewer.append(cmd, "...");
-    }
-    else {
-      helpViewer.updateLast(cmd, "...");
-    }
+    helpViewer.append(cmd, "...");
   };
 
   fsm.onvisual = function(e, from, to, cmd) {
@@ -636,7 +639,7 @@ function CommandHelper (context, commandList_) {
       }
       else {
         var matches = matchPartial();
-        if (matches.length === 0) {
+        if (matches.length === 0 || !fsm.can('partial')) {
           if (fsm.is('_ex')) {
             // If command match has failed during _ex state,
             // it is likely that the dialog is closed by some

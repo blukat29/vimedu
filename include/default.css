@@ -1,38 +1,23 @@
 /* Overall conatiner */
-#contents.container {
-  background-color: #FFFFFF;
+#contents.container-fluid {
+  padding-top: 50px;
   overflow: hidden;
-  min-height: 600px;
-  top: 50px;
-  position: relative;
+  height: 100%;
 }
 
 /*  Big three parts offset and background colors */
 .left-pane {
-  margin-top: 20px;
-  padding-left: 0px;
-  padding-right: 0px;
+  background-color: #dddddd;
+  overflow-y: scroll;
+  min-height: 100%;
+  height: 100%;
 }
 .mid-pane {
-  padding :30px;
-  margin-right: -10px;
 }
 .right-pane {
-  margin-top: 20px;
-  margin-right: 10px;
-  margin-bottom: 10px;
-  padding-bottom: 10px;
   background-color: #dddddd;
-  box-shadow: 10px 10px #555555;
-}
-.shadow {
-  margin-bottom: 20px;
-  padding-top: 1px;
-  padding-bottom: 10px;
-  padding-left: 15px;
-  padding-right: 15px;
-  background-color: #dddddd;
-  box-shadow: 10px 10px #555555;
+  min-height: 1000px;
+  overflow-y: scroll;
 }
 
 /* CodeMirror Functional settings */

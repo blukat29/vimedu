@@ -16,6 +16,7 @@
   <link href="include/default.css" rel="stylesheet"/>
 </head>
 <body>
+<div id="wrap">
 <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container-fluid">
     <div class="navbar-header">
@@ -33,8 +34,8 @@
     </div>
   </div>
 </div>
-<div class="container-fluid" id="contents">
-  <div class="row">
+<div class="container-fluid center-container">
+  <div class="row center-row">
     <div class="col-lg-3 left-pane">
       <div>
         <div id="quest-list">
@@ -65,7 +66,7 @@
         <textarea id="register-display" style="width:100%; height:100px"></textarea>
       </div>
     </div>
-    <div class="col-lg-6 mid-pane">
+    <div class="col-lg-7 mid-pane">
       <span id="vim-large-title">Vim</span><span id="vim-small-title">emulator</span>
       <form><textarea id="vim">#include "syscalls.h"
 /* getchar:  simple buffered version */
@@ -94,11 +95,12 @@ int getchar(void)
       </div>
       <div id="tutorial"></div>
     </div>
-    <div class="col-lg-3 right-pane">
+    <div class="col-lg-2 right-pane">
       <h3>Keys</h3>
       <div id="keys-display"></div>
     </div>
   </div>
+</div>
 </div>
 <script src="include/deps/state-machine.js"></script>
 <script src="include/init.js"></script>

@@ -8,6 +8,7 @@ html, body {
 }
 .center-container {
   padding-top: 50px;
+  padding-right: 0;
   margin: 0;
   height: 100%;
 }
@@ -26,6 +27,8 @@ html, body {
 .mid-pane {
   min-height: 100%;
   height: 100%;
+  padding-left: 0;
+  padding-right: 0;
 }
 .right-pane {
   background-color: #dddddd;
@@ -51,20 +54,9 @@ html, body {
   list-style-type: none;
 }
 
-/* Title above the Vim */
-#vim-large-title {
-  font-size: 24px;
-}
-#vim-small-title {
-  margin-left: 10px;
-  font-size: 20px;
-  color: #666;
-}
-
 /* Current mode display */
 /* Color scheme from https://github.com/bling/vim-airline */
 #modes-display {
-  margin-top: 10px;
   padding-left: 15px;
   padding-right: 15px;
   font-family: Consolas;

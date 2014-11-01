@@ -19,7 +19,7 @@ html, body {
 
 /*  Big three parts offset and background colors */
 .left-pane {
-  background-color: #dddddd;
+  background-color: #f8f8f8;
   overflow-y: scroll;
   min-height: 100%;
   height: 100%;
@@ -31,7 +31,7 @@ html, body {
   padding-right: 0;
 }
 .right-pane {
-  background-color: #dddddd;
+  background-color: #f8f8f8;
   min-height: 100%;
   height: 100%;
   overflow-y: scroll;
@@ -58,11 +58,6 @@ html, body {
 }
 .CodeMirror-dialog span {
   font-family: Consolas, monospace !important;
-}
-/* Quest list */
-#quest-list > ul {
-  padding: 0;
-  list-style-type: none;
 }
 
 /* Current mode display */

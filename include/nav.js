@@ -37,6 +37,7 @@
     else if (hash === "#quest") {
       transition(sandbox, quest);
     }
+    tutorial.hashchange(hash);
   });
 
 }());

@@ -1,38 +1,40 @@
 /* Overall conatiner */
-#contents.container {
-  background-color: #FFFFFF;
-  overflow: hidden;
-  min-height: 600px;
-  top: 50px;
-  position: relative;
+html, body {
+  height: 100%;
+}
+#wrap {
+  min-height: 100%;
+  height: 100%;
+}
+.center-container {
+  padding-top: 50px;
+  padding-right: 0;
+  margin: 0;
+  height: 100%;
+}
+.center-row {
+  height: 100%;
+  width: 100%;
 }
 
 /*  Big three parts offset and background colors */
 .left-pane {
-  margin-top: 20px;
-  padding-left: 0px;
-  padding-right: 0px;
+  background-color: #dddddd;
+  overflow-y: scroll;
+  min-height: 100%;
+  height: 100%;
 }
 .mid-pane {
-  padding :30px;
-  margin-right: -10px;
+  min-height: 100%;
+  height: 100%;
+  padding-left: 0;
+  padding-right: 0;
 }
 .right-pane {
-  margin-top: 20px;
-  margin-right: 10px;
-  margin-bottom: 10px;
-  padding-bottom: 10px;
   background-color: #dddddd;
-  box-shadow: 10px 10px #555555;
-}
-.shadow {
-  margin-bottom: 20px;
-  padding-top: 1px;
-  padding-bottom: 10px;
-  padding-left: 15px;
-  padding-right: 15px;
-  background-color: #dddddd;
-  box-shadow: 10px 10px #555555;
+  min-height: 100%;
+  height: 100%;
+  overflow-y: scroll;
 }
 
 /* CodeMirror Functional settings */
@@ -43,29 +45,29 @@
   word-break: break-all;
 }
 .CodeMirror {
-  font-family: Consolas;
+  font-family: Consolas, monospace;
 }
 
+/* CodeMirror dialog */
+.CodeMirror-dialog {
+  background: #262626;
+  color: white;
+}
+.CodeMirror-dialog input {
+  font-family: Consolas, monospace;
+}
+.CodeMirror-dialog span {
+  font-family: Consolas, monospace !important;
+}
 /* Quest list */
 #quest-list > ul {
   padding: 0;
   list-style-type: none;
 }
 
-/* Title above the Vim */
-#vim-large-title {
-  font-size: 24px;
-}
-#vim-small-title {
-  margin-left: 10px;
-  font-size: 20px;
-  color: #666;
-}
-
 /* Current mode display */
 /* Color scheme from https://github.com/bling/vim-airline */
 #modes-display {
-  margin-top: 10px;
   padding-left: 15px;
   padding-right: 15px;
   font-family: Consolas;

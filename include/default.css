@@ -45,9 +45,20 @@ html, body {
   word-break: break-all;
 }
 .CodeMirror {
-  font-family: Consolas;
+  font-family: Consolas, monospace;
 }
 
+/* CodeMirror dialog */
+.CodeMirror-dialog {
+  background: #262626;
+  color: white;
+}
+.CodeMirror-dialog input {
+  font-family: Consolas, monospace;
+}
+.CodeMirror-dialog span {
+  font-family: Consolas, monospace !important;
+}
 /* Quest list */
 #quest-list > ul {
   padding: 0;

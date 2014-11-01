@@ -12,6 +12,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById("vim"), {
   matchBrackets: true,
   showCursorWhenSelecting: true,
   lineWrapping: true,
+  theme: "lesser-dark",
 });
 
 editor.setSize(null, 400);

@@ -6,7 +6,7 @@ function Tutorial() {
     $.ajax({
       url: "levels/" + filename,
     }).done(function(data) {
-      $("#tutorial").html(data);
+      $("#quest-content").html(data);
     }).fail(function() {
       throw "file levels/" + filename + " not found";
     });

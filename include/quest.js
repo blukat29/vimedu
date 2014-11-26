@@ -1,62 +1,32 @@
-var questListEN = [
-  { link:"title-1.html", title:"Ch 1. Say hi to vim!", levels: [
-    { link:"level-1-1.html", text:"Level 1-1. Exit vim. :q" },
-    { link:"level-1-2.html", text:"Level 1-2. Save file. :w" },
-  ]},
-  { link:"title-2.html", title:"Ch 2. Writing something", levels: [
-    { link:"level-2-1.html", text:"Level 2-1. Insert mode. i, Esc" },
-    { link:"level-2-2.html", text:"Level 2-2. Advanced insert modes. A, o" },
-  ]},
-  { link:"title-3.html", title:"Ch 3. Select and edit", levels: [
-    { link:"level-3-1.html", text:"Level 3-1. Visual mode & delete. v, d" },
-  ]},
-];
+var basicLevels = 6;
 
-function Tutorial(questList_) {
+function Tutorial() {
 
-  var questList = questList_;
+  var goTutorial = function(filename) {
+    $.ajax({
+      url: "levels/" + filename,
+    }).done(function(data) {
+      $("#quest-content").html(data);
+    }).fail(function() {
+      throw "file levels/" + filename + " not found";
+    });
+  };
 
   var verifier = function() { return true; };
-  var nextFile = "level0.html";
+  var nextFile = "basic0.html";
 
   var setVerifier = function(func, file) {
     verifier = func;
     nextFile = file;
   };
 
-  var goTutorial = function(filename) {
-    $.ajax({
-      url: "levels/" + filename,
-    }).done(function(data) {
-      $("#tutorial").html(data);
-    }).fail(function() {
-      throw "file levels/" + filename + " not found";
-    });
-  };
+  var clickHandlerFactory = function(i) {
+    return function() {
+      location.hash = "#"+i;
+    }
+  }
 
-  var focused = true;
-
-  var initVimOverlay = function() {
-    var cm = $(".CodeMirror");
-    var ov = $("#vim-overlay");
-    ov.css("z-index",1000);
-    ov.css("position","absolute");
-    ov.offset(cm.offset());
-    ov.outerHeight(cm.outerHeight());
-    ov.outerWidth(cm.outerWidth());
-
-    $("#vim-overlay").click(function() {
-      editor.focus();
-      if (!focused) {
-        $("#vim-overlay").css("opacity","0.0");
-      }
-    });
-
-    CodeMirror.on(editor, 'vim-quit', function() {
-      focused = false;
-      $("#vim-overlay").css("opacity","0.7");
-    });
-
+  var init = function() {
     CodeMirror.commands.save = function() {
       var result = verifier();
       if (result) {
@@ -67,52 +37,43 @@ function Tutorial(questList_) {
         alert("Awww.. try again.");
       }
     };
-  };
 
-  var getClickHandler = function(link) {
-    return function() {
-      goTutorial(link);
+    for (var i=0; i<basicLevels; i++) {
+      var btn = $("<button type=\"button\" class=\"btn\"></button");
+      btn.addClass("btn-default");
+      btn.attr("id","btn"+i);
+      btn.text(i);
+      btn.click(clickHandlerFactory(i));
+      $("#quest-btns").append(btn);
     }
   }
 
-  var initQuestList = function() {
-
-    for (var i = 0; i < questList.length; i ++) {
-      var chapter = questList[i];
-
-      var a = $("<a></a>")
-        .addClass("quest-chapter")
-        .click(getClickHandler(chapter.link))
-        .html(chapter.title);
-      var ul = $("<ul></ul>");
-
-      var levels = chapter.levels;
-      for (var j = 0; j < levels.length; j ++) {
-        var level = levels[j];
-        var b = $("<a></a>")
-          .addClass("quest-level")
-          .click(getClickHandler(level.link))
-          .html(level.text);
-        var li = $("<li></li>");
-        li.append(b);
-        ul.append(li);
-      }
-
-      $("#quest-list").append(a);
-      $("#quest-list").append(ul);
+  var hashchange = function(h) {
+    if (!h.match(/#\d+$/))
+      return;
+    var n = parseInt(h.substr(1));
+    for (var i=0; i<n; i++) {
+      $("#btn"+i).removeClass("btn-default")
+                 .removeClass("btn-primary")
+                 .addClass("btn-success");
     }
+    $("#btn"+n).removeClass("btn-default")
+               .removeClass("btn-success")
+               .addClass("btn-primary");
+    for (var i=n+1; i<basicLevels; i++) {
+      $("#btn"+i).removeClass("btn-success")
+                 .removeClass("btn-primary")
+                 .addClass("btn-default");
+    }
+    goTutorial("level"+n+".html");
   }
-
-  var init = function() {
-    initVimOverlay();
-    initQuestList();
-  };
 
   return {
     init: init,
     setVerifier: setVerifier,
+    hashchange: hashchange,
   };
 }
 
-var tutorial = new Tutorial(questListEN);
+var tutorial = new Tutorial();
 

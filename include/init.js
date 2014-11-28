@@ -7,7 +7,6 @@ CodeMirror.commands.save = function() {
 // Initialize vim.
 var editor = CodeMirror.fromTextArea(document.getElementById("vim"), {
   lineNumbers: true,
-  mode: "text/x-csrc",
   vimMode: true,
   matchBrackets: true,
   showCursorWhenSelecting: true,
@@ -16,12 +15,13 @@ var editor = CodeMirror.fromTextArea(document.getElementById("vim"), {
 });
 
 editor.setSize(null, 400);
+editor.setOption("maxHighlightLength", -100);
 
 CodeMirror.Vim.defineOption("nu", true, "boolean", function(value) {
   editor.setOption("lineNumbers", value);
 });
 
-CodeMirror.Vim.defineOption("syntax", true, "boolean", function(value) {
+CodeMirror.Vim.defineOption("syntax", false, "boolean", function(value) {
   if (value) {
     editor.setOption("maxHighlightLength", 10000);
   }

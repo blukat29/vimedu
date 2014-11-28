@@ -1,24 +1,15 @@
 <script>
-$("#vim-large-title").html("Level 2-2");
-$("#vim-small-title").html("Three ways to start insert mode");
 editor.setValue(
 "\n\
-  There are number of ways to enter insert mode.\n\
-  Press 'i' to start writing from the cursor position.\n\
-  Press 'A' to start writing from the end of this line.\n\
-  Press 'o' to create a new line below and write from there.\n\
+Fill in the blanks. (use 'i')\n\
 \n\
-  Now practice time!\n\
+  AAA  CCC DDD EEE FFF GGG HHH\n\
 \n\
-  1. Fill in the blanks. (use 'i')\n\
+Finish the sequence until 10. (use 'A')\n\
 \n\
-    AAA BBB CCC DDD ___ FFF GGG HHH\n\
+  1,2,3,4,5,6,7,8,9,\n\
 \n\
-  2. Finish the sequence until 10. (use 'A')\n\
-\n\
-    1,2,3,4,5,6,7,8,\n\
-\n\
-  3. Insert missing line \"4. Green\". (use 'o')\n\
+Insert missing line \"4. Green\". (use 'o')\n\
 \n\
     1. Red\n\
     2. Orange\n\
@@ -30,19 +21,22 @@ editor.setValue(
 tutorial.setVerifier(function() {
     buffer = editor.getValue();
 
-    if (buffer.match(/DDD EEE FFF/) &&
+    if (buffer.match(/AAA BBB CCC/) &&
         buffer.match(/7,8,9,10/) &&
         buffer.match(/3\. Yellow\s+4\. Green\s+5\. Blue/))
     {
         return true;
     }
     return false;
-}, "level2.html");
+});
 </script>
-
-Key points:<br>
-  <kbd>i</kbd> Start writing from the cursor<br>
-  <kbd>A</kbd> Start writing from the end of line<br>
-  <kbd>o</kbd> Create a new line below. Then start writing from there.<br>
-  <kbd>Esc</kbd> Exit insert mode<br>
-
+<h4><b><u>2. 입력 모드에 들어가는 다른 방법</u></b></h4>
+<p>입력 모드에 들어가는 방법이 <kbd>i</kbd>키만 있는 것이 아닙니다. 상황에 따라 다른 방법으로 입력 모드에 들어갈 수도 있습니다.</p>
+<p>아시다시피, <kbd>i</kbd>를 누르면 입력 모드로 들어갑니다.</p>
+<p>하지만 <kbd>A</kbd>를 누르면 (대문자 A입니다) 커서가 줄 맨 뒤로 이동한 뒤 입력 모드로 들어갑니다.</p>
+<p>또, <kbd>o</kbd>를 누르면 커서 아래에 새 줄이 생기고 그 새 줄에서 입력 모드로 들어갑니다.</p>
+<hr>
+<p><b>연습문제</b></p>
+<p>1. AAA와 CCC 사이에 BBB를 입력하세요.</p>
+<p>2. 10을 입력해서 수열을 완성하세요.</p>
+<p>3. Yellow 아래, Blue 위에 "4. Green"이라고 입력하세요</p>

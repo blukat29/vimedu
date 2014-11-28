@@ -1,39 +1,29 @@
 <script>
-$("#vim-large-title").html("Level 2-1");
-$("#vim-small-title").html("insert mode");
 editor.setValue(
-"\n\
-  To write something in Vim, you must press 'i' key first.\n\
-  Then the Vim goes to the insert mode and you can insert\n\
-  any texts.\n\
-\n\
-  When you are done typing, press 'Esc' key to exit insert\n\
-  mode and come back to the normal mode.\n\
-\n\
-  If you want to save the file (:w), or exit Vim (:q),\n\
-  you exit insert mode first.\n\
-\n\
-  As an exercise, solve these problems.\n\
-\n\
-    1 + 1 = \n\
-    100 * 3 = \n\
-    What is the first color of a rainbow? \n\
+"Write something here:\n\
 \n\
 ");
 tutorial.setVerifier(function() {
     buffer = editor.getValue();
 
-    if (buffer.match(/1 \+ 1 =.*2.*\n/) &&
-        buffer.match(/100 \* 3 =.*300.*\n/) &&
-        buffer.match(/rainbow.*red\n/))
+    if (buffer.length > 25)
     {
         return true;
     }
     return false;
-}, "level1-2.html");
+});
 </script>
-
-Key points:<br>
-  <kbd>i</kbd> Start insert mode<br>
-  <kbd>Esc</kbd> Exit insert mode<br>
-
+<h4><u><b>1. 입력 모드</b></u></h4>
+<p>빔은 세 가지 모드로 구성되어 있습니다. 현재 들어와 있는 모드는 화면 하단에서 확인할 수 있습니다.</p>
+<p><b>명령 모드 (Normal mode)</b>는 빔을 켰을 때 들어가는 모드입니다. 여기서 복사, 붙여넣기, 저장, 종료 등 다양한 명령을 내릴 수 있습니다. 하지만 명령 모드에서는 글을 입력할 수 없습니다.</p>
+<p><b>입력 모드 (Insert mode)</b>에 들어와야 글을 입력할 수 있습니다. 입력 모드는 <kbd>i</kbd>키를 눌러 들어갈 수 있습니다.</p>
+<p><b>선택 모드 (Visual mode)</b>는 나중에 다루기로 하겠습니다.</p>
+<p>입력 모드에서 나와 명령 모드로 가려면 <kbd>Esc</kbd>를 누르면 됩니다.</p>
+<hr>
+<p><b>세 줄 요약</b></p>
+<p>명령 모드에서 <kbd>i</kbd>키를 누르면 입력 모드로 들어가 글을 쓸 수 있다.</p>
+<p>입력 모드에서 <kbd>Esc</kbd>키를 누르면 명령 모드로 돌아온다.</p>
+<p>명령 모드에서 <kbd>:</kbd><kbd>w</kbd>를 순서대로 누르면 저장된다.</p>
+<hr>
+<p><b>연습문제</b></p>
+<p>빔에서 입력 모드로 들어가 아무 글이나 입력하고 명령 모드로 나와서 저장하세요.</p>

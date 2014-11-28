@@ -13,11 +13,10 @@ function Tutorial() {
   };
 
   var verifier = function() { return true; };
-  var nextFile = "basic0.html";
+  var thislevel = 0;
 
-  var setVerifier = function(func, file) {
+  var setVerifier = function(func) {
     verifier = func;
-    nextFile = file;
   };
 
   var clickHandlerFactory = function(i) {
@@ -31,7 +30,7 @@ function Tutorial() {
       var result = verifier();
       if (result) {
         alert("Good job! going to next level.");
-        goTutorial(nextFile);
+        location.hash = "#" + (thislevel+1);
       }
       else {
         alert("Awww.. try again.");
@@ -52,6 +51,7 @@ function Tutorial() {
     if (!h.match(/#\d+$/))
       return;
     var n = parseInt(h.substr(1));
+    thislevel = n;
     for (var i=0; i<n; i++) {
       $("#btn"+i).removeClass("btn-default")
                  .removeClass("btn-primary")

@@ -24,12 +24,10 @@ $(document).ready(function(){
   commandHelper.onKey('<Esc>');
   tutorial.init();
   var h = $(window).height() - 50 - 90;
-  console.log(h);
   editor.setSize(null, h);
 });
 
 $(window).resize(function() {
   var h = $(window).height() - 50 - 90;
-  console.log(h);
   editor.setSize(null, h);
 });
